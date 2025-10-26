@@ -34,10 +34,10 @@ Deno.serve(async (req: Request) => {
     
     const articles: NewsItem[] = [];
     const itemRegex = /<item>(.*?)<\/item>/gs;
-    const titleRegex = /<title><!\[CDATA\[(.*?)\]\]><\/title>/;
-    const linkRegex = /<link>(.*?)<\/link>/;
-    const pubDateRegex = /<pubDate>(.*?)<\/pubDate>/;
-    const sourceRegex = /<source.*?>(.*?)<\/source>/;
+    const titleRegex = /<title>([^<]+)<\/title>/;
+    const linkRegex = /<link>([^<]+)<\/link>/;
+    const pubDateRegex = /<pubDate>([^<]+)<\/pubDate>/;
+    const sourceRegex = /<source[^>]*>([^<]+)<\/source>/;
     
     let match;
     while ((match = itemRegex.exec(xmlText)) !== null) {
