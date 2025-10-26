@@ -188,14 +188,7 @@ export default function AdminTrades() {
                   const isPositive = gain >= 0;
 
                   return (
-                    <tr
-                      key={trade.id}
-                      className={`hover:bg-slate-50 transition ${
-                        isPositive
-                          ? 'outline outline-2 outline-emerald-500'
-                          : 'outline outline-2 outline-red-500'
-                      }`}
-                    >
+                    <tr key={trade.id} className="hover:bg-slate-50 transition">
                       <td className="px-6 py-4">
                         <span
                           className={`inline-flex px-2 py-1 rounded-full text-xs font-medium ${
@@ -208,7 +201,15 @@ export default function AdminTrades() {
                         </span>
                       </td>
                       <td className="px-6 py-4">
-                        <span className="font-bold text-slate-900">{trade.symbol}</span>
+                        <span
+                          className={`font-bold px-3 py-1 rounded border-2 ${
+                            isPositive
+                              ? 'text-emerald-700 border-emerald-500 bg-emerald-50'
+                              : 'text-red-700 border-red-500 bg-red-50'
+                          }`}
+                        >
+                          {trade.symbol}
+                        </span>
                       </td>
                       <td className="px-6 py-4 text-slate-600">{trade.company_name}</td>
                       <td className="px-6 py-4 text-right text-slate-900">
