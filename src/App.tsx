@@ -6,6 +6,7 @@ import Portfolio from './pages/Portfolio';
 import Community from './pages/Community';
 import News from './pages/News';
 import About from './pages/About';
+import AdminTrades from './pages/AdminTrades';
 
 function AppContent() {
   const { user, loading } = useAuth();
@@ -36,6 +37,8 @@ function AppContent() {
         return <News />;
       case 'about':
         return <About />;
+      case 'admin-trades':
+        return <AdminTrades />;
       default:
         return <Portfolio />;
     }

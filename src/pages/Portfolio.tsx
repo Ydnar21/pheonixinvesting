@@ -1,26 +1,85 @@
-import { useState } from 'react';
-import { TrendingUp, DollarSign, Percent, BarChart3, ExternalLink } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { TrendingUp, DollarSign, Percent, BarChart3 } from 'lucide-react';
+import { supabase } from '../lib/supabase';
+import { useAuth } from '../context/AuthContext';
+
+interface Trade {
+  id: string;
+  trade_type: string;
+  symbol: string;
+  company_name: string;
+  quantity: number;
+  cost_basis: number;
+  current_price: number;
+  option_expiration?: string;
+  option_type?: string;
+  strike_price?: number;
+}
 
 export default function Portfolio() {
-  const [isConnected] = useState(false);
+  const { user } = useAuth();
+  const [trades, setTrades] = useState<Trade[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const demoData = {
-    totalValue: 45678.32,
-    dayChange: 234.56,
-    dayChangePercent: 0.52,
-    positions: [
-      { symbol: 'AAPL', name: 'Apple Inc.', shares: 10, avgCost: 175.32, currentPrice: 182.45, value: 1824.50 },
-      { symbol: 'TSLA', name: 'Tesla Inc.', shares: 5, avgCost: 245.67, currentPrice: 258.34, value: 1291.70 },
-      { symbol: 'MSFT', name: 'Microsoft Corp.', shares: 8, avgCost: 340.12, currentPrice: 352.89, value: 2823.12 },
-      { symbol: 'NVDA', name: 'NVIDIA Corp.', shares: 15, avgCost: 480.23, currentPrice: 495.67, value: 7435.05 },
-    ],
+  useEffect(() => {
+    if (user) {
+      loadTrades();
+    } else {
+      setLoading(false);
+    }
+  }, [user]);
+
+  const loadTrades = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('user_trades')
+        .select('*')
+        .eq('user_id', user?.id)
+        .order('created_at', { ascending: false });
+
+      if (!error && data) {
+        setTrades(data);
+      }
+    } catch (error) {
+      console.error('Error loading trades:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const calculateGainLoss = (shares: number, avgCost: number, currentPrice: number) => {
-    const gain = (currentPrice - avgCost) * shares;
-    const gainPercent = ((currentPrice - avgCost) / avgCost) * 100;
+  const calculateGainLoss = (quantity: number, costBasis: number, currentPrice: number) => {
+    const gain = (currentPrice - costBasis) * quantity;
+    const gainPercent = ((currentPrice - costBasis) / costBasis) * 100;
     return { gain, gainPercent };
   };
+
+  const calculateTotalValue = () => {
+    return trades.reduce((sum, trade) => sum + (trade.current_price * trade.quantity), 0);
+  };
+
+  const calculateTotalGain = () => {
+    return trades.reduce((sum, trade) => {
+      const { gain } = calculateGainLoss(trade.quantity, trade.cost_basis, trade.current_price);
+      return sum + gain;
+    }, 0);
+  };
+
+  const totalValue = calculateTotalValue();
+  const totalGain = calculateTotalGain();
+  const totalGainPercent = trades.length > 0
+    ? (totalGain / (totalValue - totalGain)) * 100
+    : 0;
+
+  if (!user) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="bg-slate-50 border border-slate-200 rounded-xl p-8 text-center">
+          <h2 className="text-2xl font-bold text-slate-900 mb-2">Sign In Required</h2>
+          <p className="text-slate-600">Please sign in to view your portfolio.</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -29,44 +88,6 @@ export default function Portfolio() {
         <p className="text-slate-600">Track your investments and monitor performance</p>
       </div>
 
-      {!isConnected && (
-        <div className="bg-amber-50 border border-amber-200 rounded-xl p-6 mb-8">
-          <div className="flex items-start space-x-4">
-            <div className="bg-amber-100 p-3 rounded-lg">
-              <ExternalLink className="w-6 h-6 text-amber-600" />
-            </div>
-            <div className="flex-1">
-              <h3 className="text-lg font-semibold text-amber-900 mb-2">
-                Connect Your Robinhood Account
-              </h3>
-              <p className="text-amber-800 mb-4">
-                Link your Robinhood account with read-only access to automatically sync your portfolio data, positions, and account value in real-time.
-              </p>
-              <button
-                className="bg-emerald-500 hover:bg-emerald-600 text-white font-semibold px-6 py-2.5 rounded-lg transition"
-                disabled
-                title="Integration requires Plaid or similar secure financial API service"
-              >
-                Connect Robinhood (Coming Soon)
-              </button>
-              <div className="mt-4 space-y-2">
-                <p className="text-sm text-amber-700 font-medium">
-                  Currently showing demo data. Connect your account to view your real portfolio.
-                </p>
-                <div className="bg-white/50 rounded-lg p-3 text-sm text-amber-800">
-                  <p className="font-semibold mb-1">Security Note:</p>
-                  <p>
-                    Robinhood integration will use OAuth 2.0 through Plaid or similar secure financial aggregation services,
-                    ensuring read-only access without storing your credentials. Your login information is never shared with
-                    or stored by this application.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200">
           <div className="flex items-center justify-between mb-2">
@@ -74,27 +95,27 @@ export default function Portfolio() {
             <DollarSign className="w-5 h-5 text-emerald-500" />
           </div>
           <div className="text-3xl font-bold text-slate-900">
-            ${demoData.totalValue.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+            ${totalValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </div>
         </div>
 
         <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-slate-600 text-sm font-medium">Today's Change</span>
-            <TrendingUp className="w-5 h-5 text-emerald-500" />
+            <span className="text-slate-600 text-sm font-medium">Total Gain/Loss</span>
+            <TrendingUp className={`w-5 h-5 ${totalGain >= 0 ? 'text-emerald-500' : 'text-red-500'}`} />
           </div>
-          <div className="text-3xl font-bold text-emerald-600">
-            +${demoData.dayChange.toFixed(2)}
+          <div className={`text-3xl font-bold ${totalGain >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+            {totalGain >= 0 ? '+' : ''}${totalGain.toFixed(2)}
           </div>
         </div>
 
         <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-slate-600 text-sm font-medium">Today's Return</span>
-            <Percent className="w-5 h-5 text-emerald-500" />
+            <span className="text-slate-600 text-sm font-medium">Total Return</span>
+            <Percent className={`w-5 h-5 ${totalGain >= 0 ? 'text-emerald-500' : 'text-red-500'}`} />
           </div>
-          <div className="text-3xl font-bold text-emerald-600">
-            +{demoData.dayChangePercent.toFixed(2)}%
+          <div className={`text-3xl font-bold ${totalGain >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+            {totalGain >= 0 ? '+' : ''}{totalGainPercent.toFixed(2)}%
           </div>
         </div>
       </div>
@@ -107,58 +128,93 @@ export default function Portfolio() {
           </div>
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-slate-50">
-              <tr>
-                <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700">Symbol</th>
-                <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700">Company</th>
-                <th className="text-right px-6 py-4 text-sm font-semibold text-slate-700">Shares</th>
-                <th className="text-right px-6 py-4 text-sm font-semibold text-slate-700">Avg Cost</th>
-                <th className="text-right px-6 py-4 text-sm font-semibold text-slate-700">Current Price</th>
-                <th className="text-right px-6 py-4 text-sm font-semibold text-slate-700">Total Value</th>
-                <th className="text-right px-6 py-4 text-sm font-semibold text-slate-700">Gain/Loss</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-200">
-              {demoData.positions.map((position) => {
-                const { gain, gainPercent } = calculateGainLoss(
-                  position.shares,
-                  position.avgCost,
-                  position.currentPrice
-                );
-                const isPositive = gain >= 0;
+        {loading ? (
+          <div className="p-12 text-center text-slate-600">Loading positions...</div>
+        ) : trades.length === 0 ? (
+          <div className="p-12 text-center text-slate-600">
+            No positions yet. An admin can add trades to your portfolio.
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-slate-50">
+                <tr>
+                  <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700">Type</th>
+                  <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700">Symbol</th>
+                  <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700">Company</th>
+                  <th className="text-right px-6 py-4 text-sm font-semibold text-slate-700">Quantity</th>
+                  <th className="text-right px-6 py-4 text-sm font-semibold text-slate-700">Avg Cost</th>
+                  <th className="text-right px-6 py-4 text-sm font-semibold text-slate-700">Current Price</th>
+                  <th className="text-right px-6 py-4 text-sm font-semibold text-slate-700">Total Value</th>
+                  <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700">Details</th>
+                  <th className="text-right px-6 py-4 text-sm font-semibold text-slate-700">Gain/Loss</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-200">
+                {trades.map((trade) => {
+                  const { gain, gainPercent } = calculateGainLoss(
+                    trade.quantity,
+                    trade.cost_basis,
+                    trade.current_price
+                  );
+                  const isPositive = gain >= 0;
+                  const totalValue = trade.current_price * trade.quantity;
 
-                return (
-                  <tr key={position.symbol} className="hover:bg-slate-50 transition">
-                    <td className="px-6 py-4">
-                      <span className="font-bold text-slate-900">{position.symbol}</span>
-                    </td>
-                    <td className="px-6 py-4 text-slate-600">{position.name}</td>
-                    <td className="px-6 py-4 text-right text-slate-900">{position.shares}</td>
-                    <td className="px-6 py-4 text-right text-slate-600">
-                      ${position.avgCost.toFixed(2)}
-                    </td>
-                    <td className="px-6 py-4 text-right text-slate-900 font-medium">
-                      ${position.currentPrice.toFixed(2)}
-                    </td>
-                    <td className="px-6 py-4 text-right text-slate-900 font-semibold">
-                      ${position.value.toFixed(2)}
-                    </td>
-                    <td className="px-6 py-4 text-right">
-                      <div className={`font-semibold ${isPositive ? 'text-emerald-600' : 'text-red-600'}`}>
-                        {isPositive ? '+' : ''}${gain.toFixed(2)}
-                      </div>
-                      <div className={`text-sm ${isPositive ? 'text-emerald-600' : 'text-red-600'}`}>
-                        {isPositive ? '+' : ''}{gainPercent.toFixed(2)}%
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+                  return (
+                    <tr key={trade.id} className="hover:bg-slate-50 transition">
+                      <td className="px-6 py-4">
+                        <span
+                          className={`inline-flex px-2 py-1 rounded-full text-xs font-medium ${
+                            trade.trade_type === 'stock'
+                              ? 'bg-blue-100 text-blue-700'
+                              : 'bg-purple-100 text-purple-700'
+                          }`}
+                        >
+                          {trade.trade_type.toUpperCase()}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className="font-bold text-slate-900">{trade.symbol}</span>
+                      </td>
+                      <td className="px-6 py-4 text-slate-600">{trade.company_name}</td>
+                      <td className="px-6 py-4 text-right text-slate-900">
+                        {trade.quantity}
+                        {trade.trade_type === 'option' && ' contracts'}
+                      </td>
+                      <td className="px-6 py-4 text-right text-slate-600">
+                        ${trade.cost_basis.toFixed(2)}
+                      </td>
+                      <td className="px-6 py-4 text-right text-slate-900 font-medium">
+                        ${trade.current_price.toFixed(2)}
+                      </td>
+                      <td className="px-6 py-4 text-right text-slate-900 font-semibold">
+                        ${totalValue.toFixed(2)}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-slate-600">
+                        {trade.trade_type === 'option' && (
+                          <div>
+                            <div className="font-medium">
+                              ${trade.strike_price} {trade.option_type?.toUpperCase()}
+                            </div>
+                            <div className="text-xs">Exp: {trade.option_expiration}</div>
+                          </div>
+                        )}
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                        <div className={`font-semibold ${isPositive ? 'text-emerald-600' : 'text-red-600'}`}>
+                          {isPositive ? '+' : ''}${gain.toFixed(2)}
+                        </div>
+                        <div className={`text-sm ${isPositive ? 'text-emerald-600' : 'text-red-600'}`}>
+                          {isPositive ? '+' : ''}{gainPercent.toFixed(2)}%
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
     </div>
   );
