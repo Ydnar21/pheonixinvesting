@@ -34,7 +34,12 @@ export default function News() {
       }
 
       const data = await response.json();
-      setArticles(data.articles || []);
+      const sortedArticles = (data.articles || []).sort((a: NewsArticle, b: NewsArticle) => {
+        const dateA = new Date(a.publishedAt).getTime();
+        const dateB = new Date(b.publishedAt).getTime();
+        return dateB - dateA;
+      });
+      setArticles(sortedArticles);
     } catch (err) {
       console.error('Error fetching news:', err);
       setError('Unable to load news. Please try again later.');
