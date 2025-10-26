@@ -42,12 +42,26 @@ export default function Portfolio() {
               <p className="text-amber-800 mb-4">
                 Link your Robinhood account with read-only access to automatically sync your portfolio data, positions, and account value in real-time.
               </p>
-              <button className="bg-emerald-500 hover:bg-emerald-600 text-white font-semibold px-6 py-2.5 rounded-lg transition">
-                Connect Robinhood
+              <button
+                className="bg-emerald-500 hover:bg-emerald-600 text-white font-semibold px-6 py-2.5 rounded-lg transition"
+                disabled
+                title="Integration requires Plaid or similar secure financial API service"
+              >
+                Connect Robinhood (Coming Soon)
               </button>
-              <p className="text-sm text-amber-700 mt-3">
-                Currently showing demo data. Connect your account to view your real portfolio.
-              </p>
+              <div className="mt-4 space-y-2">
+                <p className="text-sm text-amber-700 font-medium">
+                  Currently showing demo data. Connect your account to view your real portfolio.
+                </p>
+                <div className="bg-white/50 rounded-lg p-3 text-sm text-amber-800">
+                  <p className="font-semibold mb-1">Security Note:</p>
+                  <p>
+                    Robinhood integration will use OAuth 2.0 through Plaid or similar secure financial aggregation services,
+                    ensuring read-only access without storing your credentials. Your login information is never shared with
+                    or stored by this application.
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
