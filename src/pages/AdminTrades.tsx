@@ -182,8 +182,20 @@ export default function AdminTrades() {
               </thead>
               <tbody className="divide-y divide-slate-200">
                 {trades.map((trade) => {
+                  const gain = trade.trade_type === 'option'
+                    ? ((trade.current_price - trade.cost_basis) * 100 * trade.quantity)
+                    : ((trade.current_price - trade.cost_basis) * trade.quantity);
+                  const isPositive = gain >= 0;
+
                   return (
-                    <tr key={trade.id} className="hover:bg-slate-50 transition">
+                    <tr
+                      key={trade.id}
+                      className={`hover:bg-slate-50 transition ${
+                        isPositive
+                          ? 'border-l-4 border-l-emerald-500'
+                          : 'border-l-4 border-l-red-500'
+                      }`}
+                    >
                       <td className="px-6 py-4">
                         <span
                           className={`inline-flex px-2 py-1 rounded-full text-xs font-medium ${

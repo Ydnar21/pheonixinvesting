@@ -170,7 +170,14 @@ export default function Portfolio() {
                   const isPositive = gain >= 0;
 
                   return (
-                    <tr key={trade.id} className="hover:bg-slate-50 transition">
+                    <tr
+                      key={trade.id}
+                      className={`hover:bg-slate-50 transition ${
+                        isPositive
+                          ? 'border-l-4 border-l-emerald-500'
+                          : 'border-l-4 border-l-red-500'
+                      }`}
+                    >
                       <td className="px-6 py-4">
                         <span
                           className={`inline-flex px-2 py-1 rounded-full text-xs font-medium ${
