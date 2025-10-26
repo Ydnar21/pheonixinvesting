@@ -47,10 +47,10 @@ export default function Auth() {
           </div>
 
           <h2 className="text-3xl font-bold text-center text-slate-900 mb-2">
-            {isSignUp ? 'Create Account' : 'Welcome Back'}
+            {isSignUp ? 'Join LiquidPhoenixInvesting' : 'Welcome Back'}
           </h2>
           <p className="text-center text-slate-600 mb-8">
-            {isSignUp ? 'Join the investment community' : 'Sign in to your account'}
+            {isSignUp ? 'Create your account to get started' : 'Sign in to your account'}
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-5">
@@ -128,6 +128,10 @@ export default function Auth() {
               {isSignUp ? 'Already have an account? Sign in' : "Don't have an account? Sign up"}
             </button>
           </div>
+        </div>
+
+        <div className="mt-6 text-center text-slate-400 text-sm">
+          <p>LiquidPhoenixInvesting - Track Your Investment Journey</p>
         </div>
       </div>
     </div>

@@ -4,10 +4,10 @@ export default function About() {
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="text-center mb-12">
-        <div className="inline-flex items-center justify-center bg-emerald-500 p-4 rounded-2xl mb-6">
+        <div className="inline-flex items-center justify-center bg-gradient-to-br from-emerald-500 to-emerald-600 p-4 rounded-2xl mb-6">
           <TrendingUp className="w-12 h-12 text-white" />
         </div>
-        <h1 className="text-4xl font-bold text-slate-900 mb-4">About My Portfolio</h1>
+        <h1 className="text-4xl font-bold text-slate-900 mb-4">About LiquidPhoenixInvesting</h1>
         <p className="text-xl text-slate-600 max-w-3xl mx-auto">
           A personal investment tracking platform with portfolio monitoring, community insights, and market news
         </p>
@@ -16,11 +16,11 @@ export default function About() {
       <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 mb-12">
         <h2 className="text-2xl font-bold text-slate-900 mb-4">What This Is</h2>
         <p className="text-slate-700 text-lg leading-relaxed mb-4">
-          This is a personal portfolio tracking website designed to monitor my investments and share insights with the community.
+          LiquidPhoenixInvesting is a personal portfolio tracking website designed to monitor investments and share insights with the community.
           The platform provides real-time visibility into portfolio performance, positions, and returns.
         </p>
         <p className="text-slate-700 text-lg leading-relaxed">
-          Visitors can view my portfolio performance, read stock discussions and insights I share in the community section,
+          Visitors can view portfolio performance, read stock discussions and insights shared in the community section,
           and stay informed about market trends through the curated news feed.
         </p>
       </div>
@@ -109,7 +109,7 @@ export default function About() {
       <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 text-center">
         <h2 className="text-2xl font-bold text-slate-900 mb-4">Transparent Investing</h2>
         <p className="text-slate-600 text-lg mb-6 max-w-2xl mx-auto">
-          This platform provides full transparency into my investment portfolio and strategy.
+          This platform provides full transparency into the investment portfolio and strategy.
           All positions, performance metrics, and insights are shared openly with the community.
         </p>
       </div>

@@ -28,7 +28,7 @@ export default function Navbar({ currentPage, onNavigate }: NavbarProps) {
               <div className="bg-emerald-500 p-2 rounded-lg group-hover:bg-emerald-600 transition">
                 <TrendingUp className="w-5 h-5 text-white" />
               </div>
-              <span className="text-xl font-bold text-slate-900">My Portfolio</span>
+              <span className="text-xl font-bold text-slate-900">LiquidPhoenixInvesting</span>
             </button>
 
             <div className="hidden md:flex space-x-1">
