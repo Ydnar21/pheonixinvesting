@@ -10,6 +10,7 @@ export type Profile = {
   username: string;
   avatar_url: string | null;
   bio: string | null;
+  is_admin: boolean;
   created_at: string;
   updated_at: string;
 };
@@ -22,6 +23,23 @@ export type StockPost = {
   title: string;
   content: string;
   sentiment: 'bullish' | 'bearish' | 'neutral';
+  submission_id: string | null;
+  created_at: string;
+  updated_at: string;
+  profiles?: Profile;
+};
+
+export type StockSubmission = {
+  id: string;
+  user_id: string;
+  stock_symbol: string;
+  stock_name: string;
+  title: string;
+  content: string;
+  sentiment: 'bullish' | 'bearish' | 'neutral';
+  status: 'pending' | 'approved' | 'rejected';
+  reviewed_by: string | null;
+  reviewed_at: string | null;
   created_at: string;
   updated_at: string;
   profiles?: Profile;
