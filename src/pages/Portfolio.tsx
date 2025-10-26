@@ -224,7 +224,7 @@ export default function Portfolio() {
                       </td>
                       <td className="px-6 py-4 text-right">
                         <div className={`font-semibold ${isPositive ? 'text-emerald-600' : 'text-red-600'}`}>
-                          {isPositive ? '+' : ''}${gain.toFixed(2)}
+                          {isPositive ? '+' : ''}${gain.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                         </div>
                         <div className={`text-sm ${isPositive ? 'text-emerald-600' : 'text-red-600'}`}>
                           {isPositive ? '+' : ''}{gainPercent.toFixed(2)}%
