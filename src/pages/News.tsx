@@ -1,13 +1,11 @@
 import { useState, useEffect } from 'react';
-import { Newspaper, ExternalLink, Clock, RefreshCw, AlertCircle } from 'lucide-react';
+import { Newspaper, ExternalLink, RefreshCw, AlertCircle, Clock } from 'lucide-react';
 
 type NewsArticle = {
   title: string;
-  description: string;
   url: string;
   source: string;
   publishedAt: string;
-  imageUrl: string | null;
 };
 
 export default function News() {
@@ -52,40 +50,24 @@ export default function News() {
   };
 
   const getTimeAgo = (dateString: string) => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffInMs = now.getTime() - date.getTime();
-    const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60));
-    const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
+    try {
+      const date = new Date(dateString);
+      const now = new Date();
+      const diffInMs = now.getTime() - date.getTime();
+      const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60));
+      const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
 
-    if (diffInMinutes < 60) {
-      return `${diffInMinutes} minute${diffInMinutes !== 1 ? 's' : ''} ago`;
-    } else if (diffInHours < 24) {
-      return `${diffInHours} hour${diffInHours !== 1 ? 's' : ''} ago`;
-    } else {
-      const diffInDays = Math.floor(diffInHours / 24);
-      return `${diffInDays} day${diffInDays !== 1 ? 's' : ''} ago`;
+      if (diffInMinutes < 60) {
+        return `${diffInMinutes}m ago`;
+      } else if (diffInHours < 24) {
+        return `${diffInHours}h ago`;
+      } else {
+        const diffInDays = Math.floor(diffInHours / 24);
+        return `${diffInDays}d ago`;
+      }
+    } catch {
+      return 'Recently';
     }
-  };
-
-  const getCategoryFromSource = (source: string): string => {
-    const lowerSource = source.toLowerCase();
-    if (lowerSource.includes('tech') || lowerSource.includes('wired')) return 'Technology';
-    if (lowerSource.includes('crypto') || lowerSource.includes('coin')) return 'Crypto';
-    if (lowerSource.includes('energy')) return 'Energy';
-    if (lowerSource.includes('health')) return 'Healthcare';
-    return 'Economy';
-  };
-
-  const getCategoryColor = (category: string) => {
-    const colors: { [key: string]: string } = {
-      Economy: 'bg-blue-100 text-blue-700',
-      Technology: 'bg-emerald-100 text-emerald-700',
-      Energy: 'bg-orange-100 text-orange-700',
-      Healthcare: 'bg-rose-100 text-rose-700',
-      Crypto: 'bg-violet-100 text-violet-700',
-    };
-    return colors[category] || 'bg-slate-100 text-slate-700';
   };
 
   if (loading) {
@@ -103,8 +85,8 @@ export default function News() {
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="mb-8 flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-slate-900 mb-2">Financial News</h1>
-          <p className="text-slate-600">Stay updated with the latest market developments and trends</p>
+          <h1 className="text-3xl font-bold text-slate-900 mb-2">Market News</h1>
+          <p className="text-slate-600">Latest financial news from Google News</p>
         </div>
         <button
           onClick={handleRefresh}
@@ -132,8 +114,8 @@ export default function News() {
         </div>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 space-y-6">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        <div className="lg:col-span-3">
           {articles.length === 0 ? (
             <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-12 text-center">
               <Newspaper className="w-16 h-16 text-slate-300 mx-auto mb-4" />
@@ -141,50 +123,45 @@ export default function News() {
               <p className="text-slate-500 text-sm mt-2">Check back later for updates</p>
             </div>
           ) : (
-            articles.map((article, index) => {
-              const category = getCategoryFromSource(article.source);
-              return (
-                <article
-                  key={index}
-                  className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 hover:shadow-md transition"
-                >
-                  <div className="flex items-start justify-between mb-3">
-                    <span
-                      className={`text-xs font-semibold px-3 py-1 rounded-full ${getCategoryColor(
-                        category
-                      )}`}
-                    >
-                      {category}
-                    </span>
-                    <div className="flex items-center space-x-1 text-slate-500 text-sm">
-                      <Clock className="w-4 h-4" />
-                      <span>{getTimeAgo(article.publishedAt)}</span>
-                    </div>
-                  </div>
-
-                  <h2 className="text-xl font-bold text-slate-900 mb-2 hover:text-emerald-600 transition">
-                    {article.title}
+            <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+              <div className="border-b border-slate-200 bg-slate-50 px-6 py-4">
+                <div className="flex items-center space-x-2">
+                  <Newspaper className="w-5 h-5 text-emerald-600" />
+                  <h2 className="text-lg font-bold text-slate-900">
+                    Latest Headlines ({articles.length})
                   </h2>
+                </div>
+              </div>
 
-                  {article.description && (
-                    <p className="text-slate-600 mb-4 leading-relaxed">{article.description}</p>
-                  )}
-
-                  <div className="flex items-center justify-between pt-4 border-t border-slate-200">
-                    <span className="text-sm font-medium text-slate-700">{article.source}</span>
-                    <a
-                      href={article.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center space-x-1 text-emerald-600 hover:text-emerald-700 font-medium text-sm transition"
-                    >
-                      <span>Read more</span>
-                      <ExternalLink className="w-4 h-4" />
-                    </a>
-                  </div>
-                </article>
-              );
-            })
+              <div className="divide-y divide-slate-200">
+                {articles.map((article, index) => (
+                  <a
+                    key={index}
+                    href={article.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block px-6 py-4 hover:bg-slate-50 transition group"
+                  >
+                    <div className="flex items-start justify-between space-x-4">
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-slate-900 font-medium group-hover:text-emerald-600 transition mb-2 leading-snug">
+                          {article.title}
+                        </h3>
+                        <div className="flex items-center space-x-3 text-sm text-slate-500">
+                          <span className="font-medium">{article.source}</span>
+                          <span>•</span>
+                          <div className="flex items-center space-x-1">
+                            <Clock className="w-3.5 h-3.5" />
+                            <span>{getTimeAgo(article.publishedAt)}</span>
+                          </div>
+                        </div>
+                      </div>
+                      <ExternalLink className="w-4 h-4 text-slate-400 group-hover:text-emerald-600 transition flex-shrink-0 mt-1" />
+                    </div>
+                  </a>
+                ))}
+              </div>
+            </div>
           )}
         </div>
 
@@ -192,59 +169,43 @@ export default function News() {
           <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
             <div className="flex items-center space-x-2 mb-4">
               <Newspaper className="w-5 h-5 text-emerald-600" />
-              <h3 className="text-lg font-bold text-slate-900">Market Overview</h3>
+              <h3 className="text-lg font-bold text-slate-900">About</h3>
             </div>
-
-            <div className="space-y-4">
-              <div className="pb-4 border-b border-slate-200">
-                <div className="flex justify-between items-center">
-                  <span className="text-slate-700 font-medium">S&P 500</span>
-                  <span className="text-emerald-600 font-bold">Live</span>
-                </div>
-                <div className="text-sm text-slate-500 mt-1">Check financial sites for real-time data</div>
-              </div>
-
-              <div className="pb-4 border-b border-slate-200">
-                <div className="flex justify-between items-center">
-                  <span className="text-slate-700 font-medium">Nasdaq</span>
-                  <span className="text-emerald-600 font-bold">Live</span>
-                </div>
-                <div className="text-sm text-slate-500 mt-1">Check financial sites for real-time data</div>
-              </div>
-
-              <div>
-                <div className="flex justify-between items-center">
-                  <span className="text-slate-700 font-medium">Dow Jones</span>
-                  <span className="text-emerald-600 font-bold">Live</span>
-                </div>
-                <div className="text-sm text-slate-500 mt-1">Check financial sites for real-time data</div>
-              </div>
-            </div>
+            <p className="text-slate-600 text-sm leading-relaxed">
+              This news feed aggregates the latest financial and market news from Google News, updated
+              in real-time to keep you informed about market movements, economic developments, and
+              investment opportunities.
+            </p>
           </div>
 
           <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-            <h3 className="text-lg font-bold text-slate-900 mb-4">News Sources</h3>
-            <div className="space-y-2 text-sm text-slate-600">
-              <p>Real-time news from:</p>
-              <ul className="list-disc list-inside space-y-1 text-slate-700">
-                <li>Financial Times</li>
-                <li>Bloomberg</li>
-                <li>Reuters</li>
-                <li>Wall Street Journal</li>
-                <li>CNBC</li>
-                <li>MarketWatch</li>
-              </ul>
+            <h3 className="text-lg font-bold text-slate-900 mb-4">Popular Topics</h3>
+            <div className="space-y-2">
+              {[
+                'Stock Market',
+                'Finance',
+                'Investing',
+                'Wall Street',
+                'Economy',
+              ].map((topic, index) => (
+                <div
+                  key={index}
+                  className="flex items-center space-x-2 text-sm text-slate-700"
+                >
+                  <div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
+                  <span>{topic}</span>
+                </div>
+              ))}
             </div>
           </div>
 
           <div className="bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl shadow-sm p-6 text-white">
-            <h3 className="text-lg font-bold mb-2">Stay Informed</h3>
-            <p className="text-emerald-50 text-sm mb-4">
-              Get real-time market updates and breaking news delivered to your inbox.
+            <Newspaper className="w-8 h-8 mb-3 opacity-90" />
+            <h3 className="text-lg font-bold mb-2">Stay Updated</h3>
+            <p className="text-emerald-50 text-sm leading-relaxed">
+              Refresh this page regularly to get the latest market news and stay ahead of market
+              trends.
             </p>
-            <button className="w-full bg-white text-emerald-600 font-semibold py-2.5 rounded-lg hover:bg-emerald-50 transition">
-              Subscribe to Newsletter
-            </button>
           </div>
         </div>
       </div>

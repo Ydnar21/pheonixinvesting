@@ -6,15 +6,11 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Client-Info, Apikey',
 };
 
-interface NewsArticle {
+interface NewsItem {
   title: string;
-  description: string;
   url: string;
-  source: {
-    name: string;
-  };
+  source: string;
   publishedAt: string;
-  urlToImage: string;
 }
 
 Deno.serve(async (req: Request) => {
@@ -26,31 +22,43 @@ Deno.serve(async (req: Request) => {
   }
 
   try {
-    const newsApiUrl = 'https://newsapi.org/v2/everything';
-    const params = new URLSearchParams({
-      q: 'stock market OR finance OR wall street OR investing',
-      language: 'en',
-      sortBy: 'publishedAt',
-      pageSize: '20',
-      apiKey: 'bc0c9f39ea084a9cb1af9ec1e5be9f71',
-    });
-
-    const response = await fetch(`${newsApiUrl}?${params}`);
+    const googleFinanceRss = 'https://news.google.com/rss/search?q=stock+market+OR+finance+OR+investing+when:1d&hl=en-US&gl=US&ceid=US:en';
+    
+    const response = await fetch(googleFinanceRss);
     
     if (!response.ok) {
-      throw new Error(`NewsAPI error: ${response.statusText}`);
+      throw new Error(`Failed to fetch Google News RSS: ${response.statusText}`);
     }
 
-    const data = await response.json();
+    const xmlText = await response.text();
     
-    const articles = data.articles?.map((article: NewsArticle) => ({
-      title: article.title,
-      description: article.description,
-      url: article.url,
-      source: article.source.name,
-      publishedAt: article.publishedAt,
-      imageUrl: article.urlToImage,
-    })) || [];
+    const articles: NewsItem[] = [];
+    const itemRegex = /<item>(.*?)<\/item>/gs;
+    const titleRegex = /<title><!\[CDATA\[(.*?)\]\]><\/title>/;
+    const linkRegex = /<link>(.*?)<\/link>/;
+    const pubDateRegex = /<pubDate>(.*?)<\/pubDate>/;
+    const sourceRegex = /<source.*?>(.*?)<\/source>/;
+    
+    let match;
+    while ((match = itemRegex.exec(xmlText)) !== null) {
+      const itemContent = match[1];
+      
+      const titleMatch = titleRegex.exec(itemContent);
+      const linkMatch = linkRegex.exec(itemContent);
+      const pubDateMatch = pubDateRegex.exec(itemContent);
+      const sourceMatch = sourceRegex.exec(itemContent);
+      
+      if (titleMatch && linkMatch) {
+        articles.push({
+          title: titleMatch[1].trim(),
+          url: linkMatch[1].trim(),
+          source: sourceMatch ? sourceMatch[1].trim() : 'Google News',
+          publishedAt: pubDateMatch ? pubDateMatch[1].trim() : new Date().toISOString(),
+        });
+      }
+      
+      if (articles.length >= 25) break;
+    }
 
     return new Response(
       JSON.stringify({ articles }),
