@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { TrendingUp, DollarSign, Percent, BarChart3 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
+import TradeDetailModal from '../components/TradeDetailModal';
 
 interface Trade {
   id: string;
@@ -15,12 +16,16 @@ interface Trade {
   option_type?: string;
   strike_price?: number;
   break_even_price?: number;
+  dd_summary?: string;
+  price_targets?: string;
+  dd_updated_at?: string;
 }
 
 export default function Portfolio() {
   const { user } = useAuth();
   const [trades, setTrades] = useState<Trade[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedTrade, setSelectedTrade] = useState<Trade | null>(null);
 
   useEffect(() => {
     if (user) {
@@ -170,7 +175,11 @@ export default function Portfolio() {
                   const isPositive = gain >= 0;
 
                   return (
-                    <tr key={trade.id} className="hover:bg-slate-50 transition">
+                    <tr
+                      key={trade.id}
+                      onClick={() => setSelectedTrade(trade)}
+                      className="hover:bg-slate-50 transition cursor-pointer"
+                    >
                       <td className="px-6 py-4">
                         <span
                           className={`inline-flex px-2 py-1 rounded-full text-xs font-medium ${
@@ -238,6 +247,16 @@ export default function Portfolio() {
           </div>
         )}
       </div>
+
+      {selectedTrade && (
+        <TradeDetailModal
+          trade={selectedTrade}
+          onClose={() => setSelectedTrade(null)}
+          gain={calculateGainLoss(selectedTrade).gain}
+          gainPercent={calculateGainLoss(selectedTrade).gainPercent}
+          totalValue={calculateGainLoss(selectedTrade).totalValue}
+        />
+      )}
     </div>
   );
 }

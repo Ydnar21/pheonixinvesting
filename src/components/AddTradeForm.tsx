@@ -19,6 +19,8 @@ interface Trade {
   option_type?: string;
   strike_price?: number;
   break_even_price?: number;
+  dd_summary?: string;
+  price_targets?: string;
 }
 
 interface AddTradeFormProps {
@@ -39,6 +41,8 @@ export default function AddTradeForm({ users, onSuccess, onCancel, editingTrade 
   const [optionType, setOptionType] = useState<'call' | 'put'>('call');
   const [strikePrice, setStrikePrice] = useState('');
   const [breakEvenPrice, setBreakEvenPrice] = useState('');
+  const [ddSummary, setDdSummary] = useState('');
+  const [priceTargets, setPriceTargets] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
 
@@ -62,6 +66,12 @@ export default function AddTradeForm({ users, onSuccess, onCancel, editingTrade 
       if (editingTrade.break_even_price) {
         setBreakEvenPrice(editingTrade.break_even_price.toString());
       }
+      if (editingTrade.dd_summary) {
+        setDdSummary(editingTrade.dd_summary);
+      }
+      if (editingTrade.price_targets) {
+        setPriceTargets(editingTrade.price_targets);
+      }
     }
   }, [editingTrade]);
 
@@ -84,6 +94,9 @@ export default function AddTradeForm({ users, onSuccess, onCancel, editingTrade 
         quantity: parseFloat(quantity),
         cost_basis: parseFloat(costBasis),
         current_price: parseFloat(currentPrice),
+        dd_summary: ddSummary || null,
+        price_targets: priceTargets || null,
+        dd_updated_at: (ddSummary || priceTargets) ? new Date().toISOString() : null,
         updated_at: new Date().toISOString(),
       };
 
@@ -290,6 +303,37 @@ export default function AddTradeForm({ users, onSuccess, onCancel, editingTrade 
           </div>
         </div>
       )}
+
+      <div className="border-t border-slate-200 pt-6 space-y-4">
+        <h3 className="text-lg font-semibold text-slate-900">Due Diligence (Optional)</h3>
+        <p className="text-sm text-slate-600">Add context about this position to help other investors understand your thesis.</p>
+
+        <div>
+          <label className="block text-sm font-medium text-slate-700 mb-2">
+            Investment Thesis
+          </label>
+          <textarea
+            value={ddSummary}
+            onChange={(e) => setDdSummary(e.target.value)}
+            placeholder="Why did you enter this position? What's your investment thesis?"
+            rows={4}
+            className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent resize-none"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-slate-700 mb-2">
+            Price Targets
+          </label>
+          <textarea
+            value={priceTargets}
+            onChange={(e) => setPriceTargets(e.target.value)}
+            placeholder="What are your price targets? E.g., Target 1: $180, Target 2: $200, Stop Loss: $140"
+            rows={3}
+            className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent resize-none"
+          />
+        </div>
+      </div>
 
       {tradeType === 'option' && (
         <div className="border-t border-slate-200 pt-6 space-y-4">
