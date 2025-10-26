@@ -1,140 +1,191 @@
-import { Newspaper, ExternalLink, Clock } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Newspaper, ExternalLink, Clock, RefreshCw, AlertCircle } from 'lucide-react';
+
+type NewsArticle = {
+  title: string;
+  description: string;
+  url: string;
+  source: string;
+  publishedAt: string;
+  imageUrl: string | null;
+};
 
 export default function News() {
-  const newsArticles = [
-    {
-      id: 1,
-      title: 'Federal Reserve Holds Interest Rates Steady Amid Economic Uncertainty',
-      source: 'Financial Times',
-      time: '2 hours ago',
-      category: 'Economy',
-      excerpt: 'The Federal Reserve maintained its benchmark interest rate, signaling a cautious approach as officials assess recent economic data and inflation trends.',
-      url: '#',
-    },
-    {
-      id: 2,
-      title: 'Tech Giants Report Mixed Earnings as AI Investments Surge',
-      source: 'Bloomberg',
-      time: '4 hours ago',
-      category: 'Technology',
-      excerpt: 'Major technology companies unveiled quarterly results showing varied performance, with substantial increases in AI-related capital expenditures across the sector.',
-      url: '#',
-    },
-    {
-      id: 3,
-      title: 'Energy Sector Rallies on Supply Concerns and Geopolitical Tensions',
-      source: 'Reuters',
-      time: '6 hours ago',
-      category: 'Energy',
-      excerpt: 'Oil and gas stocks surged as traders responded to supply disruptions and ongoing geopolitical developments affecting major producing regions.',
-      url: '#',
-    },
-    {
-      id: 4,
-      title: 'Consumer Confidence Index Shows Unexpected Decline',
-      source: 'Wall Street Journal',
-      time: '8 hours ago',
-      category: 'Economy',
-      excerpt: 'The latest consumer confidence survey revealed a surprising drop, raising questions about household spending patterns heading into the holiday season.',
-      url: '#',
-    },
-    {
-      id: 5,
-      title: 'Electric Vehicle Manufacturers Face Growing Competition',
-      source: 'CNBC',
-      time: '10 hours ago',
-      category: 'Automotive',
-      excerpt: 'Traditional automakers are rapidly expanding their EV offerings, intensifying competition in a market previously dominated by Tesla and newer startups.',
-      url: '#',
-    },
-    {
-      id: 6,
-      title: 'Biotechnology Breakthrough Sends Healthcare Stocks Higher',
-      source: 'MarketWatch',
-      time: '12 hours ago',
-      category: 'Healthcare',
-      excerpt: 'A major pharmaceutical company announced promising clinical trial results, triggering a rally across the healthcare and biotechnology sectors.',
-      url: '#',
-    },
-    {
-      id: 7,
-      title: 'Retail Sales Data Exceeds Expectations for Third Consecutive Month',
-      source: 'Financial Times',
-      time: '14 hours ago',
-      category: 'Retail',
-      excerpt: 'Commerce Department figures showed robust consumer spending, with particular strength in e-commerce and discretionary categories.',
-      url: '#',
-    },
-    {
-      id: 8,
-      title: 'Cryptocurrency Markets Experience Renewed Volatility',
-      source: 'CoinDesk',
-      time: '16 hours ago',
-      category: 'Crypto',
-      excerpt: 'Digital asset prices swung sharply following regulatory developments and comments from central bank officials regarding digital currencies.',
-      url: '#',
-    },
-  ];
+  const [articles, setArticles] = useState<NewsArticle[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
+
+  useEffect(() => {
+    fetchNews();
+  }, []);
+
+  const fetchNews = async () => {
+    try {
+      setError(null);
+      const apiUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/fetch-market-news`;
+      const headers = {
+        'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+        'Content-Type': 'application/json',
+      };
+
+      const response = await fetch(apiUrl, { headers });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch news');
+      }
+
+      const data = await response.json();
+      setArticles(data.articles || []);
+    } catch (err) {
+      console.error('Error fetching news:', err);
+      setError('Unable to load news. Please try again later.');
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
+
+  const handleRefresh = () => {
+    setRefreshing(true);
+    fetchNews();
+  };
+
+  const getTimeAgo = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffInMs = now.getTime() - date.getTime();
+    const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60));
+    const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
+
+    if (diffInMinutes < 60) {
+      return `${diffInMinutes} minute${diffInMinutes !== 1 ? 's' : ''} ago`;
+    } else if (diffInHours < 24) {
+      return `${diffInHours} hour${diffInHours !== 1 ? 's' : ''} ago`;
+    } else {
+      const diffInDays = Math.floor(diffInHours / 24);
+      return `${diffInDays} day${diffInDays !== 1 ? 's' : ''} ago`;
+    }
+  };
+
+  const getCategoryFromSource = (source: string): string => {
+    const lowerSource = source.toLowerCase();
+    if (lowerSource.includes('tech') || lowerSource.includes('wired')) return 'Technology';
+    if (lowerSource.includes('crypto') || lowerSource.includes('coin')) return 'Crypto';
+    if (lowerSource.includes('energy')) return 'Energy';
+    if (lowerSource.includes('health')) return 'Healthcare';
+    return 'Economy';
+  };
 
   const getCategoryColor = (category: string) => {
     const colors: { [key: string]: string } = {
       Economy: 'bg-blue-100 text-blue-700',
       Technology: 'bg-emerald-100 text-emerald-700',
       Energy: 'bg-orange-100 text-orange-700',
-      Automotive: 'bg-slate-100 text-slate-700',
       Healthcare: 'bg-rose-100 text-rose-700',
-      Retail: 'bg-amber-100 text-amber-700',
       Crypto: 'bg-violet-100 text-violet-700',
     };
     return colors[category] || 'bg-slate-100 text-slate-700';
   };
 
+  if (loading) {
+    return (
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="flex flex-col items-center justify-center py-20">
+          <RefreshCw className="w-12 h-12 text-emerald-500 animate-spin mb-4" />
+          <p className="text-slate-600 text-lg">Loading latest market news...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-slate-900 mb-2">Financial News</h1>
-        <p className="text-slate-600">Stay updated with the latest market developments and trends</p>
+      <div className="mb-8 flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-slate-900 mb-2">Financial News</h1>
+          <p className="text-slate-600">Stay updated with the latest market developments and trends</p>
+        </div>
+        <button
+          onClick={handleRefresh}
+          disabled={refreshing}
+          className="flex items-center space-x-2 bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 rounded-lg transition disabled:opacity-50"
+        >
+          <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
+          <span>Refresh</span>
+        </button>
       </div>
+
+      {error && (
+        <div className="mb-6 bg-red-50 border border-red-200 rounded-xl p-4 flex items-start space-x-3">
+          <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+          <div className="flex-1">
+            <p className="text-red-800 font-medium">Error loading news</p>
+            <p className="text-red-600 text-sm mt-1">{error}</p>
+          </div>
+          <button
+            onClick={handleRefresh}
+            className="text-red-600 hover:text-red-700 font-medium text-sm"
+          >
+            Try Again
+          </button>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">
-          {newsArticles.map((article) => (
-            <article
-              key={article.id}
-              className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 hover:shadow-md transition"
-            >
-              <div className="flex items-start justify-between mb-3">
-                <span
-                  className={`text-xs font-semibold px-3 py-1 rounded-full ${getCategoryColor(
-                    article.category
-                  )}`}
+          {articles.length === 0 ? (
+            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-12 text-center">
+              <Newspaper className="w-16 h-16 text-slate-300 mx-auto mb-4" />
+              <p className="text-slate-600 text-lg">No news articles available</p>
+              <p className="text-slate-500 text-sm mt-2">Check back later for updates</p>
+            </div>
+          ) : (
+            articles.map((article, index) => {
+              const category = getCategoryFromSource(article.source);
+              return (
+                <article
+                  key={index}
+                  className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 hover:shadow-md transition"
                 >
-                  {article.category}
-                </span>
-                <div className="flex items-center space-x-1 text-slate-500 text-sm">
-                  <Clock className="w-4 h-4" />
-                  <span>{article.time}</span>
-                </div>
-              </div>
+                  <div className="flex items-start justify-between mb-3">
+                    <span
+                      className={`text-xs font-semibold px-3 py-1 rounded-full ${getCategoryColor(
+                        category
+                      )}`}
+                    >
+                      {category}
+                    </span>
+                    <div className="flex items-center space-x-1 text-slate-500 text-sm">
+                      <Clock className="w-4 h-4" />
+                      <span>{getTimeAgo(article.publishedAt)}</span>
+                    </div>
+                  </div>
 
-              <h2 className="text-xl font-bold text-slate-900 mb-2 hover:text-emerald-600 transition cursor-pointer">
-                {article.title}
-              </h2>
+                  <h2 className="text-xl font-bold text-slate-900 mb-2 hover:text-emerald-600 transition">
+                    {article.title}
+                  </h2>
 
-              <p className="text-slate-600 mb-4 leading-relaxed">{article.excerpt}</p>
+                  {article.description && (
+                    <p className="text-slate-600 mb-4 leading-relaxed">{article.description}</p>
+                  )}
 
-              <div className="flex items-center justify-between pt-4 border-t border-slate-200">
-                <span className="text-sm font-medium text-slate-700">{article.source}</span>
-                <a
-                  href={article.url}
-                  className="flex items-center space-x-1 text-emerald-600 hover:text-emerald-700 font-medium text-sm transition"
-                >
-                  <span>Read more</span>
-                  <ExternalLink className="w-4 h-4" />
-                </a>
-              </div>
-            </article>
-          ))}
+                  <div className="flex items-center justify-between pt-4 border-t border-slate-200">
+                    <span className="text-sm font-medium text-slate-700">{article.source}</span>
+                    <a
+                      href={article.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center space-x-1 text-emerald-600 hover:text-emerald-700 font-medium text-sm transition"
+                    >
+                      <span>Read more</span>
+                      <ExternalLink className="w-4 h-4" />
+                    </a>
+                  </div>
+                </article>
+              );
+            })
+          )}
         </div>
 
         <div className="space-y-6">
@@ -148,42 +199,41 @@ export default function News() {
               <div className="pb-4 border-b border-slate-200">
                 <div className="flex justify-between items-center">
                   <span className="text-slate-700 font-medium">S&P 500</span>
-                  <span className="text-emerald-600 font-bold">+0.52%</span>
+                  <span className="text-emerald-600 font-bold">Live</span>
                 </div>
-                <div className="text-2xl font-bold text-slate-900 mt-1">4,783.45</div>
+                <div className="text-sm text-slate-500 mt-1">Check financial sites for real-time data</div>
               </div>
 
               <div className="pb-4 border-b border-slate-200">
                 <div className="flex justify-between items-center">
                   <span className="text-slate-700 font-medium">Nasdaq</span>
-                  <span className="text-emerald-600 font-bold">+0.78%</span>
+                  <span className="text-emerald-600 font-bold">Live</span>
                 </div>
-                <div className="text-2xl font-bold text-slate-900 mt-1">15,042.68</div>
+                <div className="text-sm text-slate-500 mt-1">Check financial sites for real-time data</div>
               </div>
 
               <div>
                 <div className="flex justify-between items-center">
                   <span className="text-slate-700 font-medium">Dow Jones</span>
-                  <span className="text-red-600 font-bold">-0.12%</span>
+                  <span className="text-emerald-600 font-bold">Live</span>
                 </div>
-                <div className="text-2xl font-bold text-slate-900 mt-1">37,440.34</div>
+                <div className="text-sm text-slate-500 mt-1">Check financial sites for real-time data</div>
               </div>
             </div>
           </div>
 
           <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-            <h3 className="text-lg font-bold text-slate-900 mb-4">Trending Topics</h3>
-            <div className="space-y-3">
-              {['AI & Machine Learning', 'Electric Vehicles', 'Interest Rates', 'Renewable Energy', 'Cryptocurrency'].map(
-                (topic, index) => (
-                  <button
-                    key={index}
-                    className="w-full text-left px-4 py-2.5 bg-slate-50 hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 rounded-lg transition font-medium"
-                  >
-                    {topic}
-                  </button>
-                )
-              )}
+            <h3 className="text-lg font-bold text-slate-900 mb-4">News Sources</h3>
+            <div className="space-y-2 text-sm text-slate-600">
+              <p>Real-time news from:</p>
+              <ul className="list-disc list-inside space-y-1 text-slate-700">
+                <li>Financial Times</li>
+                <li>Bloomberg</li>
+                <li>Reuters</li>
+                <li>Wall Street Journal</li>
+                <li>CNBC</li>
+                <li>MarketWatch</li>
+              </ul>
             </div>
           </div>
 
