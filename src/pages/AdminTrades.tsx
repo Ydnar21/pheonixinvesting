@@ -16,6 +16,7 @@ interface Trade {
   option_expiration?: string;
   option_type?: string;
   strike_price?: number;
+  break_even_price?: number;
   created_at: string;
 }
 
@@ -204,9 +205,11 @@ export default function AdminTrades() {
                       </td>
                       <td className="px-6 py-4 text-right text-slate-600">
                         ${trade.cost_basis.toFixed(2)}
+                        {trade.trade_type === 'option' && <div className="text-xs text-slate-500">/contract</div>}
                       </td>
                       <td className="px-6 py-4 text-right text-slate-900 font-medium">
                         ${trade.current_price.toFixed(2)}
+                        {trade.trade_type === 'option' && <div className="text-xs text-slate-500">/contract</div>}
                       </td>
                       <td className="px-6 py-4 text-sm text-slate-600">
                         {trade.trade_type === 'option' && (
@@ -215,6 +218,9 @@ export default function AdminTrades() {
                               ${trade.strike_price} {trade.option_type?.toUpperCase()}
                             </div>
                             <div className="text-xs">Exp: {trade.option_expiration}</div>
+                            {trade.break_even_price && (
+                              <div className="text-xs text-slate-500">B/E: ${trade.break_even_price}</div>
+                            )}
                           </div>
                         )}
                       </td>

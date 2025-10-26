@@ -14,6 +14,7 @@ interface Trade {
   option_expiration?: string;
   option_type?: string;
   strike_price?: number;
+  break_even_price?: number;
 }
 
 export default function Portfolio() {
@@ -46,19 +47,33 @@ export default function Portfolio() {
     }
   };
 
-  const calculateGainLoss = (quantity: number, costBasis: number, currentPrice: number) => {
-    const gain = (currentPrice - costBasis) * quantity;
-    const gainPercent = ((currentPrice - costBasis) / costBasis) * 100;
-    return { gain, gainPercent };
+  const calculateGainLoss = (trade: Trade) => {
+    if (trade.trade_type === 'option') {
+      const contractValue = trade.current_price * 100;
+      const costPerContract = trade.cost_basis * 100;
+      const totalValue = contractValue * trade.quantity;
+      const totalCost = costPerContract * trade.quantity;
+      const gain = totalValue - totalCost;
+      const gainPercent = ((trade.current_price - trade.cost_basis) / trade.cost_basis) * 100;
+      return { gain, gainPercent, totalValue };
+    } else {
+      const gain = (trade.current_price - trade.cost_basis) * trade.quantity;
+      const gainPercent = ((trade.current_price - trade.cost_basis) / trade.cost_basis) * 100;
+      const totalValue = trade.current_price * trade.quantity;
+      return { gain, gainPercent, totalValue };
+    }
   };
 
   const calculateTotalValue = () => {
-    return trades.reduce((sum, trade) => sum + (trade.current_price * trade.quantity), 0);
+    return trades.reduce((sum, trade) => {
+      const { totalValue } = calculateGainLoss(trade);
+      return sum + totalValue;
+    }, 0);
   };
 
   const calculateTotalGain = () => {
     return trades.reduce((sum, trade) => {
-      const { gain } = calculateGainLoss(trade.quantity, trade.cost_basis, trade.current_price);
+      const { gain } = calculateGainLoss(trade);
       return sum + gain;
     }, 0);
   };
@@ -151,13 +166,8 @@ export default function Portfolio() {
               </thead>
               <tbody className="divide-y divide-slate-200">
                 {trades.map((trade) => {
-                  const { gain, gainPercent } = calculateGainLoss(
-                    trade.quantity,
-                    trade.cost_basis,
-                    trade.current_price
-                  );
+                  const { gain, gainPercent, totalValue } = calculateGainLoss(trade);
                   const isPositive = gain >= 0;
-                  const totalValue = trade.current_price * trade.quantity;
 
                   return (
                     <tr key={trade.id} className="hover:bg-slate-50 transition">
@@ -182,9 +192,11 @@ export default function Portfolio() {
                       </td>
                       <td className="px-6 py-4 text-right text-slate-600">
                         ${trade.cost_basis.toFixed(2)}
+                        {trade.trade_type === 'option' && <div className="text-xs text-slate-500">/contract</div>}
                       </td>
                       <td className="px-6 py-4 text-right text-slate-900 font-medium">
                         ${trade.current_price.toFixed(2)}
+                        {trade.trade_type === 'option' && <div className="text-xs text-slate-500">/contract</div>}
                       </td>
                       <td className="px-6 py-4 text-right text-slate-900 font-semibold">
                         ${totalValue.toFixed(2)}
@@ -196,6 +208,9 @@ export default function Portfolio() {
                               ${trade.strike_price} {trade.option_type?.toUpperCase()}
                             </div>
                             <div className="text-xs">Exp: {trade.option_expiration}</div>
+                            {trade.break_even_price && (
+                              <div className="text-xs text-slate-500">B/E: ${trade.break_even_price}</div>
+                            )}
                           </div>
                         )}
                       </td>

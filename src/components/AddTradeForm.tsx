@@ -18,6 +18,7 @@ interface Trade {
   option_expiration?: string;
   option_type?: string;
   strike_price?: number;
+  break_even_price?: number;
 }
 
 interface AddTradeFormProps {
@@ -37,6 +38,7 @@ export default function AddTradeForm({ users, onSuccess, onCancel, editingTrade 
   const [optionExpiration, setOptionExpiration] = useState('');
   const [optionType, setOptionType] = useState<'call' | 'put'>('call');
   const [strikePrice, setStrikePrice] = useState('');
+  const [breakEvenPrice, setBreakEvenPrice] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
 
@@ -56,6 +58,9 @@ export default function AddTradeForm({ users, onSuccess, onCancel, editingTrade 
       }
       if (editingTrade.strike_price) {
         setStrikePrice(editingTrade.strike_price.toString());
+      }
+      if (editingTrade.break_even_price) {
+        setBreakEvenPrice(editingTrade.break_even_price.toString());
       }
     }
   }, [editingTrade]);
@@ -83,18 +88,20 @@ export default function AddTradeForm({ users, onSuccess, onCancel, editingTrade 
       };
 
       if (tradeType === 'option') {
-        if (!optionExpiration || !strikePrice) {
-          setError('Option expiration and strike price are required for options');
+        if (!optionExpiration || !strikePrice || !breakEvenPrice) {
+          setError('Option expiration, strike price, and break-even price are required for options');
           setSubmitting(false);
           return;
         }
         tradeData.option_expiration = optionExpiration;
         tradeData.option_type = optionType;
         tradeData.strike_price = parseFloat(strikePrice);
+        tradeData.break_even_price = parseFloat(breakEvenPrice);
       } else {
         tradeData.option_expiration = null;
         tradeData.option_type = null;
         tradeData.strike_price = null;
+        tradeData.break_even_price = null;
       }
 
       if (editingTrade) {
@@ -188,52 +195,101 @@ export default function AddTradeForm({ users, onSuccess, onCancel, editingTrade 
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div>
-          <label className="block text-sm font-medium text-slate-700 mb-2">
-            {tradeType === 'option' ? 'Contracts *' : 'Shares *'}
-          </label>
-          <input
-            type="number"
-            step="any"
-            value={quantity}
-            onChange={(e) => setQuantity(e.target.value)}
-            placeholder={tradeType === 'option' ? '10' : '100'}
-            required
-            className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-slate-700 mb-2">
-            Cost Basis *
-          </label>
-          <input
-            type="number"
-            step="0.01"
-            value={costBasis}
-            onChange={(e) => setCostBasis(e.target.value)}
-            placeholder="150.00"
-            required
-            className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-slate-700 mb-2">
-            Current Price *
-          </label>
-          <input
-            type="number"
-            step="0.01"
-            value={currentPrice}
-            onChange={(e) => setCurrentPrice(e.target.value)}
-            placeholder="155.00"
-            required
-            className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-          />
-        </div>
+      <div>
+        <label className="block text-sm font-medium text-slate-700 mb-2">
+          {tradeType === 'option' ? 'Number of Contracts *' : 'Number of Shares *'}
+        </label>
+        <input
+          type="number"
+          step="any"
+          value={quantity}
+          onChange={(e) => setQuantity(e.target.value)}
+          placeholder={tradeType === 'option' ? '10' : '100'}
+          required
+          className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+        />
       </div>
+
+      {tradeType === 'stock' ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-2">
+              Average Price Bought At *
+            </label>
+            <input
+              type="number"
+              step="0.01"
+              value={costBasis}
+              onChange={(e) => setCostBasis(e.target.value)}
+              placeholder="150.00"
+              required
+              className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-2">
+              Current Price *
+            </label>
+            <input
+              type="number"
+              step="0.01"
+              value={currentPrice}
+              onChange={(e) => setCurrentPrice(e.target.value)}
+              placeholder="155.00"
+              required
+              className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+            />
+          </div>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-2">
+              Avg Price Per Contract *
+            </label>
+            <input
+              type="number"
+              step="0.01"
+              value={costBasis}
+              onChange={(e) => setCostBasis(e.target.value)}
+              placeholder="2.50"
+              required
+              className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-2">
+              Current Price Per Contract *
+            </label>
+            <input
+              type="number"
+              step="0.01"
+              value={currentPrice}
+              onChange={(e) => setCurrentPrice(e.target.value)}
+              placeholder="3.50"
+              required
+              className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-2">
+              Break-Even Price *
+            </label>
+            <input
+              type="number"
+              step="0.01"
+              value={breakEvenPrice}
+              onChange={(e) => setBreakEvenPrice(e.target.value)}
+              placeholder="152.50"
+              required={tradeType === 'option'}
+              className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+            />
+          </div>
+        </div>
+      )}
 
       {tradeType === 'option' && (
         <div className="border-t border-slate-200 pt-6 space-y-4">
