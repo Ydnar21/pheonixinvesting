@@ -192,8 +192,8 @@ export default function AdminTrades() {
                       key={trade.id}
                       className={`hover:bg-slate-50 transition ${
                         isPositive
-                          ? 'border-l-4 border-l-emerald-500'
-                          : 'border-l-4 border-l-red-500'
+                          ? 'outline outline-2 outline-emerald-500'
+                          : 'outline outline-2 outline-red-500'
                       }`}
                     >
                       <td className="px-6 py-4">
