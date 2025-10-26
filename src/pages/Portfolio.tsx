@@ -1,8 +1,25 @@
-import { useState } from 'react';
-import { TrendingUp, DollarSign, Percent, BarChart3, ExternalLink } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { TrendingUp, DollarSign, Percent, BarChart3, ExternalLink, RefreshCw } from 'lucide-react';
+import { supabase } from '../lib/supabase';
+import { useAuth } from '../context/AuthContext';
+import PlaidLink from '../components/PlaidLink';
+
+interface Holding {
+  id: string;
+  symbol: string;
+  name: string;
+  quantity: number;
+  cost_basis: number;
+  current_price: number;
+  institution_value: number;
+}
 
 export default function Portfolio() {
-  const [isConnected] = useState(false);
+  const { user } = useAuth();
+  const [isConnected, setIsConnected] = useState(false);
+  const [holdings, setHoldings] = useState<Holding[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [syncing, setSyncing] = useState(false);
 
   const demoData = {
     totalValue: 45678.32,
@@ -16,20 +33,129 @@ export default function Portfolio() {
     ],
   };
 
-  const calculateGainLoss = (shares: number, avgCost: number, currentPrice: number) => {
-    const gain = (currentPrice - avgCost) * shares;
-    const gainPercent = ((currentPrice - avgCost) / avgCost) * 100;
+  useEffect(() => {
+    if (user) {
+      checkConnection();
+      loadHoldings();
+    }
+  }, [user]);
+
+  const checkConnection = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('plaid_items')
+        .select('id')
+        .eq('user_id', user?.id)
+        .limit(1);
+
+      if (!error && data && data.length > 0) {
+        setIsConnected(true);
+      }
+    } catch (error) {
+      console.error('Error checking connection:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadHoldings = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('portfolio_holdings')
+        .select('*')
+        .eq('user_id', user?.id)
+        .order('institution_value', { ascending: false });
+
+      if (!error && data) {
+        setHoldings(data);
+      }
+    } catch (error) {
+      console.error('Error loading holdings:', error);
+    }
+  };
+
+  const syncHoldings = async () => {
+    setSyncing(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+
+      await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/plaid-handler/sync_holdings`,
+        {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${session.access_token}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+
+      await loadHoldings();
+    } catch (error) {
+      console.error('Error syncing holdings:', error);
+    } finally {
+      setSyncing(false);
+    }
+  };
+
+  const handleConnectionSuccess = () => {
+    setIsConnected(true);
+    loadHoldings();
+  };
+
+  const calculateGainLoss = (quantity: number, costBasis: number, currentPrice: number) => {
+    const gain = (currentPrice - costBasis) * quantity;
+    const gainPercent = ((currentPrice - costBasis) / costBasis) * 100;
     return { gain, gainPercent };
   };
 
+  const totalValue = isConnected
+    ? holdings.reduce((sum, h) => sum + h.institution_value, 0)
+    : demoData.totalValue;
+
+  const displayPositions = isConnected
+    ? holdings.map((h) => ({
+        symbol: h.symbol,
+        name: h.name,
+        shares: h.quantity,
+        avgCost: h.cost_basis,
+        currentPrice: h.current_price,
+        value: h.institution_value,
+      }))
+    : demoData.positions;
+
+  if (!user) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="bg-slate-50 border border-slate-200 rounded-xl p-8 text-center">
+          <h2 className="text-2xl font-bold text-slate-900 mb-2">Sign In Required</h2>
+          <p className="text-slate-600">Please sign in to view your portfolio.</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-slate-900 mb-2">Portfolio Dashboard</h1>
-        <p className="text-slate-600">Track your investments and monitor performance</p>
+      <div className="mb-8 flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-slate-900 mb-2">Portfolio Dashboard</h1>
+          <p className="text-slate-600">Track your investments and monitor performance</p>
+        </div>
+        {isConnected && (
+          <button
+            onClick={syncHoldings}
+            disabled={syncing}
+            className="flex items-center space-x-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium px-4 py-2 rounded-lg transition disabled:opacity-50"
+          >
+            <RefreshCw className={`w-4 h-4 ${syncing ? 'animate-spin' : ''}`} />
+            <span>{syncing ? 'Syncing...' : 'Sync'}</span>
+          </button>
+        )}
       </div>
 
-      {!isConnected && (
+      {!isConnected && !loading && (
         <div className="bg-amber-50 border border-amber-200 rounded-xl p-6 mb-8">
           <div className="flex items-start space-x-4">
             <div className="bg-amber-100 p-3 rounded-lg">
@@ -42,13 +168,7 @@ export default function Portfolio() {
               <p className="text-amber-800 mb-4">
                 Link your Robinhood account with read-only access to automatically sync your portfolio data, positions, and account value in real-time.
               </p>
-              <button
-                className="bg-emerald-500 hover:bg-emerald-600 text-white font-semibold px-6 py-2.5 rounded-lg transition"
-                disabled
-                title="Integration requires Plaid or similar secure financial API service"
-              >
-                Connect Robinhood (Coming Soon)
-              </button>
+              <PlaidLink onSuccess={handleConnectionSuccess} />
               <div className="mt-4 space-y-2">
                 <p className="text-sm text-amber-700 font-medium">
                   Currently showing demo data. Connect your account to view your real portfolio.
@@ -56,7 +176,7 @@ export default function Portfolio() {
                 <div className="bg-white/50 rounded-lg p-3 text-sm text-amber-800">
                   <p className="font-semibold mb-1">Security Note:</p>
                   <p>
-                    Robinhood integration will use OAuth 2.0 through Plaid or similar secure financial aggregation services,
+                    Robinhood integration uses OAuth 2.0 through Plaid, a secure financial aggregation service,
                     ensuring read-only access without storing your credentials. Your login information is never shared with
                     or stored by this application.
                   </p>
@@ -74,7 +194,7 @@ export default function Portfolio() {
             <DollarSign className="w-5 h-5 text-emerald-500" />
           </div>
           <div className="text-3xl font-bold text-slate-900">
-            ${demoData.totalValue.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+            ${totalValue.toLocaleString('en-US', { minimumFractionDigits: 2 })}
           </div>
         </div>
 
@@ -121,7 +241,7 @@ export default function Portfolio() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-200">
-              {demoData.positions.map((position) => {
+              {displayPositions.map((position) => {
                 const { gain, gainPercent } = calculateGainLoss(
                   position.shares,
                   position.avgCost,
