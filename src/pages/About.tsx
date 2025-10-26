@@ -7,7 +7,7 @@ export default function About() {
         <div className="inline-flex items-center justify-center bg-gradient-to-br from-emerald-500 to-emerald-600 p-4 rounded-2xl mb-6">
           <TrendingUp className="w-12 h-12 text-white" />
         </div>
-        <h1 className="text-4xl font-bold text-slate-900 mb-4">About LiquidPhoenixInvesting</h1>
+        <h1 className="text-4xl font-bold text-slate-900 mb-4">About Liquid Phoenix</h1>
         <p className="text-xl text-slate-600 max-w-3xl mx-auto">
           A personal investment tracking platform with portfolio monitoring, community insights, and market news
         </p>
@@ -16,7 +16,7 @@ export default function About() {
       <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 mb-12">
         <h2 className="text-2xl font-bold text-slate-900 mb-4">What This Is</h2>
         <p className="text-slate-700 text-lg leading-relaxed mb-4">
-          LiquidPhoenixInvesting is a personal portfolio tracking website designed to monitor investments and share insights with the community.
+          Liquid Phoenix is a personal portfolio tracking website designed to monitor investments and share insights with the community.
           The platform provides real-time visibility into portfolio performance, positions, and returns.
         </p>
         <p className="text-slate-700 text-lg leading-relaxed">

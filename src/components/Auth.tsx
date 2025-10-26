@@ -47,7 +47,7 @@ export default function Auth() {
           </div>
 
           <h2 className="text-3xl font-bold text-center text-slate-900 mb-2">
-            {isSignUp ? 'Join LiquidPhoenixInvesting' : 'Welcome Back'}
+            {isSignUp ? 'Join Liquid Phoenix' : 'Welcome Back'}
           </h2>
           <p className="text-center text-slate-600 mb-8">
             {isSignUp ? 'Create your account to get started' : 'Sign in to your account'}
@@ -131,7 +131,7 @@ export default function Auth() {
         </div>
 
         <div className="mt-6 text-center text-slate-400 text-sm">
-          <p>LiquidPhoenixInvesting - Track Your Investment Journey</p>
+          <p>Liquid Phoenix - Track Your Investment Journey</p>
         </div>
       </div>
     </div>
