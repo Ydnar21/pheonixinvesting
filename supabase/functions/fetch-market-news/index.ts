@@ -22,9 +22,9 @@ Deno.serve(async (req: Request) => {
   }
 
   try {
-    const googleFinanceRss = 'https://news.google.com/rss/search?q=stock+market+OR+finance+OR+investing+when:1d&hl=en-US&gl=US&ceid=US:en';
+    const googleNewsRss = 'https://news.google.com/rss/search?q=stock+market+news+when:7d&hl=en-US&gl=US&ceid=US:en';
     
-    const response = await fetch(googleFinanceRss);
+    const response = await fetch(googleNewsRss);
     
     if (!response.ok) {
       throw new Error(`Failed to fetch Google News RSS: ${response.statusText}`);
@@ -57,7 +57,7 @@ Deno.serve(async (req: Request) => {
         });
       }
       
-      if (articles.length >= 25) break;
+      if (articles.length >= 30) break;
     }
 
     return new Response(
