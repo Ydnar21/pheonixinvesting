@@ -28,7 +28,6 @@ export default function AdminTrades() {
   const { user, profile } = useAuth();
   const [trades, setTrades] = useState<Trade[]>([]);
   const [users, setUsers] = useState<User[]>([]);
-  const [selectedUser, setSelectedUser] = useState<string>('');
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingTrade, setEditingTrade] = useState<Trade | null>(null);
   const [loading, setLoading] = useState(true);
@@ -53,16 +52,10 @@ export default function AdminTrades() {
 
   const loadTrades = async () => {
     try {
-      const query = supabase
+      const { data, error } = await supabase
         .from('user_trades')
         .select('*')
         .order('created_at', { ascending: false });
-
-      if (selectedUser) {
-        query.eq('user_id', selectedUser);
-      }
-
-      const { data, error } = await query;
 
       if (!error && data) {
         setTrades(data);
@@ -73,12 +66,6 @@ export default function AdminTrades() {
       setLoading(false);
     }
   };
-
-  useEffect(() => {
-    if (selectedUser || selectedUser === '') {
-      loadTrades();
-    }
-  }, [selectedUser]);
 
   const handleDelete = async (tradeId: string) => {
     if (!confirm('Are you sure you want to delete this trade?')) return;
@@ -118,8 +105,8 @@ export default function AdminTrades() {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="mb-8 flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-slate-900 mb-2">Manage User Trades</h1>
-          <p className="text-slate-600">Add and manage stock and option positions for users</p>
+          <h1 className="text-3xl font-bold text-slate-900 mb-2">Manage Portfolio Trades</h1>
+          <p className="text-slate-600">Add and manage stock and option positions for the shared portfolio</p>
         </div>
         <button
           onClick={() => {
@@ -131,24 +118,6 @@ export default function AdminTrades() {
           <Plus className="w-5 h-5" />
           <span>Add Trade</span>
         </button>
-      </div>
-
-      <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">
-        <label className="block text-sm font-medium text-slate-700 mb-2">
-          Filter by User
-        </label>
-        <select
-          value={selectedUser}
-          onChange={(e) => setSelectedUser(e.target.value)}
-          className="w-full md:w-96 px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-        >
-          <option value="">All Users</option>
-          {users.map((u) => (
-            <option key={u.id} value={u.id}>
-              {u.email}
-            </option>
-          ))}
-        </select>
       </div>
 
       {showAddForm && (
@@ -200,7 +169,6 @@ export default function AdminTrades() {
             <table className="w-full">
               <thead className="bg-slate-50">
                 <tr>
-                  <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700">User</th>
                   <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700">Type</th>
                   <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700">Symbol</th>
                   <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700">Company</th>
@@ -213,11 +181,8 @@ export default function AdminTrades() {
               </thead>
               <tbody className="divide-y divide-slate-200">
                 {trades.map((trade) => {
-                  const userEmail = users.find((u) => u.id === trade.user_id)?.email || 'Unknown';
-
                   return (
                     <tr key={trade.id} className="hover:bg-slate-50 transition">
-                      <td className="px-6 py-4 text-sm text-slate-600">{userEmail}</td>
                       <td className="px-6 py-4">
                         <span
                           className={`inline-flex px-2 py-1 rounded-full text-xs font-medium ${

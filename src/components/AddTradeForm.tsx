@@ -28,7 +28,6 @@ interface AddTradeFormProps {
 }
 
 export default function AddTradeForm({ users, onSuccess, onCancel, editingTrade }: AddTradeFormProps) {
-  const [userId, setUserId] = useState('');
   const [tradeType, setTradeType] = useState<'stock' | 'option'>('stock');
   const [symbol, setSymbol] = useState('');
   const [companyName, setCompanyName] = useState('');
@@ -43,7 +42,6 @@ export default function AddTradeForm({ users, onSuccess, onCancel, editingTrade 
 
   useEffect(() => {
     if (editingTrade) {
-      setUserId(editingTrade.user_id);
       setTradeType(editingTrade.trade_type as 'stock' | 'option');
       setSymbol(editingTrade.symbol);
       setCompanyName(editingTrade.company_name);
@@ -68,8 +66,13 @@ export default function AddTradeForm({ users, onSuccess, onCancel, editingTrade 
     setSubmitting(true);
 
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        throw new Error('Not authenticated');
+      }
+
       const tradeData: any = {
-        user_id: userId,
+        user_id: user.id,
         trade_type: tradeType,
         symbol: symbol.toUpperCase(),
         company_name: companyName,
@@ -102,8 +105,7 @@ export default function AddTradeForm({ users, onSuccess, onCancel, editingTrade 
 
         if (updateError) throw updateError;
       } else {
-        const { data: { user } } = await supabase.auth.getUser();
-        tradeData.added_by = user?.id;
+        tradeData.added_by = user.id;
 
         const { error: insertError } = await supabase
           .from('user_trades')
@@ -127,25 +129,6 @@ export default function AddTradeForm({ users, onSuccess, onCancel, editingTrade 
           {error}
         </div>
       )}
-
-      <div>
-        <label className="block text-sm font-medium text-slate-700 mb-2">
-          Select User *
-        </label>
-        <select
-          value={userId}
-          onChange={(e) => setUserId(e.target.value)}
-          required
-          className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-        >
-          <option value="">Choose a user...</option>
-          {users.map((user) => (
-            <option key={user.id} value={user.id}>
-              {user.email}
-            </option>
-          ))}
-        </select>
-      </div>
 
       <div>
         <label className="block text-sm font-medium text-slate-700 mb-2">

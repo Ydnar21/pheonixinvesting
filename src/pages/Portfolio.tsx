@@ -34,7 +34,6 @@ export default function Portfolio() {
       const { data, error } = await supabase
         .from('user_trades')
         .select('*')
-        .eq('user_id', user?.id)
         .order('created_at', { ascending: false });
 
       if (!error && data) {
@@ -85,7 +84,7 @@ export default function Portfolio() {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-slate-900 mb-2">Portfolio Dashboard</h1>
-        <p className="text-slate-600">Track your investments and monitor performance</p>
+        <p className="text-slate-600">Shared investment portfolio managed by admin</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -132,7 +131,7 @@ export default function Portfolio() {
           <div className="p-12 text-center text-slate-600">Loading positions...</div>
         ) : trades.length === 0 ? (
           <div className="p-12 text-center text-slate-600">
-            No positions yet. An admin can add trades to your portfolio.
+            No positions yet. The admin will add trades to the portfolio.
           </div>
         ) : (
           <div className="overflow-x-auto">
