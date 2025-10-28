@@ -16,7 +16,7 @@ interface StockQuote {
 async function fetchStockPrice(symbol: string): Promise<number | null> {
   try {
     const response = await fetch(
-      `https://www.google.com/finance/quote/${symbol}:NASDAQ`,
+      `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}`,
       {
         headers: {
           "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
@@ -25,44 +25,22 @@ async function fetchStockPrice(symbol: string): Promise<number | null> {
     );
 
     if (!response.ok) {
-      const nyseResponse = await fetch(
-        `https://www.google.com/finance/quote/${symbol}:NYSE`,
-        {
-          headers: {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-          },
-        }
-      );
-
-      if (!nyseResponse.ok) {
-        console.error(`Failed to fetch price for ${symbol}`);
-        return null;
-      }
-
-      const nyseHtml = await nyseResponse.text();
-      return extractPriceFromHtml(nyseHtml);
+      console.error(`Failed to fetch price for ${symbol}, status: ${response.status}`);
+      return null;
     }
 
-    const html = await response.text();
-    return extractPriceFromHtml(html);
+    const data = await response.json();
+
+    if (!data?.chart?.result?.[0]?.meta?.regularMarketPrice) {
+      console.error(`No price data found for ${symbol}`);
+      return null;
+    }
+
+    const price = data.chart.result[0].meta.regularMarketPrice;
+    console.log(`Fetched ${symbol}: $${price}`);
+    return price;
   } catch (error) {
     console.error(`Error fetching ${symbol}:`, error);
-    return null;
-  }
-}
-
-function extractPriceFromHtml(html: string): number | null {
-  try {
-    const priceMatch = html.match(/data-last-price="([0-9.]+)"/i) ||
-                       html.match(/class="YMlKec fxKbKc">\$([0-9,.]+)</i);
-
-    if (priceMatch && priceMatch[1]) {
-      const price = parseFloat(priceMatch[1].replace(/,/g, ''));
-      return isNaN(price) ? null : price;
-    }
-    return null;
-  } catch (error) {
-    console.error('Error extracting price from HTML:', error);
     return null;
   }
 }
@@ -105,7 +83,7 @@ Deno.serve(async (req: Request) => {
     console.log(`Updating prices for ${uniqueSymbols.length} symbols:`, uniqueSymbols);
 
     const priceUpdates: StockQuote[] = [];
-
+    
     for (const symbol of uniqueSymbols) {
       const price = await fetchStockPrice(symbol);
       priceUpdates.push({
@@ -113,8 +91,8 @@ Deno.serve(async (req: Request) => {
         price,
         error: price === null ? 'Failed to fetch price' : undefined,
       });
-
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      await new Promise(resolve => setTimeout(resolve, 500));
     }
 
     const successfulUpdates = [];
