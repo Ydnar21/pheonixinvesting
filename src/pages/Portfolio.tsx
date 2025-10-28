@@ -78,12 +78,10 @@ export default function Portfolio() {
 
   const calculateGainLoss = (trade: Trade) => {
     if (trade.trade_type === 'option') {
-      const contractValue = trade.current_price * 100;
-      const costPerContract = trade.cost_basis * 100;
-      const totalValue = contractValue * trade.quantity;
-      const totalCost = costPerContract * trade.quantity;
-      const gain = totalValue - totalCost;
-      const gainPercent = ((trade.current_price - trade.cost_basis) / trade.cost_basis) * 100;
+      const totalCost = trade.cost_basis * 100 * trade.quantity;
+      const totalValue = totalCost;
+      const gain = 0;
+      const gainPercent = 0;
       return { gain, gainPercent, totalValue };
     } else {
       const gain = (trade.current_price - trade.cost_basis) * trade.quantity;
