@@ -19,6 +19,7 @@ interface Trade {
   dd_summary?: string;
   price_targets?: string;
   dd_updated_at?: string;
+  earnings_date?: string;
 }
 
 export default function Portfolio() {
@@ -271,7 +272,7 @@ export default function Portfolio() {
                         ${totalValue.toFixed(2)}
                       </td>
                       <td className="px-6 py-4 text-sm text-slate-600">
-                        {trade.trade_type === 'option' && (
+                        {trade.trade_type === 'option' ? (
                           <div>
                             <div className="font-medium">
                               ${trade.strike_price} {trade.option_type?.toUpperCase()}
@@ -281,6 +282,19 @@ export default function Portfolio() {
                               <div className="text-xs text-slate-500">B/E: ${trade.break_even_price}</div>
                             )}
                           </div>
+                        ) : (
+                          trade.earnings_date && (
+                            <div>
+                              <div className="text-xs text-slate-500">Next Earnings</div>
+                              <div className="font-medium text-slate-700">
+                                {new Date(trade.earnings_date).toLocaleDateString('en-US', {
+                                  month: 'short',
+                                  day: 'numeric',
+                                  year: 'numeric'
+                                })}
+                              </div>
+                            </div>
+                          )
                         )}
                       </td>
                       <td className="px-6 py-4 text-right">

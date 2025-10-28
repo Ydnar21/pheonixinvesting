@@ -21,6 +21,7 @@ interface Trade {
   break_even_price?: number;
   dd_summary?: string;
   price_targets?: string;
+  earnings_date?: string;
 }
 
 interface AddTradeFormProps {
@@ -43,6 +44,7 @@ export default function AddTradeForm({ users, onSuccess, onCancel, editingTrade 
   const [breakEvenPrice, setBreakEvenPrice] = useState('');
   const [ddSummary, setDdSummary] = useState('');
   const [priceTargets, setPriceTargets] = useState('');
+  const [earningsDate, setEarningsDate] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
 
@@ -72,6 +74,9 @@ export default function AddTradeForm({ users, onSuccess, onCancel, editingTrade 
       if (editingTrade.price_targets) {
         setPriceTargets(editingTrade.price_targets);
       }
+      if (editingTrade.earnings_date) {
+        setEarningsDate(editingTrade.earnings_date);
+      }
     }
   }, [editingTrade]);
 
@@ -96,6 +101,7 @@ export default function AddTradeForm({ users, onSuccess, onCancel, editingTrade 
         current_price: parseFloat(currentPrice),
         dd_summary: ddSummary || null,
         price_targets: priceTargets || null,
+        earnings_date: earningsDate || null,
         dd_updated_at: (ddSummary || priceTargets) ? new Date().toISOString() : null,
         updated_at: new Date().toISOString(),
       };
@@ -332,6 +338,19 @@ export default function AddTradeForm({ users, onSuccess, onCancel, editingTrade 
             rows={3}
             className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent resize-none"
           />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-slate-700 mb-2">
+            Next Earnings Date
+          </label>
+          <input
+            type="date"
+            value={earningsDate}
+            onChange={(e) => setEarningsDate(e.target.value)}
+            className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+          />
+          <p className="text-xs text-slate-500 mt-1">This will be displayed in the portfolio dashboard</p>
         </div>
       </div>
 
