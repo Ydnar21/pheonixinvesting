@@ -129,7 +129,11 @@ export default function Community() {
       const { error } = await supabase.from('stock_posts').insert([
         {
           user_id: user.id,
-          ...newPost,
+          stock_symbol: newPost.stock_symbol,
+          stock_name: newPost.stock_name,
+          title: newPost.title,
+          content: newPost.content,
+          sentiment: 'neutral',
         },
       ]);
 
@@ -191,7 +195,7 @@ export default function Community() {
             stock_name: submission.stock_name,
             title: submission.title,
             content: submission.content,
-            sentiment: submission.sentiment,
+            sentiment: 'neutral',
             submission_id: submissionId,
           },
         ]);
@@ -458,7 +462,7 @@ export default function Community() {
               </h2>
               <p className="text-slate-600 mt-1">
                 {profile?.is_admin
-                  ? 'Share your stock analysis with the community'
+                  ? 'Post a stock for the community to vote on'
                   : 'Suggest a stock for the admin to post about'}
               </p>
             </div>
@@ -502,30 +506,27 @@ export default function Community() {
                 </div>
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">Sentiment</label>
-                <div className="flex space-x-2">
-                  {(['bullish', 'neutral', 'bearish'] as const).map((sentiment) => (
-                    <button
-                      key={sentiment}
-                      onClick={() =>
-                        profile?.is_admin
-                          ? setNewPost({ ...newPost, sentiment })
-                          : setNewSubmission({ ...newSubmission, sentiment })
-                      }
-                      className={`flex-1 flex items-center justify-center space-x-2 px-4 py-2 rounded-lg border-2 transition ${
-                        (profile?.is_admin ? newPost.sentiment : newSubmission.sentiment) ===
-                        sentiment
-                          ? `${getSentimentColor(sentiment)} border-current`
-                          : 'border-slate-300 text-slate-600 hover:border-slate-400'
-                      }`}
-                    >
-                      {getSentimentIcon(sentiment)}
-                      <span className="capitalize">{sentiment}</span>
-                    </button>
-                  ))}
+              {!profile?.is_admin && (
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-2">Sentiment</label>
+                  <div className="flex space-x-2">
+                    {(['bullish', 'neutral', 'bearish'] as const).map((sentiment) => (
+                      <button
+                        key={sentiment}
+                        onClick={() => setNewSubmission({ ...newSubmission, sentiment })}
+                        className={`flex-1 flex items-center justify-center space-x-2 px-4 py-2 rounded-lg border-2 transition ${
+                          newSubmission.sentiment === sentiment
+                            ? `${getSentimentColor(sentiment)} border-current`
+                            : 'border-slate-300 text-slate-600 hover:border-slate-400'
+                        }`}
+                      >
+                        {getSentimentIcon(sentiment)}
+                        <span className="capitalize">{sentiment}</span>
+                      </button>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
 
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-2">Title</label>
@@ -605,14 +606,6 @@ export default function Community() {
                     <div className="flex items-center space-x-2 mt-1">
                       <span className="font-bold text-emerald-600">{post.stock_symbol}</span>
                       <span className="text-slate-600 text-sm">{post.stock_name}</span>
-                      <span
-                        className={`flex items-center space-x-1 text-xs px-2 py-1 rounded-full ${getSentimentColor(
-                          post.sentiment
-                        )}`}
-                      >
-                        {getSentimentIcon(post.sentiment)}
-                        <span>{post.sentiment}</span>
-                      </span>
                     </div>
                   </div>
                 </div>
