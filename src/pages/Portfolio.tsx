@@ -26,14 +26,35 @@ export default function Portfolio() {
   const [trades, setTrades] = useState<Trade[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedTrade, setSelectedTrade] = useState<Trade | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [editingSummary, setEditingSummary] = useState<string | null>(null);
+  const [summaryText, setSummaryText] = useState('');
 
   useEffect(() => {
     if (user) {
       loadTrades();
+      checkAdminStatus();
     } else {
       setLoading(false);
     }
   }, [user]);
+
+  const checkAdminStatus = async () => {
+    if (!user) return;
+    try {
+      const { data } = await supabase
+        .from('profiles')
+        .select('is_admin')
+        .eq('id', user.id)
+        .maybeSingle();
+
+      if (data) {
+        setIsAdmin(data.is_admin);
+      }
+    } catch (error) {
+      console.error('Error checking admin status:', error);
+    }
+  };
 
   const loadTrades = async () => {
     try {
@@ -67,6 +88,36 @@ export default function Portfolio() {
       const totalValue = trade.current_price * trade.quantity;
       return { gain, gainPercent, totalValue };
     }
+  };
+
+  const handleEditSummary = (tradeId: string, currentSummary: string) => {
+    setEditingSummary(tradeId);
+    setSummaryText(currentSummary || '');
+  };
+
+  const handleSaveSummary = async (tradeId: string) => {
+    try {
+      const { error } = await supabase
+        .from('user_trades')
+        .update({
+          dd_summary: summaryText,
+          dd_updated_at: new Date().toISOString()
+        })
+        .eq('id', tradeId);
+
+      if (!error) {
+        await loadTrades();
+        setEditingSummary(null);
+        setSummaryText('');
+      }
+    } catch (error) {
+      console.error('Error saving summary:', error);
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setEditingSummary(null);
+    setSummaryText('');
   };
 
   const calculateTotalValue = () => {
@@ -175,12 +226,13 @@ export default function Portfolio() {
                   const isPositive = gain >= 0;
 
                   return (
-                    <tr
-                      key={trade.id}
-                      onClick={() => setSelectedTrade(trade)}
-                      className="hover:bg-slate-50 transition cursor-pointer"
-                    >
-                      <td className="px-6 py-4">
+                    <>
+                      <tr
+                        key={trade.id}
+                        onClick={() => setSelectedTrade(trade)}
+                        className="hover:bg-slate-50 transition cursor-pointer"
+                      >
+                        <td className="px-6 py-4">
                         <span
                           className={`inline-flex px-2 py-1 rounded-full text-xs font-medium ${
                             trade.trade_type === 'stock'
@@ -240,6 +292,57 @@ export default function Portfolio() {
                         </div>
                       </td>
                     </tr>
+                    {isAdmin && (
+                      <tr key={`${trade.id}-summary`} className="bg-blue-50 border-t border-blue-100">
+                        <td colSpan={9} className="px-6 py-4">
+                          {editingSummary === trade.id ? (
+                            <div className="space-y-3" onClick={(e) => e.stopPropagation()}>
+                              <div className="flex items-start justify-between">
+                                <label className="text-sm font-medium text-slate-700">Quick Summary</label>
+                              </div>
+                              <textarea
+                                value={summaryText}
+                                onChange={(e) => setSummaryText(e.target.value)}
+                                placeholder="Add a quick summary about this position..."
+                                rows={2}
+                                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none text-sm"
+                              />
+                              <div className="flex items-center space-x-2">
+                                <button
+                                  onClick={() => handleSaveSummary(trade.id)}
+                                  className="px-4 py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm font-medium"
+                                >
+                                  Save
+                                </button>
+                                <button
+                                  onClick={handleCancelEdit}
+                                  className="px-4 py-1.5 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition text-sm font-medium"
+                                >
+                                  Cancel
+                                </button>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="flex items-start justify-between" onClick={(e) => e.stopPropagation()}>
+                              <div className="flex-1">
+                                {trade.dd_summary ? (
+                                  <p className="text-sm text-slate-700">{trade.dd_summary}</p>
+                                ) : (
+                                  <p className="text-sm text-slate-500 italic">No summary added yet</p>
+                                )}
+                              </div>
+                              <button
+                                onClick={() => handleEditSummary(trade.id, trade.dd_summary || '')}
+                                className="ml-4 px-3 py-1 text-xs text-blue-600 hover:bg-blue-100 rounded-lg transition font-medium"
+                              >
+                                {trade.dd_summary ? 'Edit' : 'Add Summary'}
+                              </button>
+                            </div>
+                          )}
+                        </td>
+                      </tr>
+                    )}
+                    </>
                   );
                 })}
               </tbody>
