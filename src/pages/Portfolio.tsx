@@ -277,7 +277,7 @@ export default function Portfolio() {
                         {trade.trade_type === 'option' && <div className="text-xs text-slate-500">/contract</div>}
                       </td>
                       <td className="px-6 py-4 text-right text-slate-900 font-semibold">
-                        ${totalValue.toFixed(2)}
+                        ${totalValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                       </td>
                       <td className="px-6 py-4 text-sm text-slate-600">
                         {trade.trade_type === 'option' ? (
