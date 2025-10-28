@@ -259,8 +259,16 @@ export default function Community() {
       };
 
       data?.forEach((vote) => {
-        counts.shortTerm[vote.short_term_sentiment]++;
-        counts.longTerm[vote.long_term_sentiment]++;
+        const shortTerm = vote.short_term_sentiment as 'bullish' | 'bearish' | 'neutral';
+        const longTerm = vote.long_term_sentiment as 'bullish' | 'bearish' | 'neutral';
+
+        if (shortTerm === 'bullish' || shortTerm === 'bearish' || shortTerm === 'neutral') {
+          counts.shortTerm[shortTerm]++;
+        }
+
+        if (longTerm === 'bullish' || longTerm === 'bearish' || longTerm === 'neutral') {
+          counts.longTerm[longTerm]++;
+        }
       });
 
       setVoteCounts((prev) => ({ ...prev, [postId]: counts }));
