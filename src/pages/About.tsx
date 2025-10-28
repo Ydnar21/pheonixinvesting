@@ -4,9 +4,11 @@ export default function About() {
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <div className="text-center mb-12">
-        <div className="inline-flex items-center justify-center bg-gradient-to-br from-emerald-500 to-teal-600 p-4 rounded-2xl mb-6">
-          <TrendingUp className="w-12 h-12 text-white" />
-        </div>
+        <img
+          src="/LiquidPheonix.png"
+          alt="Liquid Phoenix"
+          className="w-24 h-24 mx-auto mb-6"
+        />
         <h1 className="text-5xl font-bold gradient-text mb-4">About Liquid Phoenix</h1>
         <p className="text-xl text-slate-600 max-w-2xl mx-auto">
           A free community for people who want to escape the 9-5 and build real wealth together
@@ -42,8 +44,8 @@ export default function About() {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <div className="glass rounded-xl p-6 text-center">
-          <div className="bg-emerald-100 w-14 h-14 rounded-xl flex items-center justify-center mx-auto mb-4">
-            <TrendingUp className="w-7 h-7 text-emerald-600" />
+          <div className="bg-orange-100 w-14 h-14 rounded-xl flex items-center justify-center mx-auto mb-4">
+            <TrendingUp className="w-7 h-7 text-orange-600" />
           </div>
           <h3 className="text-lg font-bold text-slate-900 mb-2">Track Trades</h3>
           <p className="text-slate-600 text-sm">
@@ -62,8 +64,8 @@ export default function About() {
         </div>
 
         <div className="glass rounded-xl p-6 text-center">
-          <div className="bg-teal-100 w-14 h-14 rounded-xl flex items-center justify-center mx-auto mb-4">
-            <Coffee className="w-7 h-7 text-teal-600" />
+          <div className="bg-red-100 w-14 h-14 rounded-xl flex items-center justify-center mx-auto mb-4">
+            <Coffee className="w-7 h-7 text-red-600" />
           </div>
           <h3 className="text-lg font-bold text-slate-900 mb-2">Stay Informed</h3>
           <p className="text-slate-600 text-sm">
@@ -82,12 +84,12 @@ export default function About() {
         </p>
       </div>
 
-      <div className="bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl shadow-lg p-8 text-white text-center mb-8">
+      <div className="bg-gradient-to-br from-orange-500 to-red-600 rounded-2xl shadow-lg p-8 text-white text-center mb-8">
         <div className="inline-flex items-center justify-center bg-white bg-opacity-20 w-16 h-16 rounded-2xl mb-4">
           <Heart className="w-8 h-8" />
         </div>
         <h2 className="text-3xl font-bold mb-4">Built for the Community</h2>
-        <p className="text-emerald-50 text-lg max-w-2xl mx-auto leading-relaxed">
+        <p className="text-orange-50 text-lg max-w-2xl mx-auto leading-relaxed">
           No ads. No subscriptions. No gimmicks. Just a small group of people who are tired of the rat race and want to build something better.
           Let's escape the 9-5 together.
         </p>

@@ -154,7 +154,7 @@ export default function VotingSection({ postId, userVote, voteCounts, onVote }: 
 
       <button
         onClick={handleSubmitVote}
-        className="w-full bg-emerald-500 hover:bg-emerald-600 text-white py-2 rounded-lg transition font-medium text-sm"
+        className="w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white py-2 rounded-lg transition font-medium text-sm shadow-md"
       >
         {userVote ? 'Update Vote' : 'Submit Vote'}
       </button>

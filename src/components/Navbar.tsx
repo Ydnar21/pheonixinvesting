@@ -29,9 +29,11 @@ export default function Navbar({ currentPage, onNavigate }: NavbarProps) {
               onClick={() => onNavigate('portfolio')}
               className="flex items-center space-x-3 group"
             >
-              <div className="gradient-bg p-2.5 rounded-xl group-hover:scale-110 transition-transform duration-200 shadow-soft">
-                <TrendingUp className="w-6 h-6 text-white" />
-              </div>
+              <img
+                src="/LiquidPheonix.png"
+                alt="Liquid Phoenix"
+                className="w-12 h-12 group-hover:scale-110 transition-transform duration-200"
+              />
               <span className="text-2xl font-bold gradient-text">Liquid Phoenix</span>
             </button>
 
@@ -42,7 +44,7 @@ export default function Navbar({ currentPage, onNavigate }: NavbarProps) {
                   onClick={() => onNavigate(item.id)}
                   className={`px-5 py-2.5 rounded-xl font-semibold transition-all duration-200 ${
                     currentPage === item.id
-                      ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-soft'
+                      ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white shadow-soft'
                       : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
                   }`}
                 >
@@ -87,7 +89,7 @@ export default function Navbar({ currentPage, onNavigate }: NavbarProps) {
               onClick={() => onNavigate(item.id)}
               className={`px-4 py-2.5 rounded-xl font-semibold transition-all duration-200 whitespace-nowrap ${
                 currentPage === item.id
-                  ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-soft'
+                  ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white shadow-soft'
                   : 'text-slate-600 hover:bg-slate-100'
               }`}
             >

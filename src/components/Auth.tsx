@@ -37,13 +37,15 @@ export default function Auth() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-emerald-950 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-orange-950 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="glass rounded-3xl shadow-2xl p-10 border border-white/10">
           <div className="flex items-center justify-center mb-8">
-            <div className="gradient-bg p-4 rounded-2xl shadow-soft-lg">
-              <TrendingUp className="w-10 h-10 text-white" />
-            </div>
+            <img
+              src="/LiquidPheonix.png"
+              alt="Liquid Phoenix"
+              className="w-20 h-20"
+            />
           </div>
 
           <h2 className="text-4xl font-bold text-center gradient-text mb-3">
@@ -64,7 +66,7 @@ export default function Auth() {
                   type="text"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  className="w-full px-5 py-3.5 border-2 border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all bg-white/50"
+                  className="w-full px-5 py-3.5 border-2 border-slate-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all bg-white/50"
                   placeholder="Choose a username"
                   required={isSignUp}
                 />

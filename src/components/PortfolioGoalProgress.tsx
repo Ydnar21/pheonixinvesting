@@ -98,7 +98,7 @@ export default function PortfolioGoalProgress({ currentValue }: PortfolioGoalPro
     <div className="glass rounded-2xl p-8 mb-8">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
-          <div className="bg-gradient-to-br from-emerald-500 to-teal-600 p-3 rounded-xl">
+          <div className="bg-gradient-to-br from-orange-500 to-red-600 p-3 rounded-xl">
             <Target className="w-6 h-6 text-white" />
           </div>
           <div>
@@ -130,7 +130,7 @@ export default function PortfolioGoalProgress({ currentValue }: PortfolioGoalPro
 
         <div className="relative h-6 bg-slate-200 rounded-full overflow-hidden">
           <div
-            className="absolute top-0 left-0 h-full bg-gradient-to-r from-emerald-500 to-teal-600 transition-all duration-1000 ease-out rounded-full"
+            className="absolute top-0 left-0 h-full bg-gradient-to-r from-orange-500 to-red-600 transition-all duration-1000 ease-out rounded-full"
             style={{ width: `${progressPercentage}%` }}
           >
             <div className="absolute inset-0 bg-white/20 animate-pulse"></div>

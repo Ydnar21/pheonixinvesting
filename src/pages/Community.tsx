@@ -392,7 +392,7 @@ export default function Community() {
         </div>
         <button
           onClick={() => setShowNewPost(true)}
-          className="flex items-center space-x-2 gradient-bg text-white px-6 py-3 rounded-xl font-semibold shadow-soft hover:shadow-lg transition-all duration-200 hover:scale-105"
+          className="flex items-center space-x-2 bg-gradient-to-r from-orange-500 to-red-500 text-white px-6 py-3 rounded-xl font-semibold shadow-soft hover:shadow-lg transition-all duration-200 hover:scale-105"
         >
           <Plus className="w-5 h-5" />
           <span>{profile?.is_admin ? 'New Post' : 'Submit Idea'}</span>
@@ -438,7 +438,7 @@ export default function Community() {
                     <div className="flex space-x-2">
                       <button
                         onClick={() => handleSubmission(submission.id, 'approve')}
-                        className="flex items-center space-x-1 bg-emerald-500 hover:bg-emerald-600 text-white px-3 py-1.5 rounded-lg transition text-sm"
+                        className="flex items-center space-x-1 bg-orange-500 hover:bg-orange-600 text-white px-3 py-1.5 rounded-lg transition text-sm"
                       >
                         <CheckCircle className="w-4 h-4" />
                         <span>Approve</span>
@@ -576,7 +576,7 @@ export default function Community() {
               </button>
               <button
                 onClick={profile?.is_admin ? createPost : submitStockIdea}
-                className="bg-emerald-500 hover:bg-emerald-600 text-white px-6 py-2 rounded-lg font-medium transition"
+                className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded-lg font-medium transition"
               >
                 {profile?.is_admin ? 'Post' : 'Submit'}
               </button>
@@ -603,7 +603,7 @@ export default function Community() {
                         {post.profiles?.username || 'Anonymous'}
                       </span>
                       {post.profiles?.is_admin && (
-                        <span className="bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-xs px-3 py-1 rounded-full font-semibold shadow-soft">
+                        <span className="bg-gradient-to-r from-orange-500 to-red-500 text-white text-xs px-3 py-1 rounded-full font-semibold shadow-soft">
                           Admin
                         </span>
                       )}
@@ -696,7 +696,7 @@ export default function Community() {
                 />
                 <button
                   onClick={() => addComment(post.id)}
-                  className="bg-emerald-500 hover:bg-emerald-600 text-white p-2 rounded-lg transition"
+                  className="bg-orange-500 hover:bg-orange-600 text-white p-2 rounded-lg transition"
                 >
                   <Send className="w-5 h-5" />
                 </button>
