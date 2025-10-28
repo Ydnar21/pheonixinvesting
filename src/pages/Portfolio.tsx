@@ -180,7 +180,7 @@ export default function Portfolio() {
             </div>
           </div>
           <div className={`text-4xl font-bold ${totalGain >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
-            {totalGain >= 0 ? '+' : ''}${totalGain.toFixed(2)}
+            {totalGain >= 0 ? '+' : ''}${totalGain.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </div>
         </div>
 
