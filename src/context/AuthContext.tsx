@@ -66,12 +66,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signUp = async (email: string, password: string, username: string) => {
     try {
+      const { data: existingProfile } = await supabase
+        .from('profiles')
+        .select('username')
+        .eq('username', username)
+        .maybeSingle();
+
+      if (existingProfile) {
+        return { error: { message: 'Username is already taken. Please choose a different username.' } };
+      }
+
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
       });
 
-      if (error) return { error };
+      if (error) {
+        if (error.message.includes('already registered')) {
+          return { error: { message: 'This email is already registered. Please sign in or use a different email.' } };
+        }
+        return { error };
+      }
 
       if (data.user) {
         const { error: profileError } = await supabase
@@ -85,7 +100,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             },
           ]);
 
-        if (profileError) return { error: profileError };
+        if (profileError) {
+          if (profileError.code === '23505') {
+            return { error: { message: 'Username is already taken. Please choose a different username.' } };
+          }
+          return { error: profileError };
+        }
       }
 
       return { error: null };
