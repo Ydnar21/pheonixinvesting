@@ -61,3 +61,13 @@ export type PostLike = {
   user_id: string;
   created_at: string;
 };
+
+export type StockVote = {
+  id: string;
+  post_id: string;
+  user_id: string;
+  short_term_sentiment: 'bullish' | 'bearish' | 'neutral';
+  long_term_sentiment: 'bullish' | 'bearish' | 'neutral';
+  created_at: string;
+  updated_at: string;
+};

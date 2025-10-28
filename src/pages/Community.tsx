@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { MessageSquare, ThumbsUp, TrendingUp, TrendingDown, Minus, Send, Plus, CheckCircle, XCircle, Clock } from 'lucide-react';
-import { supabase, StockPost, PostComment, StockSubmission } from '../lib/supabase';
+import { supabase, StockPost, PostComment, StockSubmission, StockVote } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
+import VotingSection from '../components/VotingSection';
 
 export default function Community() {
   const { user, profile } = useAuth();
@@ -12,6 +13,8 @@ export default function Community() {
   const [newComment, setNewComment] = useState<{ [key: string]: string }>({});
   const [likes, setLikes] = useState<{ [key: string]: boolean }>({});
   const [likeCounts, setLikeCounts] = useState<{ [key: string]: number }>({});
+  const [votes, setVotes] = useState<{ [key: string]: StockVote }>({});
+  const [voteCounts, setVoteCounts] = useState<{ [key: string]: { shortTerm: { bullish: number; bearish: number; neutral: number }; longTerm: { bullish: number; bearish: number; neutral: number } } }>({});
   const [showNewPost, setShowNewPost] = useState(false);
   const [showSubmissions, setShowSubmissions] = useState(false);
   const [newPost, setNewPost] = useState({
@@ -53,6 +56,7 @@ export default function Community() {
         data.forEach((post) => {
           loadComments(post.id);
           loadLikes(post.id);
+          loadVotes(post.id);
         });
       }
     } catch (error) {
@@ -233,6 +237,78 @@ export default function Community() {
       loadComments(postId);
     } catch (error) {
       console.error('Error adding comment:', error);
+    }
+  };
+
+  const loadVotes = async (postId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('stock_votes')
+        .select('*')
+        .eq('post_id', postId);
+
+      if (error) throw error;
+
+      const counts = {
+        shortTerm: { bullish: 0, bearish: 0, neutral: 0 },
+        longTerm: { bullish: 0, bearish: 0, neutral: 0 },
+      };
+
+      data?.forEach((vote) => {
+        counts.shortTerm[vote.short_term_sentiment]++;
+        counts.longTerm[vote.long_term_sentiment]++;
+      });
+
+      setVoteCounts((prev) => ({ ...prev, [postId]: counts }));
+
+      if (user) {
+        const userVote = data?.find((vote) => vote.user_id === user.id);
+        if (userVote) {
+          setVotes((prev) => ({ ...prev, [postId]: userVote }));
+        }
+      }
+    } catch (error) {
+      console.error('Error loading votes:', error);
+    }
+  };
+
+  const handleVote = async (
+    postId: string,
+    shortTermSentiment: 'bullish' | 'bearish' | 'neutral',
+    longTermSentiment: 'bullish' | 'bearish' | 'neutral'
+  ) => {
+    if (!user) return;
+
+    try {
+      const existingVote = votes[postId];
+
+      if (existingVote) {
+        const { error } = await supabase
+          .from('stock_votes')
+          .update({
+            short_term_sentiment: shortTermSentiment,
+            long_term_sentiment: longTermSentiment,
+            updated_at: new Date().toISOString(),
+          })
+          .eq('id', existingVote.id);
+
+        if (error) throw error;
+      } else {
+        const { error } = await supabase.from('stock_votes').insert([
+          {
+            post_id: postId,
+            user_id: user.id,
+            short_term_sentiment: shortTermSentiment,
+            long_term_sentiment: longTermSentiment,
+          },
+        ]);
+
+        if (error) throw error;
+      }
+
+      loadVotes(postId);
+    } catch (error) {
+      console.error('Error voting:', error);
     }
   };
 
@@ -544,8 +620,20 @@ export default function Community() {
 
               <h3 className="text-xl font-bold text-slate-900 mb-2">{post.title}</h3>
               <p className="text-slate-700 whitespace-pre-wrap">{post.content}</p>
+            </div>
 
-              <div className="flex items-center space-x-4 mt-4 pt-4 border-t border-slate-200">
+            {/* Voting Section */}
+            <div className="px-6 pb-4">
+              <VotingSection
+                postId={post.id}
+                userVote={votes[post.id]}
+                voteCounts={voteCounts[post.id] || { shortTerm: { bullish: 0, bearish: 0, neutral: 0 }, longTerm: { bullish: 0, bearish: 0, neutral: 0 } }}
+                onVote={handleVote}
+              />
+            </div>
+
+            <div className="px-6">
+              <div className="flex items-center space-x-4 pt-4 border-t border-slate-200">
                 <button
                   onClick={() => toggleLike(post.id)}
                   className={`flex items-center space-x-2 px-3 py-1.5 rounded-lg transition ${
