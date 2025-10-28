@@ -30,6 +30,7 @@ export default function Portfolio() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [editingSummary, setEditingSummary] = useState<string | null>(null);
   const [summaryText, setSummaryText] = useState('');
+  const [expandedTrade, setExpandedTrade] = useState<string | null>(null);
 
   useEffect(() => {
     if (user) {
@@ -238,7 +239,13 @@ export default function Portfolio() {
                     <>
                       <tr
                         key={trade.id}
-                        onClick={() => setSelectedTrade(trade)}
+                        onClick={() => {
+                          if (isAdmin) {
+                            setExpandedTrade(expandedTrade === trade.id ? null : trade.id);
+                          } else {
+                            setSelectedTrade(trade);
+                          }
+                        }}
                         className="hover:bg-slate-50 transition cursor-pointer"
                       >
                         <td className="px-6 py-4">
@@ -314,7 +321,7 @@ export default function Portfolio() {
                         </div>
                       </td>
                     </tr>
-                    {isAdmin && (
+                    {isAdmin && expandedTrade === trade.id && (
                       <tr key={`${trade.id}-summary`} className="bg-blue-50 border-t border-blue-100">
                         <td colSpan={9} className="px-6 py-4">
                           {editingSummary === trade.id ? (
