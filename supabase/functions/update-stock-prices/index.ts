@@ -58,18 +58,18 @@ Deno.serve(async (req: Request) => {
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    const { data: allTrades, error: fetchError } = await supabase
+    const { data: trades, error: fetchError } = await supabase
       .from('user_trades')
       .select('id, symbol, trade_type')
-      .in('trade_type', ['stock', 'option']);
+      .eq('trade_type', 'stock');
 
     if (fetchError) {
       throw new Error(`Failed to fetch trades: ${fetchError.message}`);
     }
 
-    if (!allTrades || allTrades.length === 0) {
+    if (!trades || trades.length === 0) {
       return new Response(
-        JSON.stringify({ message: 'No positions to update', updated: [] }),
+        JSON.stringify({ message: 'No stock positions to update', updated: [] }),
         {
           headers: {
             ...corsHeaders,
@@ -79,7 +79,7 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    const uniqueSymbols = [...new Set(allTrades.map(t => t.symbol))];
+    const uniqueSymbols = [...new Set(trades.map(t => t.symbol))];
     console.log(`Updating prices for ${uniqueSymbols.length} symbols:`, uniqueSymbols);
 
     const priceUpdates: StockQuote[] = [];
@@ -95,42 +95,23 @@ Deno.serve(async (req: Request) => {
       await new Promise(resolve => setTimeout(resolve, 500));
     }
 
-    const successfulStockUpdates = [];
-    const successfulOptionUpdates = [];
+    const successfulUpdates = [];
     const failedUpdates = [];
 
     for (const update of priceUpdates) {
       if (update.price !== null) {
-        const { error: stockUpdateError } = await supabase
+        const { error: updateError } = await supabase
           .from('user_trades')
           .update({ current_price: update.price })
           .eq('symbol', update.symbol)
           .eq('trade_type', 'stock');
 
-        if (stockUpdateError) {
-          console.error(`Failed to update stock ${update.symbol}:`, stockUpdateError);
+        if (updateError) {
+          console.error(`Failed to update ${update.symbol}:`, updateError);
+          failedUpdates.push(update.symbol);
         } else {
-          const stockCount = allTrades.filter(t => t.symbol === update.symbol && t.trade_type === 'stock').length;
-          if (stockCount > 0) {
-            console.log(`Updated ${stockCount} stock positions for ${update.symbol} to $${update.price}`);
-            successfulStockUpdates.push({ symbol: update.symbol, price: update.price });
-          }
-        }
-
-        const { error: optionUpdateError } = await supabase
-          .from('user_trades')
-          .update({ current_price: update.price })
-          .eq('symbol', update.symbol)
-          .eq('trade_type', 'option');
-
-        if (optionUpdateError) {
-          console.error(`Failed to update options ${update.symbol}:`, optionUpdateError);
-        } else {
-          const optionCount = allTrades.filter(t => t.symbol === update.symbol && t.trade_type === 'option').length;
-          if (optionCount > 0) {
-            console.log(`Updated ${optionCount} option positions for ${update.symbol} to $${update.price}`);
-            successfulOptionUpdates.push({ symbol: update.symbol, price: update.price });
-          }
+          console.log(`Updated ${update.symbol} to $${update.price}`);
+          successfulUpdates.push({ symbol: update.symbol, price: update.price });
         }
       } else {
         failedUpdates.push(update.symbol);
@@ -139,9 +120,8 @@ Deno.serve(async (req: Request) => {
 
     return new Response(
       JSON.stringify({
-        message: 'Price update completed',
-        stocks_updated: successfulStockUpdates,
-        options_updated: successfulOptionUpdates,
+        message: 'Stock prices update completed',
+        updated: successfulUpdates,
         failed: failedUpdates,
         timestamp: new Date().toISOString(),
       }),
