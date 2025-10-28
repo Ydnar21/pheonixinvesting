@@ -79,7 +79,7 @@ export default function About() {
         </p>
       </div>
 
-      <div className="bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl shadow-lg p-8 text-white text-center">
+      <div className="bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl shadow-lg p-8 text-white text-center mb-8">
         <div className="inline-flex items-center justify-center bg-white bg-opacity-20 w-16 h-16 rounded-2xl mb-4">
           <Heart className="w-8 h-8" />
         </div>
@@ -87,6 +87,24 @@ export default function About() {
         <p className="text-emerald-50 text-lg max-w-2xl mx-auto leading-relaxed">
           No ads. No subscriptions. No gimmicks. Just a small group of people who are tired of the rat race and want to build something better.
           Let's escape the 9-5 together.
+        </p>
+      </div>
+
+      <div className="glass rounded-2xl p-8 mb-8">
+        <h2 className="text-2xl font-bold text-slate-900 mb-4">Community Guidelines</h2>
+        <p className="text-slate-700 text-lg leading-relaxed mb-4">
+          Please feel free to contribute to stock discussions and share your insights! The only thing I ask is that you keep a positive mentality towards others when chatting.
+        </p>
+        <p className="text-slate-700 text-lg leading-relaxed">
+          We're all here to learn and grow. Everyone has different experience levels, and that's okay. Let's support each other and build something great together.
+        </p>
+      </div>
+
+      <div className="bg-amber-50 border-2 border-amber-200 rounded-2xl p-8 text-center">
+        <h2 className="text-2xl font-bold text-amber-900 mb-3">Important Disclaimer</h2>
+        <p className="text-amber-800 text-lg leading-relaxed max-w-2xl mx-auto">
+          <strong>Nothing on this website is financial advice in any way, shape, or form.</strong> I'm just sharing my own trades and thoughts as I navigate my journey to financial freedom.
+          Always do your own research and make your own informed decisions. Investing involves risk, and you could lose money.
         </p>
       </div>
     </div>
