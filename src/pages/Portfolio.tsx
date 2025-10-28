@@ -3,6 +3,7 @@ import { TrendingUp, DollarSign, Percent, BarChart3 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
 import TradeDetailModal from '../components/TradeDetailModal';
+import PortfolioGoalProgress from '../components/PortfolioGoalProgress';
 
 interface Trade {
   id: string;
@@ -202,6 +203,8 @@ export default function Portfolio() {
         <h1 className="text-5xl font-bold gradient-text mb-3">Portfolio Dashboard</h1>
         <p className="text-slate-600 text-lg">Shared investment portfolio managed by admin</p>
       </div>
+
+      <PortfolioGoalProgress currentValue={totalValue} />
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
         <div className="glass rounded-2xl p-8 card-hover border-l-4 border-emerald-500">
