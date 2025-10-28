@@ -1,0 +1,170 @@
+import "jsr:@supabase/functions-js/edge-runtime.d.ts";
+import { createClient } from "npm:@supabase/supabase-js@2.57.4";
+
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Client-Info, Apikey",
+};
+
+interface StockQuote {
+  symbol: string;
+  price: number | null;
+  error?: string;
+}
+
+async function fetchStockPrice(symbol: string): Promise<number | null> {
+  try {
+    const response = await fetch(
+      `https://www.google.com/finance/quote/${symbol}:NASDAQ`,
+      {
+        headers: {
+          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+        },
+      }
+    );
+
+    if (!response.ok) {
+      const nyseResponse = await fetch(
+        `https://www.google.com/finance/quote/${symbol}:NYSE`,
+        {
+          headers: {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+          },
+        }
+      );
+      
+      if (!nyseResponse.ok) {
+        console.error(`Failed to fetch price for ${symbol}`);
+        return null;
+      }
+      
+      const nyseHtml = await nyseResponse.text();
+      return extractPriceFromHtml(nyseHtml);
+    }
+
+    const html = await response.text();
+    return extractPriceFromHtml(html);
+  } catch (error) {
+    console.error(`Error fetching ${symbol}:`, error);
+    return null;
+  }
+}
+
+function extractPriceFromHtml(html: string): number | null {
+  try {
+    const priceMatch = html.match(/data-last-price="([0-9.]+)"/i) ||
+                       html.match(/class="YMlKec fxKbKc">\$([0-9,.]+)</i);
+    
+    if (priceMatch && priceMatch[1]) {
+      const price = parseFloat(priceMatch[1].replace(/,/g, ''));
+      return isNaN(price) ? null : price;
+    }
+    return null;
+  } catch (error) {
+    console.error('Error extracting price from HTML:', error);
+    return null;
+  }
+}
+
+Deno.serve(async (req: Request) => {
+  if (req.method === "OPTIONS") {
+    return new Response(null, {
+      status: 200,
+      headers: corsHeaders,
+    });
+  }
+
+  try {
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
+    const { data: trades, error: fetchError } = await supabase
+      .from('user_trades')
+      .select('id, symbol, trade_type')
+      .eq('trade_type', 'stock');
+
+    if (fetchError) {
+      throw new Error(`Failed to fetch trades: ${fetchError.message}`);
+    }
+
+    if (!trades || trades.length === 0) {
+      return new Response(
+        JSON.stringify({ message: 'No stock positions to update', updated: [] }),
+        {
+          headers: {
+            ...corsHeaders,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+    }
+
+    const uniqueSymbols = [...new Set(trades.map(t => t.symbol))];
+    console.log(`Updating prices for ${uniqueSymbols.length} symbols:`, uniqueSymbols);
+
+    const priceUpdates: StockQuote[] = [];
+    
+    for (const symbol of uniqueSymbols) {
+      const price = await fetchStockPrice(symbol);
+      priceUpdates.push({
+        symbol,
+        price,
+        error: price === null ? 'Failed to fetch price' : undefined,
+      });
+      
+      await new Promise(resolve => setTimeout(resolve, 500));
+    }
+
+    const successfulUpdates = [];
+    const failedUpdates = [];
+
+    for (const update of priceUpdates) {
+      if (update.price !== null) {
+        const { error: updateError } = await supabase
+          .from('user_trades')
+          .update({ current_price: update.price })
+          .eq('symbol', update.symbol)
+          .eq('trade_type', 'stock');
+
+        if (updateError) {
+          console.error(`Failed to update ${update.symbol}:`, updateError);
+          failedUpdates.push(update.symbol);
+        } else {
+          console.log(`Updated ${update.symbol} to $${update.price}`);
+          successfulUpdates.push({ symbol: update.symbol, price: update.price });
+        }
+      } else {
+        failedUpdates.push(update.symbol);
+      }
+    }
+
+    return new Response(
+      JSON.stringify({
+        message: 'Stock prices update completed',
+        updated: successfulUpdates,
+        failed: failedUpdates,
+        timestamp: new Date().toISOString(),
+      }),
+      {
+        headers: {
+          ...corsHeaders,
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+  } catch (error) {
+    console.error('Error in update-stock-prices function:', error);
+    return new Response(
+      JSON.stringify({ error: error.message }),
+      {
+        status: 500,
+        headers: {
+          ...corsHeaders,
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+  }
+});
