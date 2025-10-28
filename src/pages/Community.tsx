@@ -376,15 +376,15 @@ export default function Community() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="mb-8 flex items-center justify-between">
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div className="mb-12 flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-slate-900 mb-2">Investment Community</h1>
-          <p className="text-slate-600">Stock discussions and insights</p>
+          <h1 className="text-5xl font-bold gradient-text mb-3">Investment Community</h1>
+          <p className="text-slate-600 text-lg">Stock discussions and insights</p>
         </div>
         <button
           onClick={() => setShowNewPost(true)}
-          className="flex items-center space-x-2 bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 rounded-lg transition"
+          className="flex items-center space-x-2 gradient-bg text-white px-6 py-3 rounded-xl font-semibold shadow-soft hover:shadow-lg transition-all duration-200 hover:scale-105"
         >
           <Plus className="w-5 h-5" />
           <span>{profile?.is_admin ? 'New Post' : 'Submit Idea'}</span>
@@ -577,25 +577,25 @@ export default function Community() {
         </div>
       )}
 
-      <div className="space-y-6">
+      <div className="space-y-8">
         {posts.map((post) => (
           <div
             key={post.id}
-            className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden"
+            className="glass rounded-2xl overflow-hidden card-hover"
           >
-            <div className="p-6">
-              <div className="flex items-start justify-between mb-4">
-                <div className="flex items-start space-x-3 flex-1">
-                  <div className="bg-emerald-500 text-white font-bold w-10 h-10 rounded-full flex items-center justify-center">
+            <div className="p-8">
+              <div className="flex items-start justify-between mb-6">
+                <div className="flex items-start space-x-4 flex-1">
+                  <div className="gradient-bg text-white font-bold w-12 h-12 rounded-xl flex items-center justify-center text-lg shadow-soft">
                     {post.profiles?.username?.[0]?.toUpperCase() || 'U'}
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center space-x-2">
-                      <span className="font-semibold text-slate-900">
+                      <span className="font-bold text-slate-900 text-lg">
                         {post.profiles?.username || 'Anonymous'}
                       </span>
                       {post.profiles?.is_admin && (
-                        <span className="bg-emerald-100 text-emerald-700 text-xs px-2 py-0.5 rounded-full font-medium">
+                        <span className="bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-xs px-3 py-1 rounded-full font-semibold shadow-soft">
                           Admin
                         </span>
                       )}
@@ -603,16 +603,16 @@ export default function Community() {
                         {new Date(post.created_at).toLocaleDateString()}
                       </span>
                     </div>
-                    <div className="flex items-center space-x-2 mt-1">
-                      <span className="font-bold text-emerald-600">{post.stock_symbol}</span>
-                      <span className="text-slate-600 text-sm">{post.stock_name}</span>
+                    <div className="flex items-center space-x-2 mt-2">
+                      <span className="font-bold text-emerald-600 text-lg">{post.stock_symbol}</span>
+                      <span className="text-slate-600">{post.stock_name}</span>
                     </div>
                   </div>
                 </div>
               </div>
 
-              <h3 className="text-xl font-bold text-slate-900 mb-2">{post.title}</h3>
-              <p className="text-slate-700 whitespace-pre-wrap">{post.content}</p>
+              <h3 className="text-2xl font-bold text-slate-900 mb-3">{post.title}</h3>
+              <p className="text-slate-700 text-lg leading-relaxed whitespace-pre-wrap">{post.content}</p>
             </div>
 
             {/* Voting Section */}

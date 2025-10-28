@@ -21,29 +21,29 @@ export default function Navbar({ currentPage, onNavigate }: NavbarProps) {
     : [];
 
   return (
-    <nav className="bg-white border-b border-slate-200 sticky top-0 z-50 shadow-sm">
+    <nav className="glass sticky top-0 z-50 border-b border-slate-200/50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
+        <div className="flex justify-between items-center h-20">
           <div className="flex items-center space-x-8">
             <button
               onClick={() => onNavigate('portfolio')}
-              className="flex items-center space-x-2 group"
+              className="flex items-center space-x-3 group"
             >
-              <div className="bg-emerald-500 p-2 rounded-lg group-hover:bg-emerald-600 transition">
-                <TrendingUp className="w-5 h-5 text-white" />
+              <div className="gradient-bg p-2.5 rounded-xl group-hover:scale-110 transition-transform duration-200 shadow-soft">
+                <TrendingUp className="w-6 h-6 text-white" />
               </div>
-              <span className="text-xl font-bold text-slate-900">Liquid Phoenix</span>
+              <span className="text-2xl font-bold gradient-text">Liquid Phoenix</span>
             </button>
 
-            <div className="hidden md:flex space-x-1">
+            <div className="hidden md:flex space-x-2">
               {navItems.map((item) => (
                 <button
                   key={item.id}
                   onClick={() => onNavigate(item.id)}
-                  className={`px-4 py-2 rounded-lg font-medium transition ${
+                  className={`px-5 py-2.5 rounded-xl font-semibold transition-all duration-200 ${
                     currentPage === item.id
-                      ? 'bg-emerald-50 text-emerald-600'
-                      : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                      ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-soft'
+                      : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
                   }`}
                 >
                   {item.label}
@@ -53,9 +53,9 @@ export default function Navbar({ currentPage, onNavigate }: NavbarProps) {
                 <button
                   key={item.id}
                   onClick={() => onNavigate(item.id)}
-                  className={`px-4 py-2 rounded-lg font-medium transition ${
+                  className={`px-5 py-2.5 rounded-xl font-semibold transition-all duration-200 ${
                     currentPage === item.id
-                      ? 'bg-orange-50 text-orange-600'
+                      ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white shadow-soft'
                       : 'text-orange-600 hover:bg-orange-50 hover:text-orange-700'
                   }`}
                 >
@@ -66,29 +66,29 @@ export default function Navbar({ currentPage, onNavigate }: NavbarProps) {
           </div>
 
           <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-2 text-sm">
+            <div className="flex items-center space-x-2 px-4 py-2 bg-slate-100/80 rounded-xl">
               <User className="w-4 h-4 text-slate-600" />
-              <span className="text-slate-700 font-medium">{profile?.username}</span>
+              <span className="text-slate-700 font-semibold">{profile?.username}</span>
             </div>
             <button
               onClick={signOut}
-              className="flex items-center space-x-2 px-4 py-2 text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition"
+              className="flex items-center space-x-2 px-5 py-2.5 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition-all duration-200"
             >
               <LogOut className="w-4 h-4" />
-              <span className="hidden sm:inline">Sign Out</span>
+              <span className="hidden sm:inline font-medium">Sign Out</span>
             </button>
           </div>
         </div>
 
-        <div className="md:hidden flex space-x-1 pb-3 overflow-x-auto">
+        <div className="md:hidden flex space-x-2 pb-4 overflow-x-auto">
           {navItems.map((item) => (
             <button
               key={item.id}
               onClick={() => onNavigate(item.id)}
-              className={`px-4 py-2 rounded-lg font-medium transition whitespace-nowrap ${
+              className={`px-4 py-2.5 rounded-xl font-semibold transition-all duration-200 whitespace-nowrap ${
                 currentPage === item.id
-                  ? 'bg-emerald-50 text-emerald-600'
-                  : 'text-slate-600 hover:bg-slate-50'
+                  ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-soft'
+                  : 'text-slate-600 hover:bg-slate-100'
               }`}
             >
               {item.label}
@@ -98,9 +98,9 @@ export default function Navbar({ currentPage, onNavigate }: NavbarProps) {
             <button
               key={item.id}
               onClick={() => onNavigate(item.id)}
-              className={`px-4 py-2 rounded-lg font-medium transition whitespace-nowrap ${
+              className={`px-4 py-2.5 rounded-xl font-semibold transition-all duration-200 whitespace-nowrap ${
                 currentPage === item.id
-                  ? 'bg-orange-50 text-orange-600'
+                  ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white shadow-soft'
                   : 'text-orange-600 hover:bg-orange-50'
               }`}
             >

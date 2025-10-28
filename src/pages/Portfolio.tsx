@@ -153,49 +153,57 @@ export default function Portfolio() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-slate-900 mb-2">Portfolio Dashboard</h1>
-        <p className="text-slate-600">Shared investment portfolio managed by admin</p>
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div className="mb-12">
+        <h1 className="text-5xl font-bold gradient-text mb-3">Portfolio Dashboard</h1>
+        <p className="text-slate-600 text-lg">Shared investment portfolio managed by admin</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-slate-600 text-sm font-medium">Total Value</span>
-            <DollarSign className="w-5 h-5 text-emerald-500" />
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+        <div className="glass rounded-2xl p-8 card-hover border-l-4 border-emerald-500">
+          <div className="flex items-center justify-between mb-4">
+            <span className="text-slate-600 font-semibold uppercase tracking-wide text-sm">Total Value</span>
+            <div className="bg-emerald-100 p-3 rounded-xl">
+              <DollarSign className="w-6 h-6 text-emerald-600" />
+            </div>
           </div>
-          <div className="text-3xl font-bold text-slate-900">
+          <div className="text-4xl font-bold text-slate-900">
             ${totalValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </div>
         </div>
 
-        <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-slate-600 text-sm font-medium">Total Gain/Loss</span>
-            <TrendingUp className={`w-5 h-5 ${totalGain >= 0 ? 'text-emerald-500' : 'text-red-500'}`} />
+        <div className="glass rounded-2xl p-8 card-hover border-l-4 border-teal-500">
+          <div className="flex items-center justify-between mb-4">
+            <span className="text-slate-600 font-semibold uppercase tracking-wide text-sm">Total Gain/Loss</span>
+            <div className={`p-3 rounded-xl ${totalGain >= 0 ? 'bg-emerald-100' : 'bg-red-100'}`}>
+              <TrendingUp className={`w-6 h-6 ${totalGain >= 0 ? 'text-emerald-600' : 'text-red-600'}`} />
+            </div>
           </div>
-          <div className={`text-3xl font-bold ${totalGain >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+          <div className={`text-4xl font-bold ${totalGain >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
             {totalGain >= 0 ? '+' : ''}${totalGain.toFixed(2)}
           </div>
         </div>
 
-        <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-slate-600 text-sm font-medium">Total Return</span>
-            <Percent className={`w-5 h-5 ${totalGain >= 0 ? 'text-emerald-500' : 'text-red-500'}`} />
+        <div className="glass rounded-2xl p-8 card-hover border-l-4 border-blue-500">
+          <div className="flex items-center justify-between mb-4">
+            <span className="text-slate-600 font-semibold uppercase tracking-wide text-sm">Total Return</span>
+            <div className={`p-3 rounded-xl ${totalGain >= 0 ? 'bg-emerald-100' : 'bg-red-100'}`}>
+              <Percent className={`w-6 h-6 ${totalGain >= 0 ? 'text-emerald-600' : 'text-red-600'}`} />
+            </div>
           </div>
-          <div className={`text-3xl font-bold ${totalGain >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+          <div className={`text-4xl font-bold ${totalGain >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
             {totalGain >= 0 ? '+' : ''}{totalGainPercent.toFixed(2)}%
           </div>
         </div>
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-        <div className="p-6 border-b border-slate-200">
+      <div className="glass rounded-2xl overflow-hidden">
+        <div className="p-8 border-b border-slate-200/50">
           <div className="flex items-center space-x-3">
-            <BarChart3 className="w-6 h-6 text-slate-700" />
-            <h2 className="text-xl font-bold text-slate-900">Your Positions</h2>
+            <div className="bg-gradient-to-r from-emerald-500 to-teal-500 p-3 rounded-xl">
+              <BarChart3 className="w-6 h-6 text-white" />
+            </div>
+            <h2 className="text-2xl font-bold text-slate-900">Your Positions</h2>
           </div>
         </div>
 
