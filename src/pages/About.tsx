@@ -1,116 +1,92 @@
-import { TrendingUp, Users, BarChart3, Newspaper } from 'lucide-react';
+import { TrendingUp, Users, Heart, Coffee } from 'lucide-react';
 
 export default function About() {
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <div className="text-center mb-12">
-        <div className="inline-flex items-center justify-center bg-gradient-to-br from-emerald-500 to-emerald-600 p-4 rounded-2xl mb-6">
+        <div className="inline-flex items-center justify-center bg-gradient-to-br from-emerald-500 to-teal-600 p-4 rounded-2xl mb-6">
           <TrendingUp className="w-12 h-12 text-white" />
         </div>
-        <h1 className="text-4xl font-bold text-slate-900 mb-4">About Liquid Phoenix</h1>
-        <p className="text-xl text-slate-600 max-w-3xl mx-auto">
-          A personal investment tracking platform with portfolio monitoring, community insights, and market news
+        <h1 className="text-5xl font-bold gradient-text mb-4">About Liquid Phoenix</h1>
+        <p className="text-xl text-slate-600 max-w-2xl mx-auto">
+          A free community for people who want to escape the 9-5 and build real wealth together
         </p>
       </div>
 
-      <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 mb-12">
-        <h2 className="text-2xl font-bold text-slate-900 mb-4">What This Is</h2>
+      <div className="glass rounded-2xl p-8 mb-8">
+        <h2 className="text-2xl font-bold text-slate-900 mb-4">Hey, I'm Just Like You</h2>
         <p className="text-slate-700 text-lg leading-relaxed mb-4">
-          Liquid Phoenix is a personal portfolio tracking website designed to monitor investments and share insights with the community.
-          The platform provides real-time visibility into portfolio performance, positions, and returns.
+          I'm tired of working a 9-5. Tired of trading my time for money. Tired of building someone else's dream while my own sits on the back burner.
+        </p>
+        <p className="text-slate-700 text-lg leading-relaxed mb-4">
+          So I'm doing something about it. I'm building capital through smart investing, and I'm sharing the entire journey with you—completely free, no strings attached.
         </p>
         <p className="text-slate-700 text-lg leading-relaxed">
-          Visitors can view portfolio performance, read stock discussions and insights shared in the community section,
-          and stay informed about market trends through the curated news feed.
+          Liquid Phoenix is my path to financial freedom, and I want to build a small community of like-minded people who are on the same journey.
+          People who think critically, do their research, and aren't afraid to take calculated risks to change their lives.
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
-        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-          <div className="bg-emerald-100 w-12 h-12 rounded-xl flex items-center justify-center mb-4">
-            <BarChart3 className="w-6 h-6 text-emerald-600" />
+      <div className="glass rounded-2xl p-8 mb-8">
+        <h2 className="text-2xl font-bold text-slate-900 mb-4">What We're Building Here</h2>
+        <p className="text-slate-700 text-lg leading-relaxed mb-4">
+          This isn't some guru trying to sell you a course. This is a completely free platform where I track my trades, share my thinking, and connect with intelligent people who want to talk about stocks and strategies.
+        </p>
+        <p className="text-slate-700 text-lg leading-relaxed">
+          You can see exactly what positions I'm holding, how they're performing, and why I made those decisions. The community page is where we discuss ideas, share due diligence, and learn from each other. The news feed keeps us informed about what's moving markets.
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="glass rounded-xl p-6 text-center">
+          <div className="bg-emerald-100 w-14 h-14 rounded-xl flex items-center justify-center mx-auto mb-4">
+            <TrendingUp className="w-7 h-7 text-emerald-600" />
           </div>
-          <h3 className="text-xl font-bold text-slate-900 mb-2">Portfolio Dashboard</h3>
-          <p className="text-slate-600">
-            View real-time portfolio performance including total value, daily changes, and detailed position breakdowns
-            with gain/loss tracking. Portfolio data syncs with Robinhood for accurate, up-to-date information.
+          <h3 className="text-lg font-bold text-slate-900 mb-2">Track Trades</h3>
+          <p className="text-slate-600 text-sm">
+            See every position I'm holding, both stocks and options, with full transparency on performance and strategy
           </p>
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-          <div className="bg-blue-100 w-12 h-12 rounded-xl flex items-center justify-center mb-4">
-            <Users className="w-6 h-6 text-blue-600" />
+        <div className="glass rounded-xl p-6 text-center">
+          <div className="bg-blue-100 w-14 h-14 rounded-xl flex items-center justify-center mx-auto mb-4">
+            <Users className="w-7 h-7 text-blue-600" />
           </div>
-          <h3 className="text-xl font-bold text-slate-900 mb-2">Community Insights</h3>
-          <p className="text-slate-600">
-            Read investment insights, stock analyses, and market commentary. Posts include stock symbols, sentiment
-            indicators (bullish/bearish/neutral), and detailed discussions about specific investments and strategies.
+          <h3 className="text-lg font-bold text-slate-900 mb-2">Small Community</h3>
+          <p className="text-slate-600 text-sm">
+            Connect with other intelligent investors who do their homework and share quality insights about the market
           </p>
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-          <div className="bg-amber-100 w-12 h-12 rounded-xl flex items-center justify-center mb-4">
-            <Newspaper className="w-6 h-6 text-amber-600" />
+        <div className="glass rounded-xl p-6 text-center">
+          <div className="bg-teal-100 w-14 h-14 rounded-xl flex items-center justify-center mx-auto mb-4">
+            <Coffee className="w-7 h-7 text-teal-600" />
           </div>
-          <h3 className="text-xl font-bold text-slate-900 mb-2">Market News</h3>
-          <p className="text-slate-600">
-            Stay updated with curated financial news and market analysis. The news section provides coverage of
-            economic developments, company earnings, sector trends, and major market movements.
-          </p>
-        </div>
-
-        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-          <div className="bg-emerald-100 w-12 h-12 rounded-xl flex items-center justify-center mb-4">
-            <TrendingUp className="w-6 h-6 text-emerald-600" />
-          </div>
-          <h3 className="text-xl font-bold text-slate-900 mb-2">Real-Time Tracking</h3>
-          <p className="text-slate-600">
-            Portfolio metrics update in real-time, providing current valuations, percentage changes, and performance
-            tracking across all positions. Monitor investment performance with professional-grade analytics.
+          <h3 className="text-lg font-bold text-slate-900 mb-2">Stay Informed</h3>
+          <p className="text-slate-600 text-sm">
+            Keep up with market news and important developments that could impact your investments
           </p>
         </div>
       </div>
 
-      <div className="bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-2xl shadow-lg p-8 text-white mb-12">
-        <div className="max-w-3xl mx-auto text-center">
-          <h2 className="text-3xl font-bold mb-4">Platform Features</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-8">
-            <div>
-              <div className="bg-white bg-opacity-20 w-12 h-12 rounded-xl flex items-center justify-center mx-auto mb-4">
-                <BarChart3 className="w-6 h-6" />
-              </div>
-              <h3 className="text-lg font-bold mb-2">Portfolio View</h3>
-              <p className="text-emerald-50">
-                Comprehensive dashboard showing holdings, values, and performance metrics with Robinhood integration.
-              </p>
-            </div>
-            <div>
-              <div className="bg-white bg-opacity-20 w-12 h-12 rounded-xl flex items-center justify-center mx-auto mb-4">
-                <Users className="w-6 h-6" />
-              </div>
-              <h3 className="text-lg font-bold mb-2">Stock Discussions</h3>
-              <p className="text-emerald-50">
-                Investment insights and stock analyses with sentiment indicators and detailed commentary.
-              </p>
-            </div>
-            <div>
-              <div className="bg-white bg-opacity-20 w-12 h-12 rounded-xl flex items-center justify-center mx-auto mb-4">
-                <Newspaper className="w-6 h-6" />
-              </div>
-              <h3 className="text-lg font-bold mb-2">News Feed</h3>
-              <p className="text-emerald-50">
-                Curated financial news covering market trends, economic data, and investment opportunities.
-              </p>
-            </div>
-          </div>
-        </div>
+      <div className="glass rounded-2xl p-8 mb-8">
+        <h2 className="text-2xl font-bold text-slate-900 mb-4">Why It's Free</h2>
+        <p className="text-slate-700 text-lg leading-relaxed mb-4">
+          I'm not trying to make money off you. I'm not selling courses, subscriptions, or premium features. This is just me, tracking my own journey to financial freedom, and inviting others to come along for the ride.
+        </p>
+        <p className="text-slate-700 text-lg leading-relaxed">
+          My only goal is to build capital, escape the 9-5 grind, and connect with people who are working toward the same thing. If this helps you on your journey too, that's awesome. That's what community is all about.
+        </p>
       </div>
 
-      <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 text-center">
-        <h2 className="text-2xl font-bold text-slate-900 mb-4">Transparent Investing</h2>
-        <p className="text-slate-600 text-lg mb-6 max-w-2xl mx-auto">
-          This platform provides full transparency into the investment portfolio and strategy.
-          All positions, performance metrics, and insights are shared openly with the community.
+      <div className="bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl shadow-lg p-8 text-white text-center">
+        <div className="inline-flex items-center justify-center bg-white bg-opacity-20 w-16 h-16 rounded-2xl mb-4">
+          <Heart className="w-8 h-8" />
+        </div>
+        <h2 className="text-3xl font-bold mb-4">Built for the Community</h2>
+        <p className="text-emerald-50 text-lg max-w-2xl mx-auto leading-relaxed">
+          No ads. No subscriptions. No gimmicks. Just a small group of people who are tired of the rat race and want to build something better.
+          Let's escape the 9-5 together.
         </p>
       </div>
     </div>
