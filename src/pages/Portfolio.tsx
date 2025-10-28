@@ -136,10 +136,53 @@ export default function Portfolio() {
     }, 0);
   };
 
+  const stockTrades = trades.filter(t => t.trade_type === 'stock');
+  const optionTrades = trades.filter(t => t.trade_type === 'option');
+
+  const calculateStockValue = () => {
+    return stockTrades.reduce((sum, trade) => {
+      const { totalValue } = calculateGainLoss(trade);
+      return sum + totalValue;
+    }, 0);
+  };
+
+  const calculateStockGain = () => {
+    return stockTrades.reduce((sum, trade) => {
+      const { gain } = calculateGainLoss(trade);
+      return sum + gain;
+    }, 0);
+  };
+
+  const calculateOptionValue = () => {
+    return optionTrades.reduce((sum, trade) => {
+      const { totalValue } = calculateGainLoss(trade);
+      return sum + totalValue;
+    }, 0);
+  };
+
+  const calculateOptionGain = () => {
+    return optionTrades.reduce((sum, trade) => {
+      const { gain } = calculateGainLoss(trade);
+      return sum + gain;
+    }, 0);
+  };
+
   const totalValue = calculateTotalValue();
   const totalGain = calculateTotalGain();
   const totalGainPercent = trades.length > 0
     ? (totalGain / (totalValue - totalGain)) * 100
+    : 0;
+
+  const stockValue = calculateStockValue();
+  const stockGain = calculateStockGain();
+  const stockGainPercent = stockTrades.length > 0
+    ? (stockGain / (stockValue - stockGain)) * 100
+    : 0;
+
+  const optionValue = calculateOptionValue();
+  const optionGain = calculateOptionGain();
+  const optionGainPercent = optionTrades.length > 0
+    ? (optionGain / (optionValue - optionGain)) * 100
     : 0;
 
   if (!user) {
@@ -194,6 +237,62 @@ export default function Portfolio() {
           </div>
           <div className={`text-4xl font-bold ${totalGain >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
             {totalGain >= 0 ? '+' : ''}{totalGainPercent.toFixed(2)}%
+          </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
+        <div className="glass rounded-2xl p-6">
+          <h3 className="text-lg font-bold text-slate-900 mb-4 flex items-center">
+            <span className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm mr-2">STOCKS</span>
+            Stock Positions
+          </h3>
+          <div className="space-y-3">
+            <div className="flex justify-between items-center">
+              <span className="text-slate-600 text-sm">Total Value</span>
+              <span className="text-2xl font-bold text-slate-900">
+                ${stockValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-slate-600 text-sm">Gain/Loss</span>
+              <span className={`text-xl font-semibold ${stockGain >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+                {stockGain >= 0 ? '+' : ''}${stockGain.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-slate-600 text-sm">Return</span>
+              <span className={`text-xl font-semibold ${stockGain >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+                {stockGain >= 0 ? '+' : ''}{stockGainPercent.toFixed(2)}%
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div className="glass rounded-2xl p-6">
+          <h3 className="text-lg font-bold text-slate-900 mb-4 flex items-center">
+            <span className="bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-sm mr-2">OPTIONS</span>
+            Option Positions
+          </h3>
+          <div className="space-y-3">
+            <div className="flex justify-between items-center">
+              <span className="text-slate-600 text-sm">Total Value</span>
+              <span className="text-2xl font-bold text-slate-900">
+                ${optionValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-slate-600 text-sm">Gain/Loss</span>
+              <span className={`text-xl font-semibold ${optionGain >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+                {optionGain >= 0 ? '+' : ''}${optionGain.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-slate-600 text-sm">Return</span>
+              <span className={`text-xl font-semibold ${optionGain >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+                {optionGain >= 0 ? '+' : ''}{optionGainPercent.toFixed(2)}%
+              </span>
+            </div>
           </div>
         </div>
       </div>
