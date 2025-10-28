@@ -16,7 +16,7 @@ interface StockQuote {
 async function fetchStockPrice(symbol: string): Promise<number | null> {
   try {
     const response = await fetch(
-      `https://www.google.com/finance/quote/${symbol}:NASDAQ`,
+      `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}`,
       {
         headers: {
           "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
@@ -25,44 +25,22 @@ async function fetchStockPrice(symbol: string): Promise<number | null> {
     );
 
     if (!response.ok) {
-      const nyseResponse = await fetch(
-        `https://www.google.com/finance/quote/${symbol}:NYSE`,
-        {
-          headers: {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-          },
-        }
-      );
-
-      if (!nyseResponse.ok) {
-        console.error(`Failed to fetch price for ${symbol}`);
-        return null;
-      }
-
-      const nyseHtml = await nyseResponse.text();
-      return extractPriceFromHtml(nyseHtml);
+      console.error(`Failed to fetch price for ${symbol}, status: ${response.status}`);
+      return null;
     }
 
-    const html = await response.text();
-    return extractPriceFromHtml(html);
+    const data = await response.json();
+
+    if (!data?.chart?.result?.[0]?.meta?.regularMarketPrice) {
+      console.error(`No price data found for ${symbol}`);
+      return null;
+    }
+
+    const price = data.chart.result[0].meta.regularMarketPrice;
+    console.log(`Fetched ${symbol}: $${price}`);
+    return price;
   } catch (error) {
     console.error(`Error fetching ${symbol}:`, error);
-    return null;
-  }
-}
-
-function extractPriceFromHtml(html: string): number | null {
-  try {
-    const priceMatch = html.match(/data-last-price="([0-9.]+)"/i) ||
-                       html.match(/class="YMlKec fxKbKc">\$([0-9,.]+)</i);
-
-    if (priceMatch && priceMatch[1]) {
-      const price = parseFloat(priceMatch[1].replace(/,/g, ''));
-      return isNaN(price) ? null : price;
-    }
-    return null;
-  } catch (error) {
-    console.error('Error extracting price from HTML:', error);
     return null;
   }
 }
@@ -80,18 +58,18 @@ Deno.serve(async (req: Request) => {
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    const { data: trades, error: fetchError } = await supabase
+    const { data: allTrades, error: fetchError } = await supabase
       .from('user_trades')
       .select('id, symbol, trade_type')
-      .eq('trade_type', 'stock');
+      .in('trade_type', ['stock', 'option']);
 
     if (fetchError) {
       throw new Error(`Failed to fetch trades: ${fetchError.message}`);
     }
 
-    if (!trades || trades.length === 0) {
+    if (!allTrades || allTrades.length === 0) {
       return new Response(
-        JSON.stringify({ message: 'No stock positions to update', updated: [] }),
+        JSON.stringify({ message: 'No positions to update', updated: [] }),
         {
           headers: {
             ...corsHeaders,
@@ -101,7 +79,7 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    const uniqueSymbols = [...new Set(trades.map(t => t.symbol))];
+    const uniqueSymbols = [...new Set(allTrades.map(t => t.symbol))];
     console.log(`Updating prices for ${uniqueSymbols.length} symbols:`, uniqueSymbols);
 
     const priceUpdates: StockQuote[] = [];
@@ -114,26 +92,45 @@ Deno.serve(async (req: Request) => {
         error: price === null ? 'Failed to fetch price' : undefined,
       });
 
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise(resolve => setTimeout(resolve, 500));
     }
 
-    const successfulUpdates = [];
+    const successfulStockUpdates = [];
+    const successfulOptionUpdates = [];
     const failedUpdates = [];
 
     for (const update of priceUpdates) {
       if (update.price !== null) {
-        const { error: updateError } = await supabase
+        const { error: stockUpdateError } = await supabase
           .from('user_trades')
           .update({ current_price: update.price })
           .eq('symbol', update.symbol)
           .eq('trade_type', 'stock');
 
-        if (updateError) {
-          console.error(`Failed to update ${update.symbol}:`, updateError);
-          failedUpdates.push(update.symbol);
+        if (stockUpdateError) {
+          console.error(`Failed to update stock ${update.symbol}:`, stockUpdateError);
         } else {
-          console.log(`Updated ${update.symbol} to $${update.price}`);
-          successfulUpdates.push({ symbol: update.symbol, price: update.price });
+          const stockCount = allTrades.filter(t => t.symbol === update.symbol && t.trade_type === 'stock').length;
+          if (stockCount > 0) {
+            console.log(`Updated ${stockCount} stock positions for ${update.symbol} to $${update.price}`);
+            successfulStockUpdates.push({ symbol: update.symbol, price: update.price });
+          }
+        }
+
+        const { error: optionUpdateError } = await supabase
+          .from('user_trades')
+          .update({ current_price: update.price })
+          .eq('symbol', update.symbol)
+          .eq('trade_type', 'option');
+
+        if (optionUpdateError) {
+          console.error(`Failed to update options ${update.symbol}:`, optionUpdateError);
+        } else {
+          const optionCount = allTrades.filter(t => t.symbol === update.symbol && t.trade_type === 'option').length;
+          if (optionCount > 0) {
+            console.log(`Updated ${optionCount} option positions for ${update.symbol} to $${update.price}`);
+            successfulOptionUpdates.push({ symbol: update.symbol, price: update.price });
+          }
         }
       } else {
         failedUpdates.push(update.symbol);
@@ -142,8 +139,9 @@ Deno.serve(async (req: Request) => {
 
     return new Response(
       JSON.stringify({
-        message: 'Stock prices update completed',
-        updated: successfulUpdates,
+        message: 'Price update completed',
+        stocks_updated: successfulStockUpdates,
+        options_updated: successfulOptionUpdates,
         failed: failedUpdates,
         timestamp: new Date().toISOString(),
       }),
