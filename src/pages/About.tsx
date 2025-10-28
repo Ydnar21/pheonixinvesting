@@ -32,8 +32,11 @@ export default function About() {
         <p className="text-slate-700 text-lg leading-relaxed mb-4">
           This isn't some guru trying to sell you a course. This is a completely free platform where I track my trades, share my thinking, and connect with intelligent people who want to talk about stocks and strategies.
         </p>
-        <p className="text-slate-700 text-lg leading-relaxed">
+        <p className="text-slate-700 text-lg leading-relaxed mb-4">
           You can see exactly what positions I'm holding, how they're performing, and why I made those decisions. The community page is where we discuss ideas, share due diligence, and learn from each other. The news feed keeps us informed about what's moving markets.
+        </p>
+        <p className="text-slate-700 text-lg leading-relaxed font-medium">
+          Remember: scared money doesn't make money. Just be calculated with it.
         </p>
       </div>
 
