@@ -1,14 +1,16 @@
-# Compiled files
+# Compiled files (Always ignore these)
 node_modules/
 npm-debug.log
 yarn-error.log
 
-# Source files (we only need dist for deployment)
+# Source files (We need these for the build step, so they are NOT ignored)
+# The lines for 'src/' and 'public/' that were here before have been REMOVED.
 
-# Development files
+# Development files (Ignore sensitive/local files)
 .env.local
 .env.development
 *.local
+.env
 
 # Git
 .git
@@ -21,7 +23,7 @@ yarn-error.log
 *.swo
 *~
 
-# Config files
+# Config files (Do NOT ignore these; the build needs them)
 .eslintrc.*
 .prettierrc
 tsconfig*.json
