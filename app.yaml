@@ -1,0 +1,35 @@
+runtime: nodejs20
+
+instance_class: F1
+
+env_variables:
+  NODE_ENV: 'production'
+
+handlers:
+  - url: /assets
+    static_dir: dist/assets
+    secure: always
+    expiration: "7d"
+    http_headers:
+      Cache-Control: "public, max-age=604800, immutable"
+
+  - url: /(.*\.(js|css|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot))$
+    static_files: dist/\1
+    upload: dist/.*\.(js|css|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot)$
+    secure: always
+    expiration: "7d"
+    http_headers:
+      Cache-Control: "public, max-age=604800, immutable"
+
+  - url: /.*
+    static_files: dist/index.html
+    upload: dist/index.html
+    secure: always
+    http_headers:
+      Cache-Control: "no-cache, no-store, must-revalidate"
+
+automatic_scaling:
+  min_idle_instances: 0
+  max_idle_instances: 1
+  min_pending_latency: automatic
+  max_pending_latency: automatic

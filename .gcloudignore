@@ -1,0 +1,42 @@
+# Compiled files
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Source files (we only need dist for deployment)
+src/
+public/
+
+# Development files
+.env.local
+.env.development
+*.local
+
+# Git
+.git
+.gitignore
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Config files
+.eslintrc.*
+.prettierrc
+tsconfig*.json
+vite.config.ts
+tailwind.config.js
+postcss.config.js
+
+# Misc
+.DS_Store
+*.log
+coverage/
+.nyc_output/
+
+# Build tools
+*.md
+!dist/**
