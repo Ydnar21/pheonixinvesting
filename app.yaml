@@ -6,32 +6,24 @@ env_variables:
   NODE_ENV: 'production'
 
 handlers:
-  # 1. Explicitly serve all built assets from dist/assets (Vite bundles)
-  - url: /assets/(.+)
-    static_files: dist/assets/\1
-    upload: dist/assets/(.+)
-    secure: always
-    expiration: "7d"
-    http_headers:
-      Cache-Control: "public, max-age=604800, immutable"
-
-  # 2. Explicitly serve root-level static files (e.g., LiquidPheonix.png, vite.svg)
-  - url: /(.+\.(png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot))$
+  # 1. Single, simplified handler to catch all static files (JS, CSS, Images) 
+  # It uses (.*) to match files at the root (like LiquidPheonix.png) 
+  # AND in subdirectories (like assets/index-xxx.js)
+  - url: /(.*\.(js|css|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot))$
     static_files: dist/\1
-    upload: dist/(.+\.(png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot))$
+    upload: dist/(.*\.(js|css|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot))$
     secure: always
     expiration: "7d"
     http_headers:
       Cache-Control: "public, max-age=604800, immutable"
       
-  # 3. SPA Fallback: All other requests route to index.html
+  # 2. SPA Fallback: All other requests (e.g., '/', '/portfolio') route to index.html
   - url: /.*
     static_files: dist/index.html
     upload: dist/index.html
     secure: always
     http_headers:
       Cache-Control: "no-cache, no-store, must-revalidate"
-# ... rest of app.yaml
 
 automatic_scaling:
   min_idle_instances: 0
