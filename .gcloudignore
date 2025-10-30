@@ -4,8 +4,6 @@ npm-debug.log
 yarn-error.log
 
 # Source files (we only need dist for deployment)
-src/
-public/
 
 # Development files
 .env.local
