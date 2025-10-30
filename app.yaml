@@ -4,8 +4,15 @@ instance_class: F1
 
 env_variables:
   NODE_ENV: 'production'
+  # ----------------------------------------------------
+  # FIX: VITE Build-Time Variables must be passed here
+  # These values will be available during the 'npm run build' step on Cloud Build
+  # ----------------------------------------------------
+  VITE_SUPABASE_URL: 'YOUR_SUPABASE_URL' 
+  VITE_SUPABASE_ANON_KEY: 'YOUR_SUPABASE_ANON_KEY' 
 
 handlers:
+  # 1. Explicitly serve everything in the 'dist/assets' folder (JS, CSS bundles)
   - url: /assets
     static_dir: dist/assets
     secure: always
@@ -13,14 +20,16 @@ handlers:
     http_headers:
       Cache-Control: "public, max-age=604800, immutable"
 
-  - url: /(.*\.(js|css|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot))$
+  # 2. Serve specific root-level static files (images, fonts, etc.).
+  - url: /(.*\.(png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot))$
     static_files: dist/\1
-    upload: dist/.*\.(js|css|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot)$
+    upload: dist/(.*\.(png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot))$
     secure: always
     expiration: "7d"
     http_headers:
       Cache-Control: "public, max-age=604800, immutable"
-
+      
+  # 3. SPA Fallback: All remaining routes (/, /portfolio, /community) go to index.html
   - url: /.*
     static_files: dist/index.html
     upload: dist/index.html
