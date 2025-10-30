@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "gcp-build": "",
     "build": "sh -c 'export VITE_SUPABASE_URL=\"$VITE_SUPABASE_URL\" && export VITE_SUPABASE_ANON_KEY=\"$VITE_SUPABASE_ANON_KEY\" && vite build'",
     "lint": "eslint .",
     "preview": "vite preview",
