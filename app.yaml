@@ -6,18 +6,21 @@ env_variables:
   NODE_ENV: 'production'
 
 handlers:
-  # 1. Single, simplified handler to catch all static files (JS, CSS, Images) 
-  # It uses (.*) to match files at the root (like LiquidPheonix.png) 
-  # AND in subdirectories (like assets/index-xxx.js)
-  - url: /(.*\.(js|css|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot))$
-    static_files: dist/\1
-    upload: dist/(.*\.(js|css|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot))$
+  - url: /assets
+    static_dir: dist/assets
     secure: always
     expiration: "7d"
     http_headers:
       Cache-Control: "public, max-age=604800, immutable"
-      
-  # 2. SPA Fallback: All other requests (e.g., '/', '/portfolio') route to index.html
+
+  - url: /(.*\.(js|css|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot))$
+    static_files: dist/\1
+    upload: dist/.*\.(js|css|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot)$
+    secure: always
+    expiration: "7d"
+    http_headers:
+      Cache-Control: "public, max-age=604800, immutable"
+
   - url: /.*
     static_files: dist/index.html
     upload: dist/index.html
