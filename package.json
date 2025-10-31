@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "gcp-build": "",  <-- THIS IS THE CRUCIAL STABILITY SCRIPT
+    "gcp-build": "",  
     "lint": "eslint .",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit -p tsconfig.app.json",
