@@ -8,8 +8,8 @@ env_variables:
   # FIX: VITE Build-Time Variables must be passed here
   # These values will be available during the 'npm run build' step on Cloud Build
   # ----------------------------------------------------
-  SUPABASE_URL: https://hcrzudqxnytnizltnqnz.supabase.co
-  SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhjcnp1ZHF4bnl0bml6bHRucW56Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE3OTA4NzEsImV4cCI6MjA3NzM2Njg3MX0.fUByWCvc6gQcDQECZxmuSZNq1lzmqHc_yR36-MLwT6w
+  VITE_SUPABASE_URL: https://hcrzudqxnytnizltnqnz.supabase.co
+  VITE_SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhjcnp1ZHF4bnl0bml6bHRucW56Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE3OTA4NzEsImV4cCI6MjA3NzM2Njg3MX0.fUByWCvc6gQcDQECZxmuSZNq1lzmqHc_yR36-MLwT6w
 
 handlers:
   # 1. Explicitly serve everything in the 'dist/assets' folder (JS, CSS bundles)
