@@ -8,7 +8,7 @@ env_variables:
   # FIX: VITE Build-Time Variables must be passed here
   # These values will be available during the 'npm run build' step on Cloud Build
   # ----------------------------------------------------
-  VITE_SUPABASE_URL: postgresql://postgres:[YOUR_PASSWORD]@db.hcrzudqxnytnizltnqnz.supabase.co:5432/postgres
+  VITE_SUPABASE_URL: postgresql://postgres:m/hKaXqFUKr3tmm@db.hcrzudqxnytnizltnqnz.supabase.co:5432/postgres
   VITE_SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhjcnp1ZHF4bnl0bml6bHRucW56Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE3OTA4NzEsImV4cCI6MjA3NzM2Njg3MX0.fUByWCvc6gQcDQECZxmuSZNq1lzmqHc_yR36-MLwT6w
   # --- FIX: Disable server-side migration that causes startup crash ---
   SUPABASE_SKIP_MIGRATION: 'false'
