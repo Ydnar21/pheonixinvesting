@@ -13,6 +13,7 @@ export default function Navbar({ currentPage, onNavigate }: NavbarProps) {
     { id: 'portfolio', label: 'Portfolio' },
     { id: 'community', label: 'Community' },
     { id: 'news', label: 'News' },
+    { id: 'calendar', label: 'Calendar' },
     { id: 'about', label: 'About' },
   ];
 

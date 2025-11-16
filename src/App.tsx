@@ -7,6 +7,7 @@ import Community from './pages/Community';
 import News from './pages/News';
 import About from './pages/About';
 import AdminTrades from './pages/AdminTrades';
+import Calendar from './pages/Calendar';
 
 function AppContent() {
   const { user, loading } = useAuth();
@@ -35,6 +36,8 @@ function AppContent() {
         return <Community />;
       case 'news':
         return <News />;
+      case 'calendar':
+        return <Calendar />;
       case 'about':
         return <About />;
       case 'admin-trades':
