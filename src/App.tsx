@@ -2,16 +2,16 @@ import { useState } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import Auth from './components/Auth';
 import Navbar from './components/Navbar';
-import Portfolio from './pages/Portfolio';
 import Community from './pages/Community';
 import News from './pages/News';
 import About from './pages/About';
-import AdminTrades from './pages/AdminTrades';
 import Calendar from './pages/Calendar';
+import Strategy from './pages/Strategy';
+import AIBot from './pages/AIBot';
 
 function AppContent() {
   const { user, loading } = useAuth();
-  const [currentPage, setCurrentPage] = useState('portfolio');
+  const [currentPage, setCurrentPage] = useState('calendar');
 
   if (loading) {
     return (
@@ -30,25 +30,25 @@ function AppContent() {
 
   const renderPage = () => {
     switch (currentPage) {
-      case 'portfolio':
-        return <Portfolio />;
+      case 'calendar':
+        return <Calendar />;
       case 'community':
         return <Community />;
       case 'news':
         return <News />;
-      case 'calendar':
-        return <Calendar />;
+      case 'strategy':
+        return <Strategy />;
+      case 'ai-bot':
+        return <AIBot />;
       case 'about':
         return <About />;
-      case 'admin-trades':
-        return <AdminTrades />;
       default:
-        return <Portfolio />;
+        return <Calendar />;
     }
   };
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-slate-950">
       <Navbar currentPage={currentPage} onNavigate={setCurrentPage} />
       {renderPage()}
     </div>
