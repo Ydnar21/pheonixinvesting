@@ -15,10 +15,10 @@ function AppContent() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+      <div className="min-h-screen bg-black flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-500 mx-auto mb-4"></div>
-          <p className="text-slate-600">Loading...</p>
+          <div className="animate-spin rounded-full h-16 w-16 border-4 border-t-orange-500 border-r-orange-500 border-b-transparent border-l-transparent mx-auto mb-4 phoenix-glow"></div>
+          <p className="text-orange-400 text-xl font-semibold">Loading...</p>
         </div>
       </div>
     );
@@ -48,7 +48,7 @@ function AppContent() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950">
+    <div className="min-h-screen bg-black">
       <Navbar currentPage={currentPage} onNavigate={setCurrentPage} />
       {renderPage()}
     </div>
