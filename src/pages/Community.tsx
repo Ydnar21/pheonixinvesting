@@ -123,7 +123,7 @@ export default function Community() {
   };
 
   const createPost = async () => {
-    if (!user || !profile?.is_admin) return;
+    if (!user) return;
 
     try {
       const { error } = await supabase.from('stock_posts').insert([
@@ -388,14 +388,14 @@ export default function Community() {
       <div className="mb-8 flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-orange-500 mb-1">Investment Community</h1>
-          <p className="text-slate-400">Stock discussions and insights</p>
+          <p className="text-slate-300">Share your stock insights and analysis</p>
         </div>
         <button
           onClick={() => setShowNewPost(true)}
           className="flex items-center space-x-2 bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg font-medium transition"
         >
           <Plus className="w-5 h-5" />
-          <span>{profile?.is_admin ? 'New Post' : 'Submit Idea'}</span>
+          <span>New Post</span>
         </button>
       </div>
 
@@ -466,103 +466,60 @@ export default function Community() {
           <div className="glass rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div className="p-6 border-b border-orange-500/20">
               <h2 className="text-2xl font-bold text-orange-500">
-                {profile?.is_admin ? 'Create New Post' : 'Submit Stock Idea'}
+                Create New Post
               </h2>
-              <p className="text-slate-400 mt-1">
-                {profile?.is_admin
-                  ? 'Post a stock for the community to vote on'
-                  : 'Suggest a stock for the admin to post about'}
+              <p className="text-slate-300 mt-1">
+                Share your stock analysis with the community
               </p>
             </div>
 
             <div className="p-6 space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-slate-400 mb-1">
+                  <label className="block text-sm font-medium text-slate-300 mb-1">
                     Stock Symbol
                   </label>
                   <input
                     type="text"
-                    value={profile?.is_admin ? newPost.stock_symbol : newSubmission.stock_symbol}
-                    onChange={(e) =>
-                      profile?.is_admin
-                        ? setNewPost({ ...newPost, stock_symbol: e.target.value.toUpperCase() })
-                        : setNewSubmission({
-                            ...newSubmission,
-                            stock_symbol: e.target.value.toUpperCase(),
-                          })
-                    }
+                    value={newPost.stock_symbol}
+                    onChange={(e) => setNewPost({ ...newPost, stock_symbol: e.target.value.toUpperCase() })}
                     placeholder="AAPL"
-                    className="w-full px-4 py-2 border border-orange-500/30 rounded-lg focus:ring-1 focus:ring-orange-500 focus:border-orange-500 bg-slate-950 text-slate-200 placeholder:text-slate-600"
+                    className="w-full px-4 py-2 border border-orange-500/30 rounded-lg focus:ring-1 focus:ring-orange-500 focus:border-orange-500 bg-slate-950 text-white placeholder:text-slate-500"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-400 mb-1">
+                  <label className="block text-sm font-medium text-slate-300 mb-1">
                     Stock Name
                   </label>
                   <input
                     type="text"
-                    value={profile?.is_admin ? newPost.stock_name : newSubmission.stock_name}
-                    onChange={(e) =>
-                      profile?.is_admin
-                        ? setNewPost({ ...newPost, stock_name: e.target.value })
-                        : setNewSubmission({ ...newSubmission, stock_name: e.target.value })
-                    }
+                    value={newPost.stock_name}
+                    onChange={(e) => setNewPost({ ...newPost, stock_name: e.target.value })}
                     placeholder="Apple Inc."
-                    className="w-full px-4 py-2 border border-orange-500/30 rounded-lg focus:ring-1 focus:ring-orange-500 focus:border-orange-500 bg-slate-950 text-slate-200 placeholder:text-slate-600"
+                    className="w-full px-4 py-2 border border-orange-500/30 rounded-lg focus:ring-1 focus:ring-orange-500 focus:border-orange-500 bg-slate-950 text-white placeholder:text-slate-500"
                   />
                 </div>
               </div>
 
-              {!profile?.is_admin && (
-                <div>
-                  <label className="block text-sm font-medium text-slate-400 mb-1">Sentiment</label>
-                  <div className="flex space-x-2">
-                    {(['bullish', 'neutral', 'bearish'] as const).map((sentiment) => (
-                      <button
-                        key={sentiment}
-                        onClick={() => setNewSubmission({ ...newSubmission, sentiment })}
-                        className={`flex-1 flex items-center justify-center space-x-2 px-4 py-2 rounded-lg border-2 transition ${
-                          newSubmission.sentiment === sentiment
-                            ? `${getSentimentColor(sentiment)} border-current`
-                            : 'border-slate-300 text-slate-600 hover:border-slate-400'
-                        }`}
-                      >
-                        {getSentimentIcon(sentiment)}
-                        <span className="capitalize">{sentiment}</span>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-
               <div>
-                <label className="block text-sm font-medium text-slate-400 mb-1">Title</label>
+                <label className="block text-sm font-medium text-slate-300 mb-1">Title</label>
                 <input
                   type="text"
-                  value={profile?.is_admin ? newPost.title : newSubmission.title}
-                  onChange={(e) =>
-                    profile?.is_admin
-                      ? setNewPost({ ...newPost, title: e.target.value })
-                      : setNewSubmission({ ...newSubmission, title: e.target.value })
-                  }
+                  value={newPost.title}
+                  onChange={(e) => setNewPost({ ...newPost, title: e.target.value })}
                   placeholder="Why I'm bullish on AAPL"
-                  className="w-full px-4 py-2 border border-orange-500/30 rounded-lg focus:ring-1 focus:ring-orange-500 focus:border-orange-500 bg-slate-950 text-slate-200 placeholder:text-slate-600"
+                  className="w-full px-4 py-2 border border-orange-500/30 rounded-lg focus:ring-1 focus:ring-orange-500 focus:border-orange-500 bg-slate-950 text-white placeholder:text-slate-500"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-400 mb-1">Content</label>
+                <label className="block text-sm font-medium text-slate-300 mb-1">Content</label>
                 <textarea
-                  value={profile?.is_admin ? newPost.content : newSubmission.content}
-                  onChange={(e) =>
-                    profile?.is_admin
-                      ? setNewPost({ ...newPost, content: e.target.value })
-                      : setNewSubmission({ ...newSubmission, content: e.target.value })
-                  }
+                  value={newPost.content}
+                  onChange={(e) => setNewPost({ ...newPost, content: e.target.value })}
                   placeholder="Share your analysis..."
                   rows={6}
-                  className="w-full px-4 py-2 border border-orange-500/30 rounded-lg focus:ring-1 focus:ring-orange-500 focus:border-orange-500 bg-slate-950 text-slate-200 placeholder:text-slate-600"
+                  className="w-full px-4 py-2 border border-orange-500/30 rounded-lg focus:ring-1 focus:ring-orange-500 focus:border-orange-500 bg-slate-950 text-white placeholder:text-slate-500"
                 />
               </div>
             </div>
@@ -570,15 +527,15 @@ export default function Community() {
             <div className="p-6 border-t border-orange-500/20 flex justify-end space-x-3">
               <button
                 onClick={() => setShowNewPost(false)}
-                className="px-4 py-2 text-slate-400 hover:text-orange-500 transition"
+                className="px-4 py-2 text-slate-300 hover:text-orange-500 transition"
               >
                 Cancel
               </button>
               <button
-                onClick={profile?.is_admin ? createPost : submitStockIdea}
+                onClick={createPost}
                 className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded-lg font-medium transition"
               >
-                {profile?.is_admin ? 'Post' : 'Submit'}
+                Post
               </button>
             </div>
           </div>
@@ -607,20 +564,20 @@ export default function Community() {
                           Admin
                         </span>
                       )}
-                      <span className="text-slate-500 text-xs">
+                      <span className="text-slate-400 text-xs">
                         {new Date(post.created_at).toLocaleDateString()}
                       </span>
                     </div>
                     <div className="flex items-center space-x-2 mt-1">
                       <span className="font-bold text-orange-500">{post.stock_symbol}</span>
-                      <span className="text-slate-400 text-sm">{post.stock_name}</span>
+                      <span className="text-slate-300 text-sm">{post.stock_name}</span>
                     </div>
                   </div>
                 </div>
               </div>
 
               <h3 className="text-xl font-bold text-orange-500 mb-3">{post.title}</h3>
-              <p className="text-slate-400 leading-relaxed whitespace-pre-wrap">{post.content}</p>
+              <p className="text-slate-200 leading-relaxed whitespace-pre-wrap">{post.content}</p>
             </div>
 
             {/* Voting Section */}
@@ -640,15 +597,15 @@ export default function Community() {
                   className={`flex items-center space-x-1 px-3 py-1 rounded transition ${
                     likes[post.id]
                       ? 'bg-orange-500/10 text-orange-500'
-                      : 'text-slate-400 hover:text-orange-500'
+                      : 'text-slate-300 hover:text-orange-500'
                   }`}
                 >
                   <ThumbsUp className="w-4 h-4" />
-                  <span className="text-sm">{likeCounts[post.id] || 0}</span>
+                  <span className="text-sm font-medium">{likeCounts[post.id] || 0}</span>
                 </button>
-                <div className="flex items-center space-x-1 text-slate-400">
+                <div className="flex items-center space-x-1 text-slate-300">
                   <MessageSquare className="w-4 h-4" />
-                  <span className="text-sm">{comments[post.id]?.length || 0}</span>
+                  <span className="text-sm font-medium">{comments[post.id]?.length || 0}</span>
                 </div>
               </div>
             </div>
@@ -666,11 +623,11 @@ export default function Community() {
                           <span className="font-medium text-orange-500 text-sm">
                             {comment.profiles?.username || 'Anonymous'}
                           </span>
-                          <span className="text-slate-500 text-xs">
+                          <span className="text-slate-400 text-xs">
                             {new Date(comment.created_at).toLocaleDateString()}
                           </span>
                         </div>
-                        <p className="text-slate-400 text-sm mt-1">{comment.content}</p>
+                        <p className="text-slate-200 text-sm mt-1">{comment.content}</p>
                       </div>
                     </div>
                   ))}
@@ -687,7 +644,7 @@ export default function Community() {
                     setNewComment({ ...newComment, [post.id]: e.target.value })
                   }
                   placeholder="Add a comment..."
-                  className="flex-1 px-3 py-2 border border-orange-500/30 rounded-lg focus:ring-1 focus:ring-orange-500 focus:border-orange-500 bg-slate-950 text-slate-200 placeholder:text-slate-600 text-sm"
+                  className="flex-1 px-3 py-2 border border-orange-500/30 rounded-lg focus:ring-1 focus:ring-orange-500 focus:border-orange-500 bg-slate-950 text-white placeholder:text-slate-500 text-sm"
                   onKeyPress={(e) => {
                     if (e.key === 'Enter') {
                       addComment(post.id);
@@ -709,10 +666,8 @@ export default function Community() {
           <div className="text-center py-12">
             <MessageSquare className="w-16 h-16 text-orange-500/30 mx-auto mb-3" />
             <p className="text-orange-500 text-lg font-bold">No posts yet</p>
-            <p className="text-slate-400 text-sm mt-1">
-              {profile?.is_admin
-                ? 'Create the first post!'
-                : 'Check back soon for investment insights!'}
+            <p className="text-slate-300 text-sm mt-1">
+              Be the first to share your stock analysis!
             </p>
           </div>
         )}
