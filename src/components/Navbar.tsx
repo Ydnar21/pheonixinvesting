@@ -10,24 +10,21 @@ export default function Navbar({ currentPage, onNavigate }: NavbarProps) {
   const { profile, signOut } = useAuth();
 
   const navItems = [
-    { id: 'portfolio', label: 'Portfolio' },
+    { id: 'calendar', label: 'Calendar' },
     { id: 'community', label: 'Community' },
     { id: 'news', label: 'News' },
-    { id: 'calendar', label: 'Calendar' },
+    { id: 'strategy', label: 'Strategy' },
+    { id: 'ai-bot', label: 'AI Bot' },
     { id: 'about', label: 'About' },
   ];
 
-  const adminItems = profile?.is_admin
-    ? [{ id: 'admin-trades', label: 'Manage Trades' }]
-    : [];
-
   return (
-    <nav className="glass sticky top-0 z-50 border-b border-slate-200/50">
+    <nav className="glass sticky top-0 z-50 border-b border-orange-500/20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-20">
           <div className="flex items-center space-x-8">
             <button
-              onClick={() => onNavigate('portfolio')}
+              onClick={() => onNavigate('calendar')}
               className="flex items-center space-x-3 group"
             >
               <img
@@ -92,19 +89,6 @@ export default function Navbar({ currentPage, onNavigate }: NavbarProps) {
                 currentPage === item.id
                   ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white shadow-soft'
                   : 'text-slate-600 hover:bg-slate-100'
-              }`}
-            >
-              {item.label}
-            </button>
-          ))}
-          {adminItems.map((item) => (
-            <button
-              key={item.id}
-              onClick={() => onNavigate(item.id)}
-              className={`px-4 py-2.5 rounded-xl font-semibold transition-all duration-200 whitespace-nowrap ${
-                currentPage === item.id
-                  ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white shadow-soft'
-                  : 'text-orange-600 hover:bg-orange-50'
               }`}
             >
               {item.label}

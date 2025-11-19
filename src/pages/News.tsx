@@ -77,42 +77,42 @@ export default function News() {
 
   if (loading) {
     return (
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="flex flex-col items-center justify-center py-20">
-          <RefreshCw className="w-12 h-12 text-emerald-500 animate-spin mb-4" />
-          <p className="text-slate-600 text-lg">Loading latest market news...</p>
+          <RefreshCw className="w-12 h-12 text-orange-500 animate-spin mb-4" />
+          <p className="text-slate-400 text-lg">Loading latest market news...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <div className="mb-8 flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-slate-900 mb-2">Market News</h1>
-          <p className="text-slate-600">Latest financial news from Google News</p>
+          <h1 className="text-5xl font-bold gradient-text mb-2">Market News</h1>
+          <p className="text-slate-400 text-lg">Latest stock market news from Google News</p>
         </div>
         <button
           onClick={handleRefresh}
           disabled={refreshing}
-          className="flex items-center space-x-2 bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 rounded-lg transition disabled:opacity-50"
+          className="flex items-center space-x-2 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white px-6 py-3 rounded-xl font-semibold transition disabled:opacity-50"
         >
-          <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
+          <RefreshCw className={`w-5 h-5 ${refreshing ? 'animate-spin' : ''}`} />
           <span>Refresh</span>
         </button>
       </div>
 
       {error && (
-        <div className="mb-6 bg-red-50 border border-red-200 rounded-xl p-4 flex items-start space-x-3">
-          <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+        <div className="mb-6 glass border-2 border-red-500/30 rounded-xl p-4 flex items-start space-x-3">
+          <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
           <div className="flex-1">
-            <p className="text-red-800 font-medium">Error loading news</p>
-            <p className="text-red-600 text-sm mt-1">{error}</p>
+            <p className="text-red-400 font-medium">Error loading news</p>
+            <p className="text-slate-400 text-sm mt-1">{error}</p>
           </div>
           <button
             onClick={handleRefresh}
-            className="text-red-600 hover:text-red-700 font-medium text-sm"
+            className="text-orange-400 hover:text-orange-300 font-medium text-sm"
           >
             Try Again
           </button>
@@ -122,34 +122,34 @@ export default function News() {
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         <div className="lg:col-span-3">
           {articles.length === 0 ? (
-            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-12 text-center">
-              <Newspaper className="w-16 h-16 text-slate-300 mx-auto mb-4" />
-              <p className="text-slate-600 text-lg">No news articles available</p>
+            <div className="glass rounded-xl p-12 text-center">
+              <Newspaper className="w-16 h-16 text-slate-600 mx-auto mb-4" />
+              <p className="text-slate-300 text-lg">No news articles available</p>
               <p className="text-slate-500 text-sm mt-2">Check back later for updates</p>
             </div>
           ) : (
-            <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-              <div className="border-b border-slate-200 bg-slate-50 px-6 py-4">
+            <div className="glass rounded-xl overflow-hidden">
+              <div className="border-b border-orange-500/20 bg-slate-900/50 px-6 py-4">
                 <div className="flex items-center space-x-2">
-                  <Newspaper className="w-5 h-5 text-emerald-600" />
-                  <h2 className="text-lg font-bold text-slate-900">
+                  <Newspaper className="w-5 h-5 text-orange-400" />
+                  <h2 className="text-lg font-bold text-orange-400">
                     Latest Headlines ({articles.length})
                   </h2>
                 </div>
               </div>
 
-              <div className="divide-y divide-slate-200">
+              <div className="divide-y divide-orange-500/10">
                 {articles.map((article, index) => (
                   <a
                     key={index}
                     href={article.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="block px-6 py-4 hover:bg-slate-50 transition group"
+                    className="block px-6 py-4 hover:bg-orange-500/5 transition group"
                   >
                     <div className="flex items-start justify-between space-x-4">
                       <div className="flex-1 min-w-0">
-                        <h3 className="text-slate-900 font-medium group-hover:text-emerald-600 transition mb-2 leading-snug">
+                        <h3 className="text-slate-200 font-medium group-hover:text-orange-400 transition mb-2 leading-snug">
                           {article.title}
                         </h3>
                         <div className="flex items-center space-x-3 text-sm text-slate-500">
@@ -161,7 +161,7 @@ export default function News() {
                           </div>
                         </div>
                       </div>
-                      <ExternalLink className="w-4 h-4 text-slate-400 group-hover:text-emerald-600 transition flex-shrink-0 mt-1" />
+                      <ExternalLink className="w-4 h-4 text-slate-500 group-hover:text-orange-400 transition flex-shrink-0 mt-1" />
                     </div>
                   </a>
                 ))}
@@ -171,20 +171,20 @@ export default function News() {
         </div>
 
         <div className="space-y-6">
-          <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+          <div className="glass rounded-xl p-6">
             <div className="flex items-center space-x-2 mb-4">
-              <Newspaper className="w-5 h-5 text-emerald-600" />
-              <h3 className="text-lg font-bold text-slate-900">About</h3>
+              <Newspaper className="w-5 h-5 text-orange-400" />
+              <h3 className="text-lg font-bold text-orange-400">About</h3>
             </div>
-            <p className="text-slate-600 text-sm leading-relaxed">
-              This news feed aggregates the latest financial and market news from Google News, updated
-              in real-time to keep you informed about market movements, economic developments, and
+            <p className="text-slate-400 text-sm leading-relaxed">
+              This news feed aggregates the latest financial and stock market news from Google News, updated
+              regularly to keep you informed about market movements, economic developments, and
               investment opportunities.
             </p>
           </div>
 
-          <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-            <h3 className="text-lg font-bold text-slate-900 mb-4">Popular Topics</h3>
+          <div className="glass rounded-xl p-6">
+            <h3 className="text-lg font-bold text-orange-400 mb-4">Popular Topics</h3>
             <div className="space-y-2">
               {[
                 'Stock Market',
@@ -195,19 +195,19 @@ export default function News() {
               ].map((topic, index) => (
                 <div
                   key={index}
-                  className="flex items-center space-x-2 text-sm text-slate-700"
+                  className="flex items-center space-x-2 text-sm text-slate-300"
                 >
-                  <div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
+                  <div className="w-1.5 h-1.5 rounded-full bg-orange-500"></div>
                   <span>{topic}</span>
                 </div>
               ))}
             </div>
           </div>
 
-          <div className="bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl shadow-sm p-6 text-white">
+          <div className="bg-gradient-to-br from-orange-500 to-red-500 rounded-xl p-6 text-white">
             <Newspaper className="w-8 h-8 mb-3 opacity-90" />
             <h3 className="text-lg font-bold mb-2">Stay Updated</h3>
-            <p className="text-emerald-50 text-sm leading-relaxed">
+            <p className="text-orange-50 text-sm leading-relaxed">
               Refresh this page regularly to get the latest market news and stay ahead of market
               trends.
             </p>

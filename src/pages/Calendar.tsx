@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ChevronLeft, ChevronRight, Plus, TrendingUp, TrendingDown } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Plus, TrendingUp, TrendingDown, Minus } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
 
@@ -13,23 +13,26 @@ interface CalendarEvent {
   is_approved: boolean;
 }
 
-interface EventSubmission {
+interface EventVote {
   id: string;
-  title: string;
-  description: string;
-  event_date: string;
-  sentiment: 'bullish' | 'bearish';
-  status: 'pending' | 'approved' | 'rejected';
+  event_id: string;
   user_id: string;
+  sentiment: 'bullish' | 'bearish' | 'neutral';
+}
+
+interface VoteCount {
+  bullish: number;
+  bearish: number;
+  neutral: number;
 }
 
 export default function Calendar() {
   const { profile } = useAuth();
   const [currentDate, setCurrentDate] = useState(new Date());
   const [events, setEvents] = useState<CalendarEvent[]>([]);
-  const [submissions, setSubmissions] = useState<EventSubmission[]>([]);
-  const [showSubmitModal, setShowSubmitModal] = useState(false);
-  const [showAdminPanel, setShowAdminPanel] = useState(false);
+  const [votes, setVotes] = useState<Record<string, EventVote[]>>({});
+  const [userVotes, setUserVotes] = useState<Record<string, EventVote>>({});
+  const [showEventModal, setShowEventModal] = useState(false);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [newEvent, setNewEvent] = useState({
     title: '',
@@ -40,114 +43,44 @@ export default function Calendar() {
 
   useEffect(() => {
     loadEvents();
-    if (profile?.is_admin) {
-      loadSubmissions();
-    }
-  }, [profile?.is_admin]);
+    loadVotes();
+  }, []);
 
   async function loadEvents() {
     const { data } = await supabase
       .from('calendar_events')
       .select('*')
       .eq('is_approved', true)
-      .gte('event_date', new Date().toISOString().split('T')[0])
       .order('event_date');
     if (data) setEvents(data);
   }
 
-  async function loadSubmissions() {
+  async function loadVotes() {
     const { data } = await supabase
-      .from('calendar_event_submissions')
-      .select('*')
-      .order('created_at', { ascending: false });
-    if (data) setSubmissions(data);
-  }
+      .from('calendar_event_votes')
+      .select('*');
 
-  async function submitEvent() {
-    if (!profile) return;
+    if (data) {
+      const votesByEvent: Record<string, EventVote[]> = {};
+      const userVoteMap: Record<string, EventVote> = {};
 
-    const { error } = await supabase
-      .from('calendar_event_submissions')
-      .insert([
-        {
-          title: newEvent.title,
-          description: newEvent.description,
-          event_date: newEvent.event_date,
-          sentiment: newEvent.sentiment,
-          user_id: profile.id,
-          status: 'pending',
-        },
-      ]);
+      data.forEach((vote: EventVote) => {
+        if (!votesByEvent[vote.event_id]) {
+          votesByEvent[vote.event_id] = [];
+        }
+        votesByEvent[vote.event_id].push(vote);
 
-    if (error) {
-      alert('Failed to submit event: ' + error.message);
-      return;
-    }
+        if (vote.user_id === profile?.id) {
+          userVoteMap[vote.event_id] = vote;
+        }
+      });
 
-    alert('Event submitted for review!');
-    setNewEvent({
-      title: '',
-      description: '',
-      event_date: new Date().toISOString().split('T')[0],
-      sentiment: 'bullish',
-    });
-    setShowSubmitModal(false);
-  }
-
-  async function approveSubmission(id: string) {
-    const submission = submissions.find((s) => s.id === id);
-    if (!submission) return;
-
-    const { error: updateError } = await supabase
-      .from('calendar_event_submissions')
-      .update({
-        status: 'approved',
-        reviewed_by: profile?.id,
-        reviewed_at: new Date().toISOString(),
-      })
-      .eq('id', id);
-
-    if (updateError) {
-      alert('Failed to approve: ' + updateError.message);
-      return;
-    }
-
-    const { error: insertError } = await supabase
-      .from('calendar_events')
-      .insert([
-        {
-          title: submission.title,
-          description: submission.description,
-          event_date: submission.event_date,
-          sentiment: submission.sentiment,
-          created_by: submission.user_id,
-          approved_by: profile?.id,
-          is_approved: true,
-        },
-      ]);
-
-    if (!insertError) {
-      loadEvents();
-      loadSubmissions();
+      setVotes(votesByEvent);
+      setUserVotes(userVoteMap);
     }
   }
 
-  async function rejectSubmission(id: string) {
-    const { error } = await supabase
-      .from('calendar_event_submissions')
-      .update({
-        status: 'rejected',
-        reviewed_by: profile?.id,
-        reviewed_at: new Date().toISOString(),
-      })
-      .eq('id', id);
-
-    if (!error) {
-      loadSubmissions();
-    }
-  }
-
-  async function createDirectEvent() {
+  async function createEvent() {
     if (!profile?.is_admin) return;
 
     const { error } = await supabase
@@ -176,8 +109,63 @@ export default function Calendar() {
       event_date: new Date().toISOString().split('T')[0],
       sentiment: 'bullish',
     });
-    setShowSubmitModal(false);
+    setShowEventModal(false);
     loadEvents();
+  }
+
+  async function deleteEvent(eventId: string) {
+    if (!profile?.is_admin) return;
+
+    if (!confirm('Are you sure you want to delete this event?')) return;
+
+    const { error } = await supabase
+      .from('calendar_events')
+      .delete()
+      .eq('id', eventId);
+
+    if (!error) {
+      loadEvents();
+    }
+  }
+
+  async function voteOnEvent(eventId: string, sentiment: 'bullish' | 'bearish' | 'neutral') {
+    if (!profile) return;
+
+    const existingVote = userVotes[eventId];
+
+    if (existingVote) {
+      const { error } = await supabase
+        .from('calendar_event_votes')
+        .update({ sentiment, updated_at: new Date().toISOString() })
+        .eq('id', existingVote.id);
+
+      if (!error) {
+        loadVotes();
+      }
+    } else {
+      const { error } = await supabase
+        .from('calendar_event_votes')
+        .insert([
+          {
+            event_id: eventId,
+            user_id: profile.id,
+            sentiment,
+          },
+        ]);
+
+      if (!error) {
+        loadVotes();
+      }
+    }
+  }
+
+  function getVoteCounts(eventId: string): VoteCount {
+    const eventVotes = votes[eventId] || [];
+    return {
+      bullish: eventVotes.filter(v => v.sentiment === 'bullish').length,
+      bearish: eventVotes.filter(v => v.sentiment === 'bearish').length,
+      neutral: eventVotes.filter(v => v.sentiment === 'neutral').length,
+    };
   }
 
   const year = currentDate.getFullYear();
@@ -202,34 +190,36 @@ export default function Calendar() {
       <div className="flex items-center justify-between mb-8">
         <div>
           <h1 className="text-5xl font-bold gradient-text mb-2">Market Calendar</h1>
-          <p className="text-slate-600 text-lg">Track bullish and bearish market events</p>
+          <p className="text-slate-400 text-lg">Track market events and vote on sentiment</p>
         </div>
-        <button
-          onClick={() => setShowSubmitModal(true)}
-          className="flex items-center space-x-2 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white px-6 py-3 rounded-xl font-semibold shadow-md transition-all"
-        >
-          <Plus className="w-5 h-5" />
-          <span>{profile?.is_admin ? 'New Event' : 'Suggest Event'}</span>
-        </button>
+        {profile?.is_admin && (
+          <button
+            onClick={() => setShowEventModal(true)}
+            className="flex items-center space-x-2 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white px-6 py-3 rounded-xl font-semibold shadow-md transition-all"
+          >
+            <Plus className="w-5 h-5" />
+            <span>New Event</span>
+          </button>
+        )}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
         <div className="lg:col-span-3">
           <div className="glass rounded-2xl p-8">
             <div className="flex items-center justify-between mb-8">
-              <h2 className="text-2xl font-bold text-slate-900">
+              <h2 className="text-2xl font-bold text-orange-400">
                 {monthName} {year}
               </h2>
               <div className="flex space-x-4">
                 <button
                   onClick={() => setCurrentDate(new Date(year, month - 1))}
-                  className="p-2 hover:bg-slate-100 rounded-lg transition"
+                  className="p-2 hover:bg-orange-500/10 rounded-lg transition text-slate-300"
                 >
                   <ChevronLeft className="w-6 h-6" />
                 </button>
                 <button
                   onClick={() => setCurrentDate(new Date(year, month + 1))}
-                  className="p-2 hover:bg-slate-100 rounded-lg transition"
+                  className="p-2 hover:bg-orange-500/10 rounded-lg transition text-slate-300"
                 >
                   <ChevronRight className="w-6 h-6" />
                 </button>
@@ -238,7 +228,7 @@ export default function Calendar() {
 
             <div className="grid grid-cols-7 gap-2 mb-4">
               {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
-                <div key={day} className="text-center font-bold text-slate-600 py-2">
+                <div key={day} className="text-center font-bold text-slate-400 py-2">
                   {day}
                 </div>
               ))}
@@ -253,13 +243,13 @@ export default function Calendar() {
                     onClick={() => day && setSelectedDate(`${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`)}
                     className={`min-h-24 p-2 rounded-lg border-2 transition-all cursor-pointer ${
                       day
-                        ? 'border-slate-200 hover:border-orange-300 hover:bg-orange-50'
-                        : 'border-transparent bg-slate-50'
+                        ? 'border-orange-500/20 hover:border-orange-500/50 hover:bg-orange-500/5'
+                        : 'border-transparent bg-slate-900/50'
                     }`}
                   >
                     {day && (
                       <div>
-                        <div className="font-bold text-slate-900 mb-1">{day}</div>
+                        <div className="font-bold text-slate-200 mb-1">{day}</div>
                         <div className="space-y-1">
                           {dayEvents.slice(0, 2).map((event) => (
                             <div
@@ -291,34 +281,86 @@ export default function Calendar() {
         <div className="lg:col-span-1 space-y-6">
           {selectedDate && (
             <div className="glass rounded-2xl p-6">
-              <h3 className="font-bold text-slate-900 mb-4">
-                {new Date(selectedDate).toLocaleDateString('default', {
+              <h3 className="font-bold text-orange-400 mb-4">
+                {new Date(selectedDate + 'T12:00:00').toLocaleDateString('default', {
                   weekday: 'long',
                   month: 'short',
                   day: 'numeric',
                 })}
               </h3>
-              <div className="space-y-3 max-h-96 overflow-y-auto">
-                {getEventsForDate(parseInt(selectedDate.split('-')[2])).map((event) => (
-                  <div
-                    key={event.id}
-                    className={`p-3 rounded-lg border-l-4 ${
-                      event.sentiment === 'bullish'
-                        ? 'border-l-green-500 bg-green-50'
-                        : 'border-l-red-500 bg-red-50'
-                    }`}
-                  >
-                    <div className="flex items-center space-x-2 mb-1">
-                      {event.sentiment === 'bullish' ? (
-                        <TrendingUp className="w-4 h-4 text-green-600" />
-                      ) : (
-                        <TrendingDown className="w-4 h-4 text-red-600" />
-                      )}
-                      <p className="font-bold text-slate-900">{event.title}</p>
+              <div className="space-y-4 max-h-96 overflow-y-auto">
+                {getEventsForDate(parseInt(selectedDate.split('-')[2])).map((event) => {
+                  const voteCounts = getVoteCounts(event.id);
+                  const userVote = userVotes[event.id];
+
+                  return (
+                    <div
+                      key={event.id}
+                      className={`p-4 rounded-lg border-l-4 ${
+                        event.sentiment === 'bullish'
+                          ? 'border-l-green-500 bg-green-500/10'
+                          : 'border-l-red-500 bg-red-500/10'
+                      }`}
+                    >
+                      <div className="flex items-center space-x-2 mb-2">
+                        {event.sentiment === 'bullish' ? (
+                          <TrendingUp className="w-4 h-4 text-green-400" />
+                        ) : (
+                          <TrendingDown className="w-4 h-4 text-red-400" />
+                        )}
+                        <p className="font-bold text-slate-200 flex-1">{event.title}</p>
+                        {profile?.is_admin && (
+                          <button
+                            onClick={() => deleteEvent(event.id)}
+                            className="text-red-400 hover:text-red-300 text-xs"
+                          >
+                            Delete
+                          </button>
+                        )}
+                      </div>
+                      <p className="text-sm text-slate-400 mb-3">{event.description}</p>
+
+                      <div className="border-t border-slate-700 pt-3 mt-3">
+                        <p className="text-xs text-slate-500 font-semibold mb-2">Community Sentiment</p>
+                        <div className="flex space-x-2 mb-2">
+                          <button
+                            onClick={() => voteOnEvent(event.id, 'bullish')}
+                            className={`flex-1 py-2 px-3 rounded-lg text-xs font-semibold transition ${
+                              userVote?.sentiment === 'bullish'
+                                ? 'bg-green-500 text-white'
+                                : 'bg-green-500/20 text-green-400 hover:bg-green-500/30'
+                            }`}
+                          >
+                            <TrendingUp className="w-3 h-3 inline mr-1" />
+                            {voteCounts.bullish}
+                          </button>
+                          <button
+                            onClick={() => voteOnEvent(event.id, 'neutral')}
+                            className={`flex-1 py-2 px-3 rounded-lg text-xs font-semibold transition ${
+                              userVote?.sentiment === 'neutral'
+                                ? 'bg-slate-500 text-white'
+                                : 'bg-slate-500/20 text-slate-400 hover:bg-slate-500/30'
+                            }`}
+                          >
+                            <Minus className="w-3 h-3 inline mr-1" />
+                            {voteCounts.neutral}
+                          </button>
+                          <button
+                            onClick={() => voteOnEvent(event.id, 'bearish')}
+                            className={`flex-1 py-2 px-3 rounded-lg text-xs font-semibold transition ${
+                              userVote?.sentiment === 'bearish'
+                                ? 'bg-red-500 text-white'
+                                : 'bg-red-500/20 text-red-400 hover:bg-red-500/30'
+                            }`}
+                          >
+                            <TrendingDown className="w-3 h-3 inline mr-1" />
+                            {voteCounts.bearish}
+                          </button>
+                        </div>
+                      </div>
                     </div>
-                    <p className="text-sm text-slate-600">{event.description}</p>
-                  </div>
-                ))}
+                  );
+                })}
                 {getEventsForDate(parseInt(selectedDate.split('-')[2])).length === 0 && (
                   <p className="text-slate-500 text-center py-4">No events this day</p>
                 )}
@@ -326,123 +368,64 @@ export default function Calendar() {
             </div>
           )}
 
-          {profile?.is_admin && (
-            <button
-              onClick={() => setShowAdminPanel(!showAdminPanel)}
-              className="w-full bg-slate-900 hover:bg-slate-800 text-white px-4 py-2 rounded-lg font-semibold transition"
-            >
-              {showAdminPanel ? 'Hide Panel' : 'Show Admin Panel'}
-            </button>
-          )}
+          <div className="glass rounded-2xl p-6">
+            <h3 className="font-bold text-orange-400 mb-3">How to Vote</h3>
+            <div className="space-y-2 text-sm text-slate-400">
+              <p><span className="text-green-400 font-semibold">Bullish:</span> Positive for markets</p>
+              <p><span className="text-slate-400 font-semibold">Neutral:</span> No clear impact</p>
+              <p><span className="text-red-400 font-semibold">Bearish:</span> Negative for markets</p>
+            </div>
+          </div>
         </div>
       </div>
 
-      {showAdminPanel && profile?.is_admin && (
-        <div className="mt-8 glass rounded-2xl p-8">
-          <h2 className="text-2xl font-bold text-slate-900 mb-6">Admin: Event Submissions</h2>
-          <div className="space-y-4 max-h-96 overflow-y-auto">
-            {submissions.filter((s) => s.status === 'pending').length === 0 ? (
-              <p className="text-slate-500">No pending submissions</p>
-            ) : (
-              submissions
-                .filter((s) => s.status === 'pending')
-                .map((submission) => (
-                  <div
-                    key={submission.id}
-                    className={`p-4 border-2 rounded-lg ${
-                      submission.sentiment === 'bullish'
-                        ? 'border-green-200 bg-green-50'
-                        : 'border-red-200 bg-red-50'
-                    }`}
-                  >
-                    <div className="flex items-start justify-between mb-2">
-                      <div>
-                        <h3 className="font-bold text-slate-900">{submission.title}</h3>
-                        <p className="text-sm text-slate-600">
-                          {new Date(submission.event_date).toLocaleDateString()}
-                        </p>
-                      </div>
-                      <span
-                        className={`text-xs px-3 py-1 rounded-full font-semibold ${
-                          submission.sentiment === 'bullish'
-                            ? 'bg-green-600 text-white'
-                            : 'bg-red-600 text-white'
-                        }`}
-                      >
-                        {submission.sentiment}
-                      </span>
-                    </div>
-                    <p className="text-slate-700 mb-3">{submission.description}</p>
-                    <div className="flex space-x-2">
-                      <button
-                        onClick={() => approveSubmission(submission.id)}
-                        className="flex-1 bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg font-medium transition"
-                      >
-                        Approve
-                      </button>
-                      <button
-                        onClick={() => rejectSubmission(submission.id)}
-                        className="flex-1 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg font-medium transition"
-                      >
-                        Reject
-                      </button>
-                    </div>
-                  </div>
-                ))
-            )}
-          </div>
-        </div>
-      )}
-
-      {showSubmitModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+      {showEventModal && profile?.is_admin && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
           <div className="glass rounded-2xl max-w-md w-full p-8">
-            <h2 className="text-2xl font-bold text-slate-900 mb-6">
-              {profile?.is_admin ? 'Create Event' : 'Suggest Event'}
-            </h2>
+            <h2 className="text-2xl font-bold text-orange-400 mb-6">Create Event</h2>
 
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-semibold text-slate-900 mb-2">
+                <label className="block text-sm font-semibold text-slate-300 mb-2">
                   Title
                 </label>
                 <input
                   type="text"
                   value={newEvent.title}
                   onChange={(e) => setNewEvent({ ...newEvent, title: e.target.value })}
-                  className="w-full px-4 py-2 border-2 border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all bg-white/50"
+                  className="w-full px-4 py-2 border-2 border-orange-500/30 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all bg-slate-900/50 text-slate-200"
                   placeholder="Event title"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-slate-900 mb-2">
+                <label className="block text-sm font-semibold text-slate-300 mb-2">
                   Description
                 </label>
                 <textarea
                   value={newEvent.description}
                   onChange={(e) => setNewEvent({ ...newEvent, description: e.target.value })}
-                  className="w-full px-4 py-2 border-2 border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all bg-white/50 resize-none"
+                  className="w-full px-4 py-2 border-2 border-orange-500/30 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all bg-slate-900/50 text-slate-200 resize-none"
                   rows={3}
                   placeholder="Brief description"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-slate-900 mb-2">
+                <label className="block text-sm font-semibold text-slate-300 mb-2">
                   Date
                 </label>
                 <input
                   type="date"
                   value={newEvent.event_date}
                   onChange={(e) => setNewEvent({ ...newEvent, event_date: e.target.value })}
-                  className="w-full px-4 py-2 border-2 border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all bg-white/50"
+                  className="w-full px-4 py-2 border-2 border-orange-500/30 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all bg-slate-900/50 text-slate-200"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-slate-900 mb-2">
-                  Sentiment
+                <label className="block text-sm font-semibold text-slate-300 mb-2">
+                  Initial Sentiment
                 </label>
                 <div className="flex space-x-4">
                   <label className="flex items-center space-x-2 cursor-pointer">
@@ -452,7 +435,7 @@ export default function Calendar() {
                       onChange={() => setNewEvent({ ...newEvent, sentiment: 'bullish' })}
                       className="w-4 h-4"
                     />
-                    <span className="text-sm font-medium text-slate-700">Bullish</span>
+                    <span className="text-sm font-medium text-slate-300">Bullish</span>
                   </label>
                   <label className="flex items-center space-x-2 cursor-pointer">
                     <input
@@ -461,7 +444,7 @@ export default function Calendar() {
                       onChange={() => setNewEvent({ ...newEvent, sentiment: 'bearish' })}
                       className="w-4 h-4"
                     />
-                    <span className="text-sm font-medium text-slate-700">Bearish</span>
+                    <span className="text-sm font-medium text-slate-300">Bearish</span>
                   </label>
                 </div>
               </div>
@@ -469,16 +452,16 @@ export default function Calendar() {
 
             <div className="flex space-x-3 mt-8">
               <button
-                onClick={() => setShowSubmitModal(false)}
-                className="flex-1 px-4 py-2 border-2 border-slate-300 text-slate-700 rounded-lg font-medium hover:bg-slate-100 transition"
+                onClick={() => setShowEventModal(false)}
+                className="flex-1 px-4 py-2 border-2 border-slate-600 text-slate-300 rounded-lg font-medium hover:bg-slate-800 transition"
               >
                 Cancel
               </button>
               <button
-                onClick={profile?.is_admin ? createDirectEvent : submitEvent}
+                onClick={createEvent}
                 className="flex-1 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white px-4 py-2 rounded-lg font-medium transition"
               >
-                {profile?.is_admin ? 'Create' : 'Submit'}
+                Create
               </button>
             </div>
           </div>
