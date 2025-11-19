@@ -3,6 +3,8 @@ import { MessageSquare, ThumbsUp, TrendingUp, TrendingDown, Minus, Send, Plus, C
 import { supabase, StockPost, PostComment, StockSubmission, StockVote } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
 import VotingSection from '../components/VotingSection';
+import ProfileModal from '../components/ProfileModal';
+import Messages from '../components/Messages';
 
 export default function Community() {
   const { user, profile } = useAuth();
@@ -17,6 +19,19 @@ export default function Community() {
   const [voteCounts, setVoteCounts] = useState<{ [key: string]: { shortTerm: { bullish: number; bearish: number; neutral: number }; longTerm: { bullish: number; bearish: number; neutral: number } } }>({});
   const [showNewPost, setShowNewPost] = useState(false);
   const [showSubmissions, setShowSubmissions] = useState(false);
+  const [showProfileModal, setShowProfileModal] = useState(false);
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
+  const [showMessages, setShowMessages] = useState(false);
+
+  function handleUserClick(userId: string) {
+    setSelectedUserId(userId);
+    setShowProfileModal(true);
+  }
+
+  function handleOpenMessages(userId: string, username: string) {
+    setShowProfileModal(false);
+    setShowMessages(true);
+  }
   const [newPost, setNewPost] = useState({
     stock_symbol: '',
     stock_name: '',
@@ -556,9 +571,12 @@ export default function Community() {
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center space-x-2">
-                      <span className="font-bold text-orange-500">
+                      <button
+                        onClick={() => handleUserClick(post.user_id)}
+                        className="font-bold text-orange-500 hover:text-orange-400 transition"
+                      >
                         {post.profiles?.username || 'Anonymous'}
-                      </span>
+                      </button>
                       {post.profiles?.is_admin && (
                         <span className="bg-orange-500 text-white text-xs px-2 py-0.5 rounded font-medium">
                           Admin
@@ -620,9 +638,12 @@ export default function Community() {
                       </div>
                       <div className="flex-1">
                         <div className="flex items-center space-x-2">
-                          <span className="font-medium text-orange-500 text-sm">
+                          <button
+                            onClick={() => handleUserClick(comment.user_id)}
+                            className="font-medium text-orange-500 hover:text-orange-400 text-sm transition"
+                          >
                             {comment.profiles?.username || 'Anonymous'}
-                          </span>
+                          </button>
                           <span className="text-slate-400 text-xs">
                             {new Date(comment.created_at).toLocaleDateString()}
                           </span>
@@ -672,6 +693,17 @@ export default function Community() {
           </div>
         )}
       </div>
+      {showProfileModal && selectedUserId && (
+        <ProfileModal
+          userId={selectedUserId}
+          onClose={() => {
+            setShowProfileModal(false);
+            setSelectedUserId(null);
+          }}
+          onOpenMessages={handleOpenMessages}
+        />
+      )}
+      {showMessages && <Messages onClose={() => setShowMessages(false)} />}
     </div>
   );
 }
