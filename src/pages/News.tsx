@@ -6,6 +6,7 @@ type NewsArticle = {
   url: string;
   source: string;
   publishedAt: string;
+  stock?: string;
 };
 
 export default function News() {
@@ -130,11 +131,16 @@ export default function News() {
           ) : (
             <div className="glass rounded-xl overflow-hidden">
               <div className="border-b border-orange-500/20 bg-slate-900/50 px-6 py-4">
-                <div className="flex items-center space-x-2">
-                  <Newspaper className="w-5 h-5 text-orange-400" />
-                  <h2 className="text-lg font-bold text-orange-400">
-                    Latest Headlines ({articles.length})
-                  </h2>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <Newspaper className="w-5 h-5 text-orange-400" />
+                    <h2 className="text-lg font-bold text-orange-400">
+                      Latest Headlines ({articles.length})
+                    </h2>
+                  </div>
+                  <span className="text-xs text-slate-400">
+                    {articles.filter(a => a.stock).length} community stock articles
+                  </span>
                 </div>
               </div>
 
@@ -149,9 +155,16 @@ export default function News() {
                   >
                     <div className="flex items-start justify-between space-x-4">
                       <div className="flex-1 min-w-0">
-                        <h3 className="text-slate-200 font-medium group-hover:text-orange-400 transition mb-2 leading-snug">
-                          {article.title}
-                        </h3>
+                        <div className="flex items-start space-x-2 mb-2">
+                          <h3 className="text-slate-200 font-medium group-hover:text-orange-400 transition leading-snug flex-1">
+                            {article.title}
+                          </h3>
+                          {article.stock && (
+                            <span className="bg-orange-500/20 text-orange-400 text-xs font-bold px-2 py-1 rounded flex-shrink-0">
+                              {article.stock}
+                            </span>
+                          )}
+                        </div>
                         <div className="flex items-center space-x-3 text-sm text-slate-500">
                           <span className="font-medium">{article.source}</span>
                           <span>•</span>
@@ -176,22 +189,26 @@ export default function News() {
               <Newspaper className="w-5 h-5 text-orange-400" />
               <h3 className="text-lg font-bold text-orange-400">About</h3>
             </div>
-            <p className="text-slate-400 text-sm leading-relaxed">
-              This news feed aggregates the latest financial and stock market news from Google News, updated
-              regularly to keep you informed about market movements, economic developments, and
-              investment opportunities.
+            <p className="text-slate-300 text-sm leading-relaxed mb-3">
+              This news feed aggregates the latest financial and stock market news from Google News.
             </p>
+            <div className="bg-orange-500/10 border border-orange-500/20 rounded-lg p-3 mt-3">
+              <p className="text-slate-300 text-xs font-semibold mb-1">Community Focus</p>
+              <p className="text-slate-400 text-xs leading-relaxed">
+                Articles tagged with stock symbols are specifically filtered for stocks mentioned in the Community page.
+              </p>
+            </div>
           </div>
 
           <div className="glass rounded-xl p-6">
-            <h3 className="text-lg font-bold text-orange-400 mb-4">Popular Topics</h3>
+            <h3 className="text-lg font-bold text-orange-400 mb-4">News Sources</h3>
             <div className="space-y-2">
               {[
-                'Stock Market',
-                'Finance',
-                'Investing',
-                'Wall Street',
-                'Economy',
+                'General Market News',
+                'Community Stock Updates',
+                'Economic Reports',
+                'Corporate Earnings',
+                'Market Analysis',
               ].map((topic, index) => (
                 <div
                   key={index}
