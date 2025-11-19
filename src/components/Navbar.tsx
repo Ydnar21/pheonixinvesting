@@ -28,7 +28,7 @@ export default function Navbar({ currentPage, onNavigate }: NavbarProps) {
               className="flex items-center space-x-2"
             >
               <img
-                src="/LiquidPheonix.png"
+                src="/src/LiquidPheonix.png.png"
                 alt="Liquid Phoenix"
                 className="w-10 h-10"
               />

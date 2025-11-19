@@ -5,7 +5,7 @@ export default function About() {
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <div className="text-center mb-12">
         <img
-          src="/LiquidPheonix.png"
+          src="/src/LiquidPheonix.png.png"
           alt="Liquid Phoenix"
           className="w-20 h-20 mx-auto mb-4"
         />

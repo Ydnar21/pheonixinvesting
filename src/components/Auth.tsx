@@ -42,7 +42,7 @@ export default function Auth() {
         <div className="glass rounded-xl p-8">
           <div className="flex items-center justify-center mb-6">
             <img
-              src="/LiquidPheonix.png"
+              src="/src/LiquidPheonix.png.png"
               alt="Liquid Phoenix"
               className="w-16 h-16"
             />
