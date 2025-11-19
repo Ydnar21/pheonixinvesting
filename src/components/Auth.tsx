@@ -4,9 +4,8 @@ import { TrendingUp } from 'lucide-react';
 
 export default function Auth() {
   const [isSignUp, setIsSignUp] = useState(false);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const { signIn, signUp } = useAuth();
@@ -17,16 +16,17 @@ export default function Auth() {
     setLoading(true);
 
     try {
+      if (!username.trim()) {
+        setError('Username is required');
+        setLoading(false);
+        return;
+      }
+
       if (isSignUp) {
-        if (!username.trim()) {
-          setError('Username is required');
-          setLoading(false);
-          return;
-        }
-        const { error } = await signUp(email, password, username);
+        const { error } = await signUp(username, password);
         if (error) setError(error.message);
       } else {
-        const { error } = await signIn(email, password);
+        const { error } = await signIn(username, password);
         if (error) setError(error.message);
       }
     } catch (err: any) {
@@ -56,40 +56,23 @@ export default function Auth() {
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            {isSignUp && (
-              <div>
-                <label htmlFor="username" className="block text-sm font-medium text-slate-400 mb-1">
-                  Username
-                </label>
-                <input
-                  id="username"
-                  type="text"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  className="w-full px-4 py-2 border border-orange-500/30 rounded-lg focus:ring-1 focus:ring-orange-500 focus:border-orange-500 bg-slate-950 text-slate-200 placeholder:text-slate-600"
-                  placeholder="Choose a username"
-                  required={isSignUp}
-                />
-              </div>
-            )}
-
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-slate-400 mb-1">
-                Email
+              <label htmlFor="username" className="block text-sm font-medium text-slate-300 mb-1">
+                Username
               </label>
               <input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-2 border border-orange-500/30 rounded-lg focus:ring-1 focus:ring-orange-500 focus:border-orange-500 bg-slate-950 text-slate-200 placeholder:text-slate-600"
-                placeholder="you@example.com"
+                id="username"
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                className="w-full px-4 py-2 border border-orange-500/30 rounded-lg focus:ring-1 focus:ring-orange-500 focus:border-orange-500 bg-slate-950 text-white placeholder:text-slate-500"
+                placeholder="Enter your username"
                 required
               />
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-slate-400 mb-1">
+              <label htmlFor="password" className="block text-sm font-medium text-slate-300 mb-1">
                 Password
               </label>
               <input
@@ -97,7 +80,7 @@ export default function Auth() {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-2 border border-orange-500/30 rounded-lg focus:ring-1 focus:ring-orange-500 focus:border-orange-500 bg-slate-950 text-slate-200 placeholder:text-slate-600"
+                className="w-full px-4 py-2 border border-orange-500/30 rounded-lg focus:ring-1 focus:ring-orange-500 focus:border-orange-500 bg-slate-950 text-white placeholder:text-slate-500"
                 placeholder="Enter your password"
                 required
                 minLength={6}

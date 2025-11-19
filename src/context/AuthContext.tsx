@@ -7,8 +7,8 @@ type AuthContextType = {
   profile: Profile | null;
   session: Session | null;
   loading: boolean;
-  signUp: (email: string, password: string, username: string) => Promise<{ error: any }>;
-  signIn: (email: string, password: string) => Promise<{ error: any }>;
+  signUp: (username: string, password: string) => Promise<{ error: any }>;
+  signIn: (username: string, password: string) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
 };
 
@@ -64,7 +64,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const signUp = async (email: string, password: string, username: string) => {
+  const signUp = async (username: string, password: string) => {
     try {
       const { data: existingProfile } = await supabase
         .from('profiles')
@@ -76,6 +76,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return { error: { message: 'Username is already taken. Please choose a different username.' } };
       }
 
+      const email = `${username}@liquidphoenix.local`;
+
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
@@ -83,7 +85,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       if (error) {
         if (error.message.includes('already registered')) {
-          return { error: { message: 'This email is already registered. Please sign in or use a different email.' } };
+          return { error: { message: 'Username is already taken. Please choose a different username.' } };
         }
         return { error };
       }
@@ -114,7 +116,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const signIn = async (email: string, password: string) => {
+  const signIn = async (username: string, password: string) => {
+    const email = `${username}@liquidphoenix.local`;
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
