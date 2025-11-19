@@ -43,20 +43,7 @@ export default function Navbar({ currentPage, onNavigate }: NavbarProps) {
                   className={`px-5 py-2.5 rounded-xl font-semibold transition-all duration-200 ${
                     currentPage === item.id
                       ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white shadow-soft'
-                      : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
-                  }`}
-                >
-                  {item.label}
-                </button>
-              ))}
-              {adminItems.map((item) => (
-                <button
-                  key={item.id}
-                  onClick={() => onNavigate(item.id)}
-                  className={`px-5 py-2.5 rounded-xl font-semibold transition-all duration-200 ${
-                    currentPage === item.id
-                      ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white shadow-soft'
-                      : 'text-orange-600 hover:bg-orange-50 hover:text-orange-700'
+                      : 'text-slate-300 hover:bg-orange-500/10 hover:text-orange-400'
                   }`}
                 >
                   {item.label}
@@ -66,13 +53,13 @@ export default function Navbar({ currentPage, onNavigate }: NavbarProps) {
           </div>
 
           <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-2 px-4 py-2 bg-slate-100/80 rounded-xl">
-              <User className="w-4 h-4 text-slate-600" />
-              <span className="text-slate-700 font-semibold">{profile?.username}</span>
+            <div className="flex items-center space-x-2 px-4 py-2 bg-orange-500/10 border border-orange-500/30 rounded-xl">
+              <User className="w-4 h-4 text-orange-400" />
+              <span className="text-orange-400 font-semibold">{profile?.username}</span>
             </div>
             <button
               onClick={signOut}
-              className="flex items-center space-x-2 px-5 py-2.5 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition-all duration-200"
+              className="flex items-center space-x-2 px-5 py-2.5 text-slate-400 hover:text-orange-400 hover:bg-orange-500/10 rounded-xl transition-all duration-200"
             >
               <LogOut className="w-4 h-4" />
               <span className="hidden sm:inline font-medium">Sign Out</span>
@@ -88,7 +75,7 @@ export default function Navbar({ currentPage, onNavigate }: NavbarProps) {
               className={`px-4 py-2.5 rounded-xl font-semibold transition-all duration-200 whitespace-nowrap ${
                 currentPage === item.id
                   ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white shadow-soft'
-                  : 'text-slate-600 hover:bg-slate-100'
+                  : 'text-slate-300 hover:bg-orange-500/10 hover:text-orange-400'
               }`}
             >
               {item.label}
