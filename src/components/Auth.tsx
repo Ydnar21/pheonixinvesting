@@ -39,26 +39,26 @@ export default function Auth() {
   return (
     <div className="min-h-screen bg-black flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        <div className="glass rounded-3xl shadow-2xl p-10 phoenix-glow">
-          <div className="flex items-center justify-center mb-8">
+        <div className="glass rounded-xl p-8">
+          <div className="flex items-center justify-center mb-6">
             <img
               src="/LiquidPheonix.png"
               alt="Liquid Phoenix"
-              className="w-24 h-24 drop-shadow-[0_0_15px_rgba(249,115,22,0.5)]"
+              className="w-16 h-16"
             />
           </div>
 
-          <h2 className="text-5xl font-bold text-center gradient-text mb-3">
+          <h2 className="text-3xl font-bold text-center text-orange-500 mb-2">
             {isSignUp ? 'Join Liquid Phoenix' : 'Welcome Back'}
           </h2>
-          <p className="text-center text-slate-400 text-lg mb-10 font-medium">
+          <p className="text-center text-slate-400 mb-8">
             {isSignUp ? 'Create your account to get started' : 'Sign in to your account'}
           </p>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-4">
             {isSignUp && (
               <div>
-                <label htmlFor="username" className="block text-sm font-bold text-orange-400 mb-2">
+                <label htmlFor="username" className="block text-sm font-medium text-slate-400 mb-1">
                   Username
                 </label>
                 <input
@@ -66,7 +66,7 @@ export default function Auth() {
                   type="text"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  className="w-full px-5 py-3.5 border-2 border-orange-500/30 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all bg-slate-900/50 text-slate-200 placeholder:text-slate-500"
+                  className="w-full px-4 py-2 border border-orange-500/30 rounded-lg focus:ring-1 focus:ring-orange-500 focus:border-orange-500 bg-slate-950 text-slate-200 placeholder:text-slate-600"
                   placeholder="Choose a username"
                   required={isSignUp}
                 />
@@ -74,7 +74,7 @@ export default function Auth() {
             )}
 
             <div>
-              <label htmlFor="email" className="block text-sm font-bold text-orange-400 mb-2">
+              <label htmlFor="email" className="block text-sm font-medium text-slate-400 mb-1">
                 Email
               </label>
               <input
@@ -82,14 +82,14 @@ export default function Auth() {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-5 py-3.5 border-2 border-orange-500/30 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all bg-slate-900/50 text-slate-200 placeholder:text-slate-500"
+                className="w-full px-4 py-2 border border-orange-500/30 rounded-lg focus:ring-1 focus:ring-orange-500 focus:border-orange-500 bg-slate-950 text-slate-200 placeholder:text-slate-600"
                 placeholder="you@example.com"
                 required
               />
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-bold text-orange-400 mb-2">
+              <label htmlFor="password" className="block text-sm font-medium text-slate-400 mb-1">
                 Password
               </label>
               <input
@@ -97,7 +97,7 @@ export default function Auth() {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-5 py-3.5 border-2 border-orange-500/30 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all bg-slate-900/50 text-slate-200 placeholder:text-slate-500"
+                className="w-full px-4 py-2 border border-orange-500/30 rounded-lg focus:ring-1 focus:ring-orange-500 focus:border-orange-500 bg-slate-950 text-slate-200 placeholder:text-slate-600"
                 placeholder="Enter your password"
                 required
                 minLength={6}
@@ -105,7 +105,7 @@ export default function Auth() {
             </div>
 
             {error && (
-              <div className="bg-red-950/50 border-2 border-red-500 text-red-400 px-5 py-4 rounded-xl text-sm font-bold">
+              <div className="bg-red-950/50 border border-red-500 text-red-400 px-4 py-2 rounded-lg text-sm">
                 {error}
               </div>
             )}
@@ -113,27 +113,27 @@ export default function Auth() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full gradient-bg text-white font-bold py-4 rounded-xl phoenix-glow hover:shadow-orange-500/60 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:scale-[1.02] text-lg"
+              className="w-full bg-orange-500 hover:bg-orange-600 text-white font-medium py-2 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? 'Processing...' : isSignUp ? 'Sign Up' : 'Sign In'}
             </button>
           </form>
 
-          <div className="mt-8 text-center">
+          <div className="mt-6 text-center">
             <button
               onClick={() => {
                 setIsSignUp(!isSignUp);
                 setError('');
               }}
-              className="text-orange-400 hover:text-orange-300 font-bold transition-colors text-base"
+              className="text-orange-500 hover:text-orange-400 text-sm transition"
             >
               {isSignUp ? 'Already have an account? Sign in' : "Don't have an account? Sign up"}
             </button>
           </div>
         </div>
 
-        <div className="mt-8 text-center text-orange-400/80 text-base">
-          <p className="font-bold">Liquid Phoenix - Rise from the Ashes</p>
+        <div className="mt-6 text-center text-slate-500 text-sm">
+          <p>Liquid Phoenix</p>
         </div>
       </div>
     </div>

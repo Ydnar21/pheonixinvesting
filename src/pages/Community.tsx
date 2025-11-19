@@ -378,23 +378,23 @@ export default function Community() {
   if (loading) {
     return (
       <div className="max-w-4xl mx-auto px-4 py-8">
-        <div className="text-center text-orange-400 text-xl font-semibold">Loading posts...</div>
+        <div className="text-center text-slate-400">Loading posts...</div>
       </div>
     );
   }
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <div className="mb-12 flex items-center justify-between">
+      <div className="mb-8 flex items-center justify-between">
         <div>
-          <h1 className="text-6xl font-bold gradient-text mb-3">Investment Community</h1>
-          <p className="text-slate-400 text-xl font-medium">Stock discussions and insights</p>
+          <h1 className="text-3xl font-bold text-orange-500 mb-1">Investment Community</h1>
+          <p className="text-slate-400">Stock discussions and insights</p>
         </div>
         <button
           onClick={() => setShowNewPost(true)}
-          className="flex items-center space-x-2 bg-gradient-to-r from-orange-500 to-red-500 text-white px-8 py-4 rounded-xl font-bold shadow-lg shadow-orange-500/30 hover:shadow-orange-500/50 transition-all duration-200 hover:scale-105 text-lg"
+          className="flex items-center space-x-2 bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg font-medium transition"
         >
-          <Plus className="w-6 h-6" />
+          <Plus className="w-5 h-5" />
           <span>{profile?.is_admin ? 'New Post' : 'Submit Idea'}</span>
         </button>
       </div>
@@ -403,9 +403,9 @@ export default function Community() {
         <div className="mb-8">
           <button
             onClick={() => setShowSubmissions(!showSubmissions)}
-            className="flex items-center space-x-2 text-orange-400 hover:text-orange-300 font-bold mb-4 text-lg"
+            className="flex items-center space-x-2 text-orange-500 hover:text-orange-400 font-medium mb-4"
           >
-            <Clock className="w-6 h-6" />
+            <Clock className="w-5 h-5" />
             <span>{submissions.length} Pending Submission{submissions.length !== 1 ? 's' : ''}</span>
           </button>
 
@@ -414,12 +414,12 @@ export default function Community() {
               {submissions.map((submission) => (
                 <div
                   key={submission.id}
-                  className="glass rounded-xl p-6 border-2 border-orange-500/30 card-hover"
+                  className="glass rounded-lg p-4"
                 >
                   <div className="flex items-start justify-between mb-4">
                     <div>
-                      <div className="flex items-center space-x-2 mb-2">
-                        <span className="font-bold text-orange-400 text-lg">{submission.stock_symbol}</span>
+                      <div className="flex items-center space-x-2 mb-1">
+                        <span className="font-bold text-orange-500">{submission.stock_symbol}</span>
                         <span className="text-slate-400 text-sm">{submission.stock_name}</span>
                         <span
                           className={`flex items-center space-x-1 text-xs px-2 py-1 rounded-full ${getSentimentColor(
@@ -430,7 +430,7 @@ export default function Community() {
                           <span>{submission.sentiment}</span>
                         </span>
                       </div>
-                      <p className="text-xs text-slate-400 font-medium">
+                      <p className="text-xs text-slate-500">
                         Submitted by {submission.profiles?.username} on{' '}
                         {new Date(submission.created_at).toLocaleDateString()}
                       </p>
@@ -452,8 +452,8 @@ export default function Community() {
                       </button>
                     </div>
                   </div>
-                  <h3 className="text-xl font-bold text-orange-400 mb-2">{submission.title}</h3>
-                  <p className="text-slate-300 whitespace-pre-wrap leading-relaxed">{submission.content}</p>
+                  <h3 className="text-lg font-bold text-orange-500 mb-2">{submission.title}</h3>
+                  <p className="text-slate-400 whitespace-pre-wrap">{submission.content}</p>
                 </div>
               ))}
             </div>
@@ -463,12 +463,12 @@ export default function Community() {
 
       {showNewPost && (
         <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-4 z-50">
-          <div className="glass rounded-2xl shadow-2xl shadow-orange-500/20 max-w-2xl w-full max-h-[90vh] overflow-y-auto border-2 border-orange-500/30">
-            <div className="p-6 border-b border-orange-500/30">
-              <h2 className="text-3xl font-bold text-orange-400">
+          <div className="glass rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6 border-b border-orange-500/20">
+              <h2 className="text-2xl font-bold text-orange-500">
                 {profile?.is_admin ? 'Create New Post' : 'Submit Stock Idea'}
               </h2>
-              <p className="text-slate-400 mt-1 font-medium">
+              <p className="text-slate-400 mt-1">
                 {profile?.is_admin
                   ? 'Post a stock for the community to vote on'
                   : 'Suggest a stock for the admin to post about'}
@@ -478,7 +478,7 @@ export default function Community() {
             <div className="p-6 space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-bold text-orange-400 mb-2">
+                  <label className="block text-sm font-medium text-slate-400 mb-1">
                     Stock Symbol
                   </label>
                   <input
@@ -493,11 +493,11 @@ export default function Community() {
                           })
                     }
                     placeholder="AAPL"
-                    className="w-full px-4 py-3 border-2 border-orange-500/30 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-slate-900/50 text-slate-200 placeholder:text-slate-500"
+                    className="w-full px-4 py-2 border border-orange-500/30 rounded-lg focus:ring-1 focus:ring-orange-500 focus:border-orange-500 bg-slate-950 text-slate-200 placeholder:text-slate-600"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-bold text-orange-400 mb-2">
+                  <label className="block text-sm font-medium text-slate-400 mb-1">
                     Stock Name
                   </label>
                   <input
@@ -509,14 +509,14 @@ export default function Community() {
                         : setNewSubmission({ ...newSubmission, stock_name: e.target.value })
                     }
                     placeholder="Apple Inc."
-                    className="w-full px-4 py-3 border-2 border-orange-500/30 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-slate-900/50 text-slate-200 placeholder:text-slate-500"
+                    className="w-full px-4 py-2 border border-orange-500/30 rounded-lg focus:ring-1 focus:ring-orange-500 focus:border-orange-500 bg-slate-950 text-slate-200 placeholder:text-slate-600"
                   />
                 </div>
               </div>
 
               {!profile?.is_admin && (
                 <div>
-                  <label className="block text-sm font-bold text-orange-400 mb-2">Sentiment</label>
+                  <label className="block text-sm font-medium text-slate-400 mb-1">Sentiment</label>
                   <div className="flex space-x-2">
                     {(['bullish', 'neutral', 'bearish'] as const).map((sentiment) => (
                       <button
@@ -537,7 +537,7 @@ export default function Community() {
               )}
 
               <div>
-                <label className="block text-sm font-bold text-orange-400 mb-2">Title</label>
+                <label className="block text-sm font-medium text-slate-400 mb-1">Title</label>
                 <input
                   type="text"
                   value={profile?.is_admin ? newPost.title : newSubmission.title}
@@ -547,12 +547,12 @@ export default function Community() {
                       : setNewSubmission({ ...newSubmission, title: e.target.value })
                   }
                   placeholder="Why I'm bullish on AAPL"
-                  className="w-full px-4 py-3 border-2 border-orange-500/30 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-slate-900/50 text-slate-200 placeholder:text-slate-500"
+                  className="w-full px-4 py-2 border border-orange-500/30 rounded-lg focus:ring-1 focus:ring-orange-500 focus:border-orange-500 bg-slate-950 text-slate-200 placeholder:text-slate-600"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-bold text-orange-400 mb-2">Content</label>
+                <label className="block text-sm font-medium text-slate-400 mb-1">Content</label>
                 <textarea
                   value={profile?.is_admin ? newPost.content : newSubmission.content}
                   onChange={(e) =>
@@ -562,21 +562,21 @@ export default function Community() {
                   }
                   placeholder="Share your analysis..."
                   rows={6}
-                  className="w-full px-4 py-3 border-2 border-orange-500/30 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-slate-900/50 text-slate-200 placeholder:text-slate-500"
+                  className="w-full px-4 py-2 border border-orange-500/30 rounded-lg focus:ring-1 focus:ring-orange-500 focus:border-orange-500 bg-slate-950 text-slate-200 placeholder:text-slate-600"
                 />
               </div>
             </div>
 
-            <div className="p-6 border-t border-orange-500/30 flex justify-end space-x-3">
+            <div className="p-6 border-t border-orange-500/20 flex justify-end space-x-3">
               <button
                 onClick={() => setShowNewPost(false)}
-                className="px-6 py-3 text-slate-400 hover:text-orange-400 font-bold transition text-lg"
+                className="px-4 py-2 text-slate-400 hover:text-orange-500 transition"
               >
                 Cancel
               </button>
               <button
                 onClick={profile?.is_admin ? createPost : submitStockIdea}
-                className="bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white px-8 py-3 rounded-lg font-bold transition phoenix-glow text-lg"
+                className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded-lg font-medium transition"
               >
                 {profile?.is_admin ? 'Post' : 'Submit'}
               </button>
@@ -589,38 +589,38 @@ export default function Community() {
         {posts.map((post) => (
           <div
             key={post.id}
-            className="glass rounded-2xl overflow-hidden card-hover"
+            className="glass rounded-lg overflow-hidden"
           >
-            <div className="p-8">
-              <div className="flex items-start justify-between mb-6">
+            <div className="p-6">
+              <div className="flex items-start justify-between mb-4">
                 <div className="flex items-start space-x-4 flex-1">
                   <div className="gradient-bg text-white font-bold w-12 h-12 rounded-xl flex items-center justify-center text-lg shadow-soft">
                     {post.profiles?.username?.[0]?.toUpperCase() || 'U'}
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center space-x-2">
-                      <span className="font-bold text-orange-400 text-xl">
+                      <span className="font-bold text-orange-500">
                         {post.profiles?.username || 'Anonymous'}
                       </span>
                       {post.profiles?.is_admin && (
-                        <span className="bg-gradient-to-r from-orange-500 to-red-500 text-white text-xs px-3 py-1 rounded-full font-bold shadow-lg shadow-orange-500/30">
+                        <span className="bg-orange-500 text-white text-xs px-2 py-0.5 rounded font-medium">
                           Admin
                         </span>
                       )}
-                      <span className="text-slate-500 text-sm">
+                      <span className="text-slate-500 text-xs">
                         {new Date(post.created_at).toLocaleDateString()}
                       </span>
                     </div>
-                    <div className="flex items-center space-x-2 mt-2">
-                      <span className="font-bold text-orange-400 text-xl">{post.stock_symbol}</span>
-                      <span className="text-slate-400">{post.stock_name}</span>
+                    <div className="flex items-center space-x-2 mt-1">
+                      <span className="font-bold text-orange-500">{post.stock_symbol}</span>
+                      <span className="text-slate-400 text-sm">{post.stock_name}</span>
                     </div>
                   </div>
                 </div>
               </div>
 
-              <h3 className="text-3xl font-bold text-orange-400 mb-4">{post.title}</h3>
-              <p className="text-slate-300 text-lg leading-relaxed whitespace-pre-wrap">{post.content}</p>
+              <h3 className="text-xl font-bold text-orange-500 mb-3">{post.title}</h3>
+              <p className="text-slate-400 leading-relaxed whitespace-pre-wrap">{post.content}</p>
             </div>
 
             {/* Voting Section */}
@@ -634,43 +634,43 @@ export default function Community() {
             </div>
 
             <div className="px-6">
-              <div className="flex items-center space-x-4 pt-4 border-t border-orange-500/20">
+              <div className="flex items-center space-x-3 pt-4 border-t border-orange-500/20">
                 <button
                   onClick={() => toggleLike(post.id)}
-                  className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition font-bold ${
+                  className={`flex items-center space-x-1 px-3 py-1 rounded transition ${
                     likes[post.id]
-                      ? 'bg-orange-500/20 text-orange-400 border-2 border-orange-500/30'
-                      : 'text-slate-400 hover:bg-orange-500/10 hover:text-orange-400 border-2 border-transparent'
+                      ? 'bg-orange-500/10 text-orange-500'
+                      : 'text-slate-400 hover:text-orange-500'
                   }`}
                 >
-                  <ThumbsUp className="w-5 h-5" />
-                  <span className="font-bold">{likeCounts[post.id] || 0}</span>
+                  <ThumbsUp className="w-4 h-4" />
+                  <span className="text-sm">{likeCounts[post.id] || 0}</span>
                 </button>
-                <div className="flex items-center space-x-2 text-slate-400 font-bold">
-                  <MessageSquare className="w-5 h-5" />
-                  <span>{comments[post.id]?.length || 0}</span>
+                <div className="flex items-center space-x-1 text-slate-400">
+                  <MessageSquare className="w-4 h-4" />
+                  <span className="text-sm">{comments[post.id]?.length || 0}</span>
                 </div>
               </div>
             </div>
 
             {comments[post.id] && comments[post.id].length > 0 && (
-              <div className="bg-slate-950/50 px-6 py-4 border-t border-orange-500/20">
-                <div className="space-y-4">
+              <div className="bg-slate-950/50 px-6 py-3 border-t border-orange-500/20">
+                <div className="space-y-3">
                   {comments[post.id].map((comment) => (
-                    <div key={comment.id} className="flex space-x-3">
-                      <div className="bg-gradient-to-br from-orange-500 to-red-600 text-white font-bold w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0">
+                    <div key={comment.id} className="flex space-x-2">
+                      <div className="bg-orange-500 text-white font-bold w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 text-sm">
                         {comment.profiles?.username?.[0]?.toUpperCase() || 'U'}
                       </div>
                       <div className="flex-1">
                         <div className="flex items-center space-x-2">
-                          <span className="font-bold text-orange-400">
+                          <span className="font-medium text-orange-500 text-sm">
                             {comment.profiles?.username || 'Anonymous'}
                           </span>
                           <span className="text-slate-500 text-xs">
                             {new Date(comment.created_at).toLocaleDateString()}
                           </span>
                         </div>
-                        <p className="text-slate-300 mt-1 leading-relaxed">{comment.content}</p>
+                        <p className="text-slate-400 text-sm mt-1">{comment.content}</p>
                       </div>
                     </div>
                   ))}
@@ -678,8 +678,8 @@ export default function Community() {
               </div>
             )}
 
-            <div className="px-6 py-4 bg-slate-950/50 border-t border-orange-500/20">
-              <div className="flex space-x-3">
+            <div className="px-6 py-3 bg-slate-950/50 border-t border-orange-500/20">
+              <div className="flex space-x-2">
                 <input
                   type="text"
                   value={newComment[post.id] || ''}
@@ -687,7 +687,7 @@ export default function Community() {
                     setNewComment({ ...newComment, [post.id]: e.target.value })
                   }
                   placeholder="Add a comment..."
-                  className="flex-1 px-4 py-3 border-2 border-orange-500/30 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-slate-900/50 text-slate-200 placeholder:text-slate-500"
+                  className="flex-1 px-3 py-2 border border-orange-500/30 rounded-lg focus:ring-1 focus:ring-orange-500 focus:border-orange-500 bg-slate-950 text-slate-200 placeholder:text-slate-600 text-sm"
                   onKeyPress={(e) => {
                     if (e.key === 'Enter') {
                       addComment(post.id);
@@ -696,9 +696,9 @@ export default function Community() {
                 />
                 <button
                   onClick={() => addComment(post.id)}
-                  className="bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white p-3 rounded-lg transition phoenix-glow"
+                  className="bg-orange-500 hover:bg-orange-600 text-white p-2 rounded-lg transition"
                 >
-                  <Send className="w-6 h-6" />
+                  <Send className="w-5 h-5" />
                 </button>
               </div>
             </div>
@@ -707,9 +707,9 @@ export default function Community() {
 
         {posts.length === 0 && (
           <div className="text-center py-12">
-            <MessageSquare className="w-20 h-20 text-orange-500/30 mx-auto mb-4" />
-            <p className="text-orange-400 text-2xl font-bold">No posts yet</p>
-            <p className="text-slate-400 text-lg mt-2">
+            <MessageSquare className="w-16 h-16 text-orange-500/30 mx-auto mb-3" />
+            <p className="text-orange-500 text-lg font-bold">No posts yet</p>
+            <p className="text-slate-400 text-sm mt-1">
               {profile?.is_admin
                 ? 'Create the first post!'
                 : 'Check back soon for investment insights!'}

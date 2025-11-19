@@ -19,31 +19,31 @@ export default function Navbar({ currentPage, onNavigate }: NavbarProps) {
   ];
 
   return (
-    <nav className="glass sticky top-0 z-50 border-b border-orange-500/20">
+    <nav className="bg-slate-900 border-b border-orange-500/20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-20">
+        <div className="flex justify-between items-center h-16">
           <div className="flex items-center space-x-8">
             <button
               onClick={() => onNavigate('calendar')}
-              className="flex items-center space-x-3 group"
+              className="flex items-center space-x-2"
             >
               <img
                 src="/LiquidPheonix.png"
                 alt="Liquid Phoenix"
-                className="w-12 h-12 group-hover:scale-110 transition-transform duration-200"
+                className="w-10 h-10"
               />
-              <span className="text-2xl font-bold gradient-text">Liquid Phoenix</span>
+              <span className="text-xl font-bold text-orange-500">Liquid Phoenix</span>
             </button>
 
-            <div className="hidden md:flex space-x-2">
+            <div className="hidden md:flex space-x-1">
               {navItems.map((item) => (
                 <button
                   key={item.id}
                   onClick={() => onNavigate(item.id)}
-                  className={`px-5 py-2.5 rounded-xl font-semibold transition-all duration-200 ${
+                  className={`px-4 py-2 rounded-lg font-medium transition ${
                     currentPage === item.id
-                      ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white shadow-soft'
-                      : 'text-slate-300 hover:bg-orange-500/10 hover:text-orange-400'
+                      ? 'bg-orange-500 text-white'
+                      : 'text-slate-400 hover:text-orange-500'
                   }`}
                 >
                   {item.label}
@@ -52,30 +52,30 @@ export default function Navbar({ currentPage, onNavigate }: NavbarProps) {
             </div>
           </div>
 
-          <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-2 px-4 py-2 bg-orange-500/10 border border-orange-500/30 rounded-xl">
-              <User className="w-4 h-4 text-orange-400" />
-              <span className="text-orange-400 font-semibold">{profile?.username}</span>
+          <div className="flex items-center space-x-3">
+            <div className="flex items-center space-x-2 text-slate-400">
+              <User className="w-4 h-4" />
+              <span className="text-sm">{profile?.username}</span>
             </div>
             <button
               onClick={signOut}
-              className="flex items-center space-x-2 px-5 py-2.5 text-slate-400 hover:text-orange-400 hover:bg-orange-500/10 rounded-xl transition-all duration-200"
+              className="flex items-center space-x-1 text-slate-400 hover:text-orange-500 transition"
             >
               <LogOut className="w-4 h-4" />
-              <span className="hidden sm:inline font-medium">Sign Out</span>
+              <span className="hidden sm:inline text-sm">Sign Out</span>
             </button>
           </div>
         </div>
 
-        <div className="md:hidden flex space-x-2 pb-4 overflow-x-auto">
+        <div className="md:hidden flex space-x-1 pb-3 overflow-x-auto">
           {navItems.map((item) => (
             <button
               key={item.id}
               onClick={() => onNavigate(item.id)}
-              className={`px-4 py-2.5 rounded-xl font-semibold transition-all duration-200 whitespace-nowrap ${
+              className={`px-3 py-2 rounded-lg font-medium transition whitespace-nowrap text-sm ${
                 currentPage === item.id
-                  ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white shadow-soft'
-                  : 'text-slate-300 hover:bg-orange-500/10 hover:text-orange-400'
+                  ? 'bg-orange-500 text-white'
+                  : 'text-slate-400 hover:text-orange-500'
               }`}
             >
               {item.label}
