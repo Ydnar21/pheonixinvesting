@@ -1,4 +1,4 @@
-import { Calendar as CalendarIcon, ExternalLink, DollarSign, TrendingUp, Building2 } from 'lucide-react';
+import { Calendar as CalendarIcon, ExternalLink, DollarSign, TrendingUp, Building2, Activity } from 'lucide-react';
 
 export default function Calendar() {
   const calendarResources = [
@@ -38,6 +38,18 @@ export default function Calendar() {
         { name: 'Ex-Dividend Calendar', url: 'https://www.thestreet.com/dividends/calendar' },
       ],
     },
+    {
+      title: 'Market Sentiment',
+      description: 'Gauge investor sentiment and market psychology indicators',
+      icon: Activity,
+      color: 'from-green-500 to-emerald-500',
+      links: [
+        { name: 'CNN Fear & Greed Index', url: 'https://www.cnn.com/markets/fear-and-greed' },
+        { name: 'Alternative.me Crypto Fear & Greed', url: 'https://alternative.me/crypto/fear-and-greed-index/' },
+        { name: 'VIX Index - CBOE', url: 'https://www.cboe.com/tradable_products/vix/' },
+        { name: 'Put/Call Ratio - CBOE', url: 'https://www.cboe.com/us/options/market_statistics/daily/' },
+      ],
+    },
   ];
 
   return (
@@ -45,10 +57,10 @@ export default function Calendar() {
       <div className="mb-8">
         <div className="flex items-center space-x-3 mb-2">
           <CalendarIcon className="w-10 h-10 text-orange-500" />
-          <h1 className="text-5xl font-bold gradient-text">Market Calendars</h1>
+          <h1 className="text-5xl font-bold gradient-text">Resources</h1>
         </div>
         <p className="text-slate-400 text-lg">
-          Access comprehensive economic and earnings calendars to stay ahead of market-moving events
+          Access comprehensive market calendars, sentiment indicators, and essential trading resources
         </p>
       </div>
 
@@ -93,8 +105,8 @@ export default function Calendar() {
       </div>
 
       <div className="mt-8 glass rounded-2xl p-6">
-        <h3 className="text-xl font-bold text-orange-400 mb-4">Why Use Market Calendars?</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <h3 className="text-xl font-bold text-orange-400 mb-4">Why Use These Resources?</h3>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           <div>
             <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4 mb-3">
               <DollarSign className="w-6 h-6 text-blue-400 mb-2" />
@@ -120,6 +132,15 @@ export default function Calendar() {
             </div>
             <p className="text-slate-400 text-sm leading-relaxed">
               Stay informed about dividends, IPOs, and stock splits that impact portfolio returns.
+            </p>
+          </div>
+          <div>
+            <div className="bg-green-500/10 border border-green-500/20 rounded-lg p-4 mb-3">
+              <Activity className="w-6 h-6 text-green-400 mb-2" />
+              <h4 className="font-bold text-slate-200 mb-1">Market Sentiment</h4>
+            </div>
+            <p className="text-slate-400 text-sm leading-relaxed">
+              Use sentiment indicators like Fear & Greed Index to gauge market psychology and contrarian signals.
             </p>
           </div>
         </div>

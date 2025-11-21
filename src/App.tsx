@@ -11,7 +11,7 @@ import AIBot from './pages/AIBot';
 
 function AppContent() {
   const { user, loading } = useAuth();
-  const [currentPage, setCurrentPage] = useState('calendar');
+  const [currentPage, setCurrentPage] = useState('community');
 
   if (loading) {
     return (

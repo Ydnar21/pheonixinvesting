@@ -71,9 +71,9 @@ export default function Navbar({ currentPage, onNavigate }: NavbarProps) {
   }
 
   const navItems = [
-    { id: 'calendar', label: 'Calendar' },
     { id: 'community', label: 'Community' },
     { id: 'news', label: 'News' },
+    { id: 'calendar', label: 'Resources' },
     { id: 'strategy', label: 'Strategy' },
     { id: 'ai-bot', label: 'AI Bot' },
     { id: 'about', label: 'About' },
