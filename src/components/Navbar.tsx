@@ -79,6 +79,10 @@ export default function Navbar({ currentPage, onNavigate }: NavbarProps) {
     { id: 'about', label: 'About' },
   ];
 
+  const adminItems = profile?.is_admin ? [
+    { id: 'watchlist-approval', label: 'Approvals' },
+  ] : [];
+
   return (
     <>
     <nav className="bg-slate-900 border-b border-orange-500/20">
@@ -86,7 +90,7 @@ export default function Navbar({ currentPage, onNavigate }: NavbarProps) {
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center space-x-8">
             <button
-              onClick={() => onNavigate('calendar')}
+              onClick={() => onNavigate('watchlist')}
               className="flex items-center space-x-2"
             >
               <img
@@ -98,7 +102,7 @@ export default function Navbar({ currentPage, onNavigate }: NavbarProps) {
             </button>
 
             <div className="hidden md:flex space-x-1">
-              {navItems.map((item) => (
+              {[...navItems, ...adminItems].map((item) => (
                 <button
                   key={item.id}
                   onClick={() => onNavigate(item.id)}
@@ -144,7 +148,7 @@ export default function Navbar({ currentPage, onNavigate }: NavbarProps) {
         </div>
 
         <div className="md:hidden flex space-x-1 pb-3 overflow-x-auto">
-          {navItems.map((item) => (
+          {[...navItems, ...adminItems].map((item) => (
             <button
               key={item.id}
               onClick={() => onNavigate(item.id)}

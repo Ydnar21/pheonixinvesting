@@ -8,10 +8,12 @@ import About from './pages/About';
 import Calendar from './pages/Calendar';
 import Strategy from './pages/Strategy';
 import AIBot from './pages/AIBot';
+import Watchlist from './pages/Watchlist';
+import WatchlistApproval from './pages/WatchlistApproval';
 
 function AppContent() {
   const { user, loading } = useAuth();
-  const [currentPage, setCurrentPage] = useState('community');
+  const [currentPage, setCurrentPage] = useState('watchlist');
 
   if (loading) {
     return (
@@ -30,6 +32,10 @@ function AppContent() {
 
   const renderPage = () => {
     switch (currentPage) {
+      case 'watchlist':
+        return <Watchlist />;
+      case 'watchlist-approval':
+        return <WatchlistApproval />;
       case 'calendar':
         return <Calendar />;
       case 'community':
@@ -43,7 +49,7 @@ function AppContent() {
       case 'about':
         return <About />;
       default:
-        return <Calendar />;
+        return <Watchlist />;
     }
   };
 
