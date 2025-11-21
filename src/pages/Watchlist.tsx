@@ -13,6 +13,10 @@ interface WatchlistStock {
   current_price: number | null;
   target_price: number | null;
   added_at: string;
+  submitted_by_user: string | null;
+  profiles: {
+    username: string;
+  } | null;
 }
 
 interface WatchlistSubmission {
@@ -66,12 +70,17 @@ export default function Watchlist() {
   async function loadWatchlist() {
     const { data, error } = await supabase
       .from('watchlist_stocks')
-      .select('*')
+      .select(`
+        *,
+        profiles:submitted_by_user (
+          username
+        )
+      `)
       .order('sector', { ascending: true })
       .order('symbol', { ascending: true });
 
     if (!error && data) {
-      setStocks(data);
+      setStocks(data as WatchlistStock[]);
     }
     setLoading(false);
   }
@@ -277,9 +286,14 @@ export default function Watchlist() {
                       {long.map((stock) => (
                         <div key={stock.id} className="bg-slate-800/50 rounded-xl p-4 border border-green-500/20">
                           <div className="flex items-start justify-between mb-2">
-                            <div>
+                            <div className="flex-1">
                               <h4 className="text-xl font-bold text-orange-400">{stock.symbol}</h4>
                               <p className="text-slate-300">{stock.company_name}</p>
+                              {stock.profiles && (
+                                <p className="text-xs text-slate-500 mt-1">
+                                  Suggested by @{stock.profiles.username}
+                                </p>
+                              )}
                             </div>
                             {profile?.is_admin && (
                               <button
@@ -321,9 +335,14 @@ export default function Watchlist() {
                       {short.map((stock) => (
                         <div key={stock.id} className="bg-slate-800/50 rounded-xl p-4 border border-blue-500/20">
                           <div className="flex items-start justify-between mb-2">
-                            <div>
+                            <div className="flex-1">
                               <h4 className="text-xl font-bold text-orange-400">{stock.symbol}</h4>
                               <p className="text-slate-300">{stock.company_name}</p>
+                              {stock.profiles && (
+                                <p className="text-xs text-slate-500 mt-1">
+                                  Suggested by @{stock.profiles.username}
+                                </p>
+                              )}
                             </div>
                             {profile?.is_admin && (
                               <button
