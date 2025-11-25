@@ -1,0 +1,130 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() &&
+             get(/databases/$(database)/documents/profiles/$(request.auth.uid)).data.is_admin == true;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    match /profiles/{userId} {
+      allow read: if isAuthenticated();
+      allow create: if isOwner(userId);
+      allow update: if isOwner(userId);
+      allow delete: if false;
+    }
+
+    match /stock_posts/{postId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated() &&
+                      resource.data.user_id == request.auth.uid;
+      allow delete: if isAuthenticated() &&
+                      resource.data.user_id == request.auth.uid;
+    }
+
+    match /post_comments/{commentId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated() &&
+                      resource.data.user_id == request.auth.uid;
+      allow delete: if isAuthenticated() &&
+                      resource.data.user_id == request.auth.uid;
+    }
+
+    match /post_likes/{likeId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() &&
+                      request.resource.data.user_id == request.auth.uid;
+      allow delete: if isAuthenticated() &&
+                      resource.data.user_id == request.auth.uid;
+    }
+
+    match /comment_likes/{likeId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() &&
+                      request.resource.data.user_id == request.auth.uid;
+      allow delete: if isAuthenticated() &&
+                      resource.data.user_id == request.auth.uid;
+    }
+
+    match /stock_votes/{voteId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() &&
+                      request.resource.data.user_id == request.auth.uid;
+      allow update: if isAuthenticated() &&
+                      resource.data.user_id == request.auth.uid;
+      allow delete: if isAuthenticated() &&
+                      resource.data.user_id == request.auth.uid;
+    }
+
+    match /stock_submissions/{submissionId} {
+      allow read: if isAuthenticated() &&
+                    (resource.data.user_id == request.auth.uid || isAdmin());
+      allow create: if isAuthenticated() &&
+                      request.resource.data.user_id == request.auth.uid;
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    match /calendar_events/{eventId} {
+      allow read: if isAuthenticated();
+      allow create: if isAdmin();
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    match /calendar_event_votes/{voteId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() &&
+                      request.resource.data.user_id == request.auth.uid;
+      allow update: if isAuthenticated() &&
+                      resource.data.user_id == request.auth.uid;
+      allow delete: if isAuthenticated() &&
+                      resource.data.user_id == request.auth.uid;
+    }
+
+    match /direct_messages/{messageId} {
+      allow read: if isAuthenticated() &&
+                    (resource.data.sender_id == request.auth.uid ||
+                     resource.data.receiver_id == request.auth.uid);
+      allow create: if isAuthenticated() &&
+                      request.resource.data.sender_id == request.auth.uid;
+      allow update: if isAuthenticated() &&
+                      resource.data.receiver_id == request.auth.uid;
+      allow delete: if false;
+    }
+
+    match /user_follows/{followId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() &&
+                      request.resource.data.follower_id == request.auth.uid;
+      allow delete: if isAuthenticated() &&
+                      resource.data.follower_id == request.auth.uid;
+    }
+
+    match /watchlist_stocks/{stockId} {
+      allow read: if isAuthenticated();
+      allow create: if isAdmin();
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    match /watchlist_submissions/{submissionId} {
+      allow read: if isAuthenticated() &&
+                    (resource.data.submitted_by == request.auth.uid || isAdmin());
+      allow create: if isAuthenticated() &&
+                      request.resource.data.submitted_by == request.auth.uid;
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+  }
+}

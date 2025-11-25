@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { AuthProvider, useAuth } from './context/AuthContext';
-import Auth from './components/Auth';
+import { AuthProvider, useAuth } from './context/FirebaseAuthContext';
+import FirebaseAuth from './components/FirebaseAuth';
 import Navbar from './components/Navbar';
 import Community from './pages/Community';
 import News from './pages/News';
@@ -27,7 +27,7 @@ function AppContent() {
   }
 
   if (!user) {
-    return <Auth />;
+    return <FirebaseAuth />;
   }
 
   const renderPage = () => {
