@@ -79,7 +79,6 @@ export default function WatchlistApproval() {
       term: submission.term,
       notes: submission.notes,
       added_by: profile.id,
-      submitted_by_user: submission.submitted_by,
     });
 
     if (!insertError) {
