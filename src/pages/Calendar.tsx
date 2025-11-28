@@ -8,9 +8,6 @@ export default function Calendar() {
       icon: DollarSign,
       color: 'from-blue-500 to-cyan-500',
       links: [
-        { name: 'Investing.com Economic Calendar', url: 'https://www.investing.com/economic-calendar/' },
-        { name: 'Forex Factory Calendar', url: 'https://www.forexfactory.com/calendar' },
-        { name: 'Trading Economics Calendar', url: 'https://tradingeconomics.com/calendar' },
         { name: 'MarketWatch Economic Calendar', url: 'https://www.marketwatch.com/economy-politics/calendar' },
       ],
     },
@@ -20,22 +17,19 @@ export default function Calendar() {
       icon: Building2,
       color: 'from-purple-500 to-pink-500',
       links: [
-        { name: 'Yahoo Finance Earnings Calendar', url: 'https://finance.yahoo.com/calendar/earnings' },
         { name: 'Earnings Whispers', url: 'https://www.earningswhispers.com/calendar' },
         { name: 'Nasdaq Earnings Calendar', url: 'https://www.nasdaq.com/market-activity/earnings' },
-        { name: 'Seeking Alpha Earnings Calendar', url: 'https://seekingalpha.com/earnings/earnings-calendar' },
       ],
     },
     {
       title: 'Market Events',
-      description: 'Monitor IPOs, dividends, and other important market events',
+      description: 'Monitor IPOs, stock splits, and analyst recommendations',
       icon: TrendingUp,
       color: 'from-orange-500 to-red-500',
       links: [
-        { name: 'MarketBeat Dividend Calendar', url: 'https://www.marketbeat.com/dividends/calendar/' },
-        { name: 'IPO Calendar - Nasdaq', url: 'https://www.nasdaq.com/market-activity/ipos' },
+        { name: 'IPO Calendar', url: 'https://www.nasdaq.com/market-activity/ipos' },
         { name: 'Stock Splits Calendar', url: 'https://www.marketbeat.com/stock-splits/' },
-        { name: 'Ex-Dividend Calendar', url: 'https://www.thestreet.com/dividends/calendar' },
+        { name: 'TipRanks - Analyst Ratings', url: 'https://www.tipranks.com/' },
       ],
     },
     {
@@ -45,7 +39,6 @@ export default function Calendar() {
       color: 'from-green-500 to-emerald-500',
       links: [
         { name: 'CNN Fear & Greed Index', url: 'https://www.cnn.com/markets/fear-and-greed' },
-        { name: 'Alternative.me Crypto Fear & Greed', url: 'https://alternative.me/crypto/fear-and-greed-index/' },
         { name: 'VIX Index - CBOE', url: 'https://www.cboe.com/tradable_products/vix/' },
         { name: 'Put/Call Ratio - CBOE', url: 'https://www.cboe.com/us/options/market_statistics/daily/' },
       ],
