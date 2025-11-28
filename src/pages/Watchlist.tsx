@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { TrendingUp, Plus, Clock, Target, DollarSign, Building2, ChevronDown, ChevronUp } from 'lucide-react';
+import { TrendingUp, Plus, Clock, Target, DollarSign, Building2, ChevronDown, ChevronUp, Pencil } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
 
@@ -37,6 +37,8 @@ export default function Watchlist() {
   const [loading, setLoading] = useState(true);
   const [showAddForm, setShowAddForm] = useState(false);
   const [showSubmitForm, setShowSubmitForm] = useState(false);
+  const [showEditForm, setShowEditForm] = useState(false);
+  const [editingStock, setEditingStock] = useState<WatchlistStock | null>(null);
   const [expandedSector, setExpandedSector] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     symbol: '',
@@ -164,6 +166,50 @@ export default function Watchlist() {
     const { error } = await supabase.from('watchlist_stocks').delete().eq('id', id);
 
     if (!error) {
+      loadWatchlist();
+    }
+  }
+
+  function handleEditStock(stock: WatchlistStock) {
+    if (!profile?.is_admin) return;
+    setEditingStock(stock);
+    setFormData({
+      symbol: stock.symbol,
+      company_name: stock.company_name,
+      sector: stock.sector,
+      term: stock.term,
+      notes: stock.notes || '',
+      current_price: stock.current_price?.toString() || '',
+      target_price: stock.target_price?.toString() || '',
+    });
+    setShowEditForm(true);
+  }
+
+  async function handleUpdateStock(e: React.FormEvent) {
+    e.preventDefault();
+    if (!profile?.is_admin || !editingStock) return;
+
+    const { error } = await supabase
+      .from('watchlist_stocks')
+      .update({
+        notes: formData.notes || null,
+        current_price: formData.current_price ? parseFloat(formData.current_price) : null,
+        target_price: formData.target_price ? parseFloat(formData.target_price) : null,
+      })
+      .eq('id', editingStock.id);
+
+    if (!error) {
+      setShowEditForm(false);
+      setEditingStock(null);
+      setFormData({
+        symbol: '',
+        company_name: '',
+        sector: 'Technology',
+        term: 'long',
+        notes: '',
+        current_price: '',
+        target_price: '',
+      });
       loadWatchlist();
     }
   }
@@ -296,12 +342,20 @@ export default function Watchlist() {
                               )}
                             </div>
                             {profile?.is_admin && (
-                              <button
-                                onClick={() => handleDeleteStock(stock.id)}
-                                className="text-red-400 hover:text-red-300 text-sm"
-                              >
-                                Remove
-                              </button>
+                              <div className="flex space-x-2">
+                                <button
+                                  onClick={() => handleEditStock(stock)}
+                                  className="text-orange-400 hover:text-orange-300 text-sm"
+                                >
+                                  <Pencil className="w-4 h-4" />
+                                </button>
+                                <button
+                                  onClick={() => handleDeleteStock(stock.id)}
+                                  className="text-red-400 hover:text-red-300 text-sm"
+                                >
+                                  Remove
+                                </button>
+                              </div>
                             )}
                           </div>
                           {stock.notes && <p className="text-sm text-slate-400 mb-2">{stock.notes}</p>}
@@ -345,12 +399,20 @@ export default function Watchlist() {
                               )}
                             </div>
                             {profile?.is_admin && (
-                              <button
-                                onClick={() => handleDeleteStock(stock.id)}
-                                className="text-red-400 hover:text-red-300 text-sm"
-                              >
-                                Remove
-                              </button>
+                              <div className="flex space-x-2">
+                                <button
+                                  onClick={() => handleEditStock(stock)}
+                                  className="text-orange-400 hover:text-orange-300 text-sm"
+                                >
+                                  <Pencil className="w-4 h-4" />
+                                </button>
+                                <button
+                                  onClick={() => handleDeleteStock(stock.id)}
+                                  className="text-red-400 hover:text-red-300 text-sm"
+                                >
+                                  Remove
+                                </button>
+                              </div>
                             )}
                           </div>
                           {stock.notes && <p className="text-sm text-slate-400 mb-2">{stock.notes}</p>}
@@ -557,6 +619,74 @@ export default function Watchlist() {
                 <button
                   type="button"
                   onClick={() => setShowSubmitForm(false)}
+                  className="flex-1 bg-slate-700 text-white py-2 rounded-lg hover:bg-slate-600 transition font-medium"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {showEditForm && editingStock && profile?.is_admin && (
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50">
+          <div className="glass rounded-2xl p-6 max-w-md w-full">
+            <h2 className="text-2xl font-bold text-orange-400 mb-4">Edit Watchlist Stock</h2>
+            <div className="bg-slate-800/50 rounded-lg p-3 mb-4">
+              <div className="flex items-center space-x-3">
+                <span className="text-xl font-bold text-orange-400">{editingStock.symbol}</span>
+                <span className="text-slate-300">{editingStock.company_name}</span>
+              </div>
+            </div>
+            <form onSubmit={handleUpdateStock} className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-slate-300 mb-1">Current Price</label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    value={formData.current_price}
+                    onChange={(e) => setFormData({ ...formData, current_price: e.target.value })}
+                    className="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:border-orange-500 focus:outline-none"
+                    placeholder="0.00"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-300 mb-1">Target Price</label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    value={formData.target_price}
+                    onChange={(e) => setFormData({ ...formData, target_price: e.target.value })}
+                    className="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:border-orange-500 focus:outline-none"
+                    placeholder="0.00"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-1">Description / Notes</label>
+                <textarea
+                  value={formData.notes}
+                  onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                  className="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:border-orange-500 focus:outline-none"
+                  rows={4}
+                  placeholder="Add notes about this stock..."
+                />
+              </div>
+              <div className="flex space-x-3">
+                <button
+                  type="submit"
+                  className="flex-1 bg-orange-500 text-white py-2 rounded-lg hover:bg-orange-600 transition font-medium"
+                >
+                  Update Stock
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowEditForm(false);
+                    setEditingStock(null);
+                  }}
                   className="flex-1 bg-slate-700 text-white py-2 rounded-lg hover:bg-slate-600 transition font-medium"
                 >
                   Cancel
