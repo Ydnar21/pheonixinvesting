@@ -235,16 +235,23 @@ export default function Watchlist() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <div className="mb-8">
-        <div className="flex items-center justify-between mb-2">
-          <div className="flex items-center space-x-3">
-            <TrendingUp className="w-10 h-10 text-orange-500" />
-            <h1 className="text-5xl font-bold gradient-text">Watchlist</h1>
+      <div className="mb-12">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center space-x-4">
+            <div className="p-3 bg-gradient-to-br from-orange-500/20 to-orange-600/20 rounded-xl border border-orange-500/30">
+              <TrendingUp className="w-8 h-8 text-orange-400" />
+            </div>
+            <div>
+              <h1 className="text-5xl font-bold gradient-text mb-1">Watchlist</h1>
+              <p className="text-slate-400 text-base">
+                Community curated stocks organized by sector and investment timeframe
+              </p>
+            </div>
           </div>
           <div className="flex space-x-3">
             <button
               onClick={() => setShowSubmitForm(true)}
-              className="flex items-center space-x-2 px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition"
+              className="btn-primary flex items-center space-x-2"
             >
               <Plus className="w-4 h-4" />
               <span>Submit Stock</span>
@@ -252,7 +259,7 @@ export default function Watchlist() {
             {profile?.is_admin && (
               <button
                 onClick={() => setShowAddForm(true)}
-                className="flex items-center space-x-2 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition"
+                className="btn-secondary flex items-center space-x-2 bg-green-600/20 border-green-500/30 hover:bg-green-600/30 text-green-400"
               >
                 <Plus className="w-4 h-4" />
                 <span>Add to Watchlist</span>
@@ -260,9 +267,6 @@ export default function Watchlist() {
             )}
           </div>
         </div>
-        <p className="text-slate-400 text-lg">
-          Community curated stocks organized by sector and investment timeframe
-        </p>
       </div>
 
       {mySubmissions.length > 0 && (
@@ -299,22 +303,26 @@ export default function Watchlist() {
         </div>
       )}
 
-      <div className="space-y-6">
+      <div className="space-y-4">
         {Object.entries(stocksBySector).map(([sector, { long, short }]) => (
-          <div key={sector} className="glass rounded-2xl overflow-hidden">
+          <div key={sector} className="glass rounded-2xl overflow-hidden card-hover">
             <button
               onClick={() => setExpandedSector(expandedSector === sector ? null : sector)}
-              className="w-full bg-gradient-to-r from-orange-500/20 to-red-500/20 p-6 flex items-center justify-between hover:from-orange-500/30 hover:to-red-500/30 transition"
+              className="w-full bg-gradient-to-r from-orange-500/10 to-orange-600/10 p-6 flex items-center justify-between hover:from-orange-500/15 hover:to-orange-600/15 transition-all"
             >
               <div className="flex items-center space-x-4">
-                <Building2 className="w-6 h-6 text-orange-400" />
-                <h2 className="text-2xl font-bold text-white">{sector}</h2>
-                <span className="text-slate-400 text-sm">
-                  {long.length + short.length} stock{long.length + short.length !== 1 ? 's' : ''}
-                </span>
+                <div className="p-2 bg-orange-500/20 rounded-lg">
+                  <Building2 className="w-6 h-6 text-orange-400" />
+                </div>
+                <div className="text-left">
+                  <h2 className="text-2xl font-bold text-white">{sector}</h2>
+                  <span className="text-slate-500 text-sm font-medium">
+                    {long.length + short.length} stock{long.length + short.length !== 1 ? 's' : ''}
+                  </span>
+                </div>
               </div>
               {expandedSector === sector ? (
-                <ChevronUp className="w-6 h-6 text-slate-400" />
+                <ChevronUp className="w-6 h-6 text-orange-400" />
               ) : (
                 <ChevronDown className="w-6 h-6 text-slate-400" />
               )}

@@ -4,29 +4,29 @@
 
 @layer base {
   body {
-    @apply bg-black;
+    @apply bg-gradient-to-br from-slate-950 via-black to-slate-950 text-slate-100;
   }
 }
 
 @layer utilities {
   .glass {
-    @apply bg-slate-900/90 border border-orange-500/20 shadow-lg;
+    @apply bg-slate-900/60 backdrop-blur-xl border border-slate-800/50 shadow-2xl;
   }
 
   .glass-dark {
-    @apply bg-slate-950/90 border border-orange-500/30 shadow-lg;
+    @apply bg-slate-950/80 backdrop-blur-xl border border-slate-800/70 shadow-2xl;
   }
 
   .gradient-text {
-    @apply text-orange-500;
+    @apply bg-gradient-to-r from-orange-500 to-orange-400 bg-clip-text text-transparent;
   }
 
   .gradient-bg {
-    @apply bg-orange-500;
+    @apply bg-gradient-to-r from-orange-600 to-orange-500;
   }
 
   .card-hover {
-    @apply transition-all duration-200 hover:border-orange-500/40;
+    @apply transition-all duration-300 hover:border-orange-500/60 hover:shadow-orange-500/10 hover:shadow-xl hover:-translate-y-0.5;
   }
 
   .text-primary {
@@ -39,5 +39,17 @@
 
   .bg-primary {
     @apply bg-orange-500;
+  }
+
+  .btn-primary {
+    @apply bg-gradient-to-r from-orange-600 to-orange-500 text-white font-medium px-6 py-2.5 rounded-lg transition-all duration-200 hover:from-orange-500 hover:to-orange-400 hover:shadow-lg hover:shadow-orange-500/25 active:scale-95;
+  }
+
+  .btn-secondary {
+    @apply bg-slate-800/50 border border-slate-700 text-slate-200 font-medium px-6 py-2.5 rounded-lg transition-all duration-200 hover:bg-slate-700/50 hover:border-slate-600 active:scale-95;
+  }
+
+  .input-field {
+    @apply w-full px-4 py-2.5 bg-slate-900/50 border border-slate-700/50 rounded-lg text-white placeholder-slate-500 focus:border-orange-500/50 focus:ring-2 focus:ring-orange-500/20 focus:outline-none transition-all;
   }
 }

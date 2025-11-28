@@ -73,19 +73,21 @@ export default function Strategy() {
     <div className="min-h-screen py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-16">
-          <div className="flex items-center justify-center mb-4">
-            <Target className="w-12 h-12 text-orange-500" />
+          <div className="flex items-center justify-center mb-6">
+            <div className="p-4 bg-gradient-to-br from-orange-500/20 to-orange-600/20 rounded-2xl border border-orange-500/30">
+              <Target className="w-12 h-12 text-orange-400" />
+            </div>
           </div>
           <h1 className="text-5xl font-bold gradient-text mb-4">Trading Strategies</h1>
-          <p className="text-xl text-slate-400 max-w-3xl mx-auto">
+          <p className="text-xl text-slate-400 max-w-3xl mx-auto leading-relaxed">
             These are the core strategies I use to build wealth and work toward financial freedom.
             Each strategy has its place depending on market conditions and personal goals.
           </p>
         </div>
 
-        <div className="glass rounded-2xl p-8 mb-12">
-          <h2 className="text-2xl font-bold text-orange-400 mb-4">My Investment Philosophy</h2>
-          <div className="text-slate-300 space-y-4">
+        <div className="glass rounded-2xl p-8 mb-12 border-orange-500/20">
+          <h2 className="text-2xl font-bold text-orange-400 mb-6">My Investment Philosophy</h2>
+          <div className="text-slate-300 space-y-4 leading-relaxed">
             <p>
               I believe in a diversified approach that combines both conservative income generation
               and aggressive growth strategies. The goal is to consistently grow capital while managing risk.
@@ -101,14 +103,14 @@ export default function Strategy() {
           </div>
         </div>
 
-        <div className="space-y-8">
+        <div className="space-y-6">
           {strategies.map((strategy, index) => (
             <div
               key={index}
-              className="glass rounded-2xl p-8 hover:border-orange-500/40 transition-all duration-300"
+              className="glass rounded-2xl p-8 card-hover"
             >
               <div className="flex items-start space-x-6">
-                <div className="p-4 bg-gradient-to-br from-orange-500/20 to-red-500/20 rounded-xl border border-orange-500/30">
+                <div className="p-4 bg-gradient-to-br from-orange-500/20 to-orange-600/20 rounded-xl border border-orange-500/30 flex-shrink-0">
                   <div className="text-orange-400">{strategy.icon}</div>
                 </div>
 
@@ -156,10 +158,10 @@ export default function Strategy() {
           ))}
         </div>
 
-        <div className="glass rounded-2xl p-8 mt-12 border-2 border-orange-500/30">
+        <div className="glass rounded-2xl p-8 mt-12 bg-red-950/20 border-red-500/30">
           <div className="text-center">
-            <h2 className="text-3xl font-bold text-orange-400 mb-4">Important Disclaimer</h2>
-            <p className="text-slate-300 text-lg max-w-3xl mx-auto">
+            <h2 className="text-3xl font-bold text-red-400 mb-4">Important Disclaimer</h2>
+            <p className="text-slate-300 text-lg max-w-3xl mx-auto leading-relaxed">
               <strong className="text-red-400">This is NOT financial advice.</strong> These strategies
               represent my personal approach and come with significant risk. Options and leveraged products
               can result in substantial losses. Always do your own research, understand what you're trading,

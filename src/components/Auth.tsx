@@ -37,27 +37,30 @@ export default function Auth() {
   };
 
   return (
-    <div className="min-h-screen bg-black flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-black to-slate-950 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        <div className="glass rounded-xl p-8">
+        <div className="glass rounded-2xl p-8 shadow-2xl">
           <div className="flex items-center justify-center mb-6">
-            <img
-              src="/src/LiquidPheonix.png.png"
-              alt="Liquid Phoenix"
-              className="w-16 h-16"
-            />
+            <div className="relative">
+              <div className="absolute inset-0 bg-gradient-to-r from-orange-500 to-orange-400 blur-2xl opacity-20"></div>
+              <img
+                src="/src/LiquidPheonix.png.png"
+                alt="Liquid Phoenix"
+                className="w-20 h-20 relative"
+              />
+            </div>
           </div>
 
-          <h2 className="text-3xl font-bold text-center text-orange-500 mb-2">
+          <h2 className="text-3xl font-bold text-center gradient-text mb-2">
             {isSignUp ? 'Join Liquid Phoenix' : 'Welcome Back'}
           </h2>
           <p className="text-center text-slate-400 mb-8">
-            {isSignUp ? 'Create your account to get started' : 'Sign in to your account'}
+            {isSignUp ? 'Create your account to get started' : 'Sign in to continue'}
           </p>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label htmlFor="username" className="block text-sm font-medium text-slate-300 mb-1">
+              <label htmlFor="username" className="block text-sm font-medium text-slate-300 mb-2">
                 Username
               </label>
               <input
@@ -65,14 +68,14 @@ export default function Auth() {
                 type="text"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                className="w-full px-4 py-2 border border-orange-500/30 rounded-lg focus:ring-1 focus:ring-orange-500 focus:border-orange-500 bg-slate-950 text-white placeholder:text-slate-500"
+                className="input-field"
                 placeholder="Enter your username"
                 required
               />
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-slate-300 mb-1">
+              <label htmlFor="password" className="block text-sm font-medium text-slate-300 mb-2">
                 Password
               </label>
               <input
@@ -80,7 +83,7 @@ export default function Auth() {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-2 border border-orange-500/30 rounded-lg focus:ring-1 focus:ring-orange-500 focus:border-orange-500 bg-slate-950 text-white placeholder:text-slate-500"
+                className="input-field"
                 placeholder="Enter your password"
                 required
                 minLength={6}
@@ -88,7 +91,7 @@ export default function Auth() {
             </div>
 
             {error && (
-              <div className="bg-red-950/50 border border-red-500 text-red-400 px-4 py-2 rounded-lg text-sm">
+              <div className="bg-red-950/30 border border-red-500/50 text-red-400 px-4 py-3 rounded-lg text-sm backdrop-blur-sm">
                 {error}
               </div>
             )}
@@ -96,9 +99,9 @@ export default function Auth() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-orange-500 hover:bg-orange-600 text-white font-medium py-2 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
+              className="btn-primary w-full py-3 text-base"
             >
-              {loading ? 'Processing...' : isSignUp ? 'Sign Up' : 'Sign In'}
+              {loading ? 'Processing...' : isSignUp ? 'Create Account' : 'Sign In'}
             </button>
           </form>
 
@@ -108,15 +111,15 @@ export default function Auth() {
                 setIsSignUp(!isSignUp);
                 setError('');
               }}
-              className="text-orange-500 hover:text-orange-400 text-sm transition"
+              className="text-orange-400 hover:text-orange-300 text-sm transition-colors font-medium"
             >
               {isSignUp ? 'Already have an account? Sign in' : "Don't have an account? Sign up"}
             </button>
           </div>
         </div>
 
-        <div className="mt-6 text-center text-slate-500 text-sm">
-          <p>Liquid Phoenix</p>
+        <div className="mt-8 text-center text-slate-600 text-sm">
+          <p>© 2025 Liquid Phoenix. All rights reserved.</p>
         </div>
       </div>
     </div>
