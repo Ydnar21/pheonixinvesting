@@ -49,7 +49,23 @@ A free investment tracking and community platform for people building wealth and
 
 ## Production Deployment
 
-### Deploy to Google Cloud
+### Option 1: Docker (Recommended)
+
+See [DOCKER.md](./DOCKER.md) for detailed Docker deployment instructions.
+
+Quick start with Docker:
+```bash
+# Using the helper script
+bash docker-run.sh build
+bash docker-run.sh start
+
+# Or using Docker Compose
+docker-compose up -d
+```
+
+Access at [http://localhost:3000](http://localhost:3000)
+
+### Option 2: Deploy to Google Cloud
 
 See [QUICKSTART.md](./QUICKSTART.md) for quick deployment or [DEPLOYMENT.md](./DEPLOYMENT.md) for detailed instructions.
 
@@ -83,12 +99,18 @@ liquid-phoenix/
 
 ## Available Scripts
 
+### Development
 - `npm run dev` - Start development server
 - `npm run build` - Build for production
 - `npm run preview` - Preview production build
-- `npm run deploy` - Deploy to Google Cloud
 - `npm run lint` - Run ESLint
 - `npm run typecheck` - Run TypeScript type checking
+
+### Deployment
+- `npm run deploy` - Deploy to Google Cloud
+- `bash docker-run.sh build` - Build Docker image
+- `bash docker-run.sh start` - Start Docker container
+- `docker-compose up -d` - Start with Docker Compose
 
 ## Environment Variables
 
