@@ -81,6 +81,7 @@ export default function Navbar({ currentPage, onNavigate }: NavbarProps) {
 
   const adminItems = profile?.is_admin ? [
     { id: 'watchlist-approval', label: 'Approvals' },
+    { id: 'admin', label: 'Admin' },
   ] : [];
 
   return (

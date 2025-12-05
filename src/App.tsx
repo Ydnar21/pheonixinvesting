@@ -10,6 +10,7 @@ import Strategy from './pages/Strategy';
 import AIBot from './pages/AIBot';
 import Watchlist from './pages/Watchlist';
 import WatchlistApproval from './pages/WatchlistApproval';
+import Admin from './pages/Admin';
 
 function AppContent() {
   const { user, loading } = useAuth();
@@ -46,6 +47,8 @@ function AppContent() {
         return <Strategy />;
       case 'ai-bot':
         return <AIBot />;
+      case 'admin':
+        return <Admin />;
       case 'about':
         return <About />;
       default:
