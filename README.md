@@ -16,7 +16,7 @@ A free investment tracking and community platform for people building wealth and
 - **Styling**: Tailwind CSS
 - **Database**: Supabase (PostgreSQL)
 - **Authentication**: Supabase Auth
-- **Deployment**: Google Cloud App Engine
+- **Deployment**: Vercel / Google Cloud App Engine
 
 ## Local Development
 
@@ -48,6 +48,22 @@ A free investment tracking and community platform for people building wealth and
 5. Open [http://localhost:5173](http://localhost:5173)
 
 ## Production Deployment
+
+### Deploy to Vercel (Recommended)
+
+See [VERCEL-DEPLOYMENT.md](./VERCEL-DEPLOYMENT.md) for detailed instructions.
+
+Quick steps:
+1. Push code to GitHub
+2. Import project in [Vercel Dashboard](https://vercel.com/dashboard)
+3. Add environment variables (VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY)
+4. Deploy
+
+Or use Vercel CLI:
+```bash
+npm install -g vercel
+vercel
+```
 
 ### Deploy to Google Cloud
 

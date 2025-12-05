@@ -1,0 +1,14 @@
+node_modules
+.env
+.env.local
+.git
+.gitignore
+.gcloudignore
+app.yaml
+setup-gcloud.sh
+DEPLOYMENT.md
+DEPLOYMENT-SUMMARY.txt
+supabase/.temp
+supabase/.branches
+*.log
+dist
