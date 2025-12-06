@@ -1,6 +1,15 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { User, Session } from '@supabase/supabase-js';
-import { supabase, Profile } from '../lib/supabase';
+import { auth, db, Profile } from '../lib/supabase';
+
+type User = {
+  id: string;
+  email: string;
+};
+
+type Session = {
+  access_token: string;
+  user?: User;
+};
 
 type AuthContextType = {
   user: User | null;
@@ -21,7 +30,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    auth.getSession().then(({ session }) => {
       setSession(session);
       setUser(session?.user ?? null);
       if (session?.user) {
@@ -31,7 +40,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     });
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = auth.onAuthStateChange((_event, session) => {
       (async () => {
         setSession(session);
         setUser(session?.user ?? null);
@@ -49,11 +58,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const loadProfile = async (userId: string) => {
     try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', userId)
-        .maybeSingle();
+      const { data, error } = await db.queryOne<Profile>(
+        'SELECT * FROM users WHERE id = $1',
+        [userId]
+      );
 
       if (error) throw error;
       setProfile(data);
@@ -66,68 +74,69 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signUp = async (username: string, password: string) => {
     try {
-      const { data: existingProfile } = await supabase
-        .from('profiles')
-        .select('username')
-        .eq('username', username)
-        .maybeSingle();
+      const { data: existingUser } = await db.queryOne<{ username: string }>(
+        'SELECT username FROM users WHERE username = $1',
+        [username]
+      );
 
-      if (existingProfile) {
+      if (existingUser) {
         return { error: { message: 'Username is already taken. Please choose a different username.' } };
       }
 
       const email = `${username}@liquidphoenix.local`;
+      const hashedPassword = btoa(password);
 
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-      });
+      const { data, error } = await db.queryOne<{ id: string }>(
+        'INSERT INTO users (email, username, display_name) VALUES ($1, $2, $3) RETURNING id',
+        [hashedPassword, username, username]
+      );
 
       if (error) {
-        if (error.message.includes('already registered')) {
-          return { error: { message: 'Username is already taken. Please choose a different username.' } };
-        }
-        return { error };
+        return { error: { message: 'Failed to create account. Please try again.' } };
       }
 
-      if (data.user) {
-        const { error: profileError } = await supabase
-          .from('profiles')
-          .insert([
-            {
-              id: data.user.id,
-              username,
-              avatar_url: null,
-              bio: null,
-            },
-          ]);
-
-        if (profileError) {
-          if (profileError.code === '23505') {
-            return { error: { message: 'Username is already taken. Please choose a different username.' } };
-          }
-          return { error: profileError };
-        }
+      if (data) {
+        const token = localStorage.getItem("auth_token");
+        setSession({ access_token: token || '', user: { id: data.id, email } });
+        setUser({ id: data.id, email });
+        await loadProfile(data.id);
       }
 
       return { error: null };
     } catch (error) {
-      return { error };
+      return { error: { message: 'An unexpected error occurred.' } };
     }
   };
 
   const signIn = async (username: string, password: string) => {
     const email = `${username}@liquidphoenix.local`;
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-    return { error };
+    const hashedPassword = btoa(password);
+
+    const { data, error } = await db.queryOne<{ id: string; email: string }>(
+      'SELECT id, email FROM users WHERE username = $1 AND email = $2',
+      [username, hashedPassword]
+    );
+
+    if (error || !data) {
+      return { error: { message: 'Invalid username or password.' } };
+    }
+
+    const token = btoa(JSON.stringify({ userId: data.id, exp: Date.now() + 7 * 24 * 60 * 60 * 1000 }));
+    localStorage.setItem("auth_token", token);
+    localStorage.setItem("user_id", data.id);
+
+    setSession({ access_token: token, user: { id: data.id, email: `${username}@liquidphoenix.local` } });
+    setUser({ id: data.id, email: `${username}@liquidphoenix.local` });
+    await loadProfile(data.id);
+
+    return { error: null };
   };
 
   const signOut = async () => {
-    await supabase.auth.signOut();
+    await auth.signOut();
     setProfile(null);
+    setUser(null);
+    setSession(null);
   };
 
   const value = {

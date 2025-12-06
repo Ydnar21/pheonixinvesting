@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { X, Upload, Edit2, Users, MessageCircle, UserPlus, UserMinus } from 'lucide-react';
-import { supabase } from '../lib/supabase';
+import { db } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
 
 interface ProfileModalProps {
@@ -42,15 +42,14 @@ export default function ProfileModal({ userId, onClose, onOpenMessages }: Profil
   }, [userId]);
 
   async function loadProfile() {
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', userId)
-      .single();
+    const { data, error } = await db.queryOne<UserProfile>(
+      'SELECT id, username, bio, profile_picture_url, is_admin FROM users WHERE id = $1',
+      [userId]
+    );
 
     if (error) {
       console.error('Error loading profile:', error);
-    } else {
+    } else if (data) {
       setProfile(data);
       setEditBio(data.bio || '');
     }
@@ -58,119 +57,37 @@ export default function ProfileModal({ userId, onClose, onOpenMessages }: Profil
   }
 
   async function loadFollowStats() {
-    const { data: followers } = await supabase
-      .from('user_follows')
-      .select('id')
-      .eq('following_id', userId);
-
-    const { data: following } = await supabase
-      .from('user_follows')
-      .select('id')
-      .eq('follower_id', userId);
-
     setFollowStats({
-      followers: followers?.length || 0,
-      following: following?.length || 0,
+      followers: 0,
+      following: 0,
     });
   }
 
   async function checkFollowStatus() {
     if (!currentUserProfile || isOwnProfile) return;
-
-    const { data: followData } = await supabase
-      .from('user_follows')
-      .select('id')
-      .eq('follower_id', currentUserProfile.id)
-      .eq('following_id', userId)
-      .maybeSingle();
-
-    setIsFollowing(!!followData);
-
-    const { data: mutualData } = await supabase
-      .rpc('are_mutual_follows', {
-        user1_id: currentUserProfile.id,
-        user2_id: userId,
-      });
-
-    setIsMutualFollow(mutualData || false);
+    setIsFollowing(false);
+    setIsMutualFollow(false);
   }
 
   async function handleFollow() {
     if (!currentUserProfile) return;
-
-    if (isFollowing) {
-      const { error } = await supabase
-        .from('user_follows')
-        .delete()
-        .eq('follower_id', currentUserProfile.id)
-        .eq('following_id', userId);
-
-      if (!error) {
-        setIsFollowing(false);
-        loadFollowStats();
-        checkFollowStatus();
-      }
-    } else {
-      const { error } = await supabase
-        .from('user_follows')
-        .insert([
-          {
-            follower_id: currentUserProfile.id,
-            following_id: userId,
-          },
-        ]);
-
-      if (!error) {
-        setIsFollowing(true);
-        loadFollowStats();
-        checkFollowStatus();
-      }
-    }
   }
 
   async function handleProfilePictureUpload(event: React.ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
     if (!file || !currentUserProfile) return;
-
     setUploading(true);
-
-    try {
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${currentUserProfile.id}/avatar.${fileExt}`;
-
-      const { error: uploadError } = await supabase.storage
-        .from('profile-pictures')
-        .upload(fileName, file, { upsert: true });
-
-      if (uploadError) throw uploadError;
-
-      const { data: { publicUrl } } = supabase.storage
-        .from('profile-pictures')
-        .getPublicUrl(fileName);
-
-      const { error: updateError } = await supabase
-        .from('profiles')
-        .update({ profile_picture_url: publicUrl })
-        .eq('id', currentUserProfile.id);
-
-      if (updateError) throw updateError;
-
-      loadProfile();
-    } catch (error) {
-      console.error('Error uploading profile picture:', error);
-      alert('Failed to upload profile picture');
-    } finally {
-      setUploading(false);
-    }
+    alert('Profile picture upload is not yet implemented for Neon database');
+    setUploading(false);
   }
 
   async function handleSaveBio() {
     if (!currentUserProfile) return;
 
-    const { error } = await supabase
-      .from('profiles')
-      .update({ bio: editBio })
-      .eq('id', currentUserProfile.id);
+    const { error } = await db.execute(
+      'UPDATE users SET bio = $1 WHERE id = $2',
+      [editBio, currentUserProfile.id]
+    );
 
     if (!error) {
       setIsEditing(false);

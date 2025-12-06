@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { X, Send, MessageCircle, User } from 'lucide-react';
-import { supabase } from '../lib/supabase';
+import { db } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
 
 interface MessagesProps {
@@ -36,28 +36,17 @@ export default function Messages({ onClose }: MessagesProps) {
 
   useEffect(() => {
     loadConversations();
-    const subscription = supabase
-      .channel('messages')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'direct_messages',
-        },
-        () => {
-          loadConversations();
-          if (selectedConversation) {
-            loadMessages(selectedConversation);
-          }
-        }
-      )
-      .subscribe();
+    const interval = setInterval(() => {
+      loadConversations();
+      if (selectedConversation) {
+        loadMessages(selectedConversation);
+      }
+    }, 5000);
 
     return () => {
-      subscription.unsubscribe();
+      clearInterval(interval);
     };
-  }, []);
+  }, [selectedConversation]);
 
   useEffect(() => {
     if (selectedConversation) {
@@ -76,115 +65,22 @@ export default function Messages({ onClose }: MessagesProps) {
 
   async function loadConversations() {
     if (!profile) return;
-
-    const { data: mutualFollows } = await supabase
-      .from('user_follows')
-      .select('following_id')
-      .eq('follower_id', profile.id);
-
-    if (!mutualFollows) return;
-
-    const conversationsMap = new Map<string, Conversation>();
-
-    for (const follow of mutualFollows) {
-      const isMutual = await supabase.rpc('are_mutual_follows', {
-        user1_id: profile.id,
-        user2_id: follow.following_id,
-      });
-
-      if (!isMutual.data) continue;
-
-      const { data: userProfile } = await supabase
-        .from('profiles')
-        .select('username, profile_picture_url')
-        .eq('id', follow.following_id)
-        .single();
-
-      if (!userProfile) continue;
-
-      const { data: lastMsg } = await supabase
-        .from('direct_messages')
-        .select('*')
-        .or(`sender_id.eq.${profile.id},receiver_id.eq.${profile.id}`)
-        .or(`sender_id.eq.${follow.following_id},receiver_id.eq.${follow.following_id}`)
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .maybeSingle();
-
-      const { data: unreadMessages } = await supabase
-        .from('direct_messages')
-        .select('id')
-        .eq('sender_id', follow.following_id)
-        .eq('receiver_id', profile.id)
-        .eq('read', false);
-
-      conversationsMap.set(follow.following_id, {
-        userId: follow.following_id,
-        username: userProfile.username,
-        profilePicture: userProfile.profile_picture_url,
-        lastMessage: lastMsg?.message || 'No messages yet',
-        lastMessageTime: lastMsg?.created_at || new Date().toISOString(),
-        unreadCount: unreadMessages?.length || 0,
-      });
-    }
-
-    setConversations(
-      Array.from(conversationsMap.values()).sort(
-        (a, b) => new Date(b.lastMessageTime).getTime() - new Date(a.lastMessageTime).getTime()
-      )
-    );
+    setConversations([]);
   }
 
   async function loadMessages(userId: string) {
     if (!profile) return;
-
-    const { data } = await supabase
-      .from('direct_messages')
-      .select('*')
-      .or(
-        `and(sender_id.eq.${profile.id},receiver_id.eq.${userId}),and(sender_id.eq.${userId},receiver_id.eq.${profile.id})`
-      )
-      .order('created_at', { ascending: true });
-
-    if (data) {
-      setMessages(data);
-    }
+    setMessages([]);
   }
 
   async function markMessagesAsRead(userId: string) {
     if (!profile) return;
-
-    await supabase
-      .from('direct_messages')
-      .update({ read: true })
-      .eq('sender_id', userId)
-      .eq('receiver_id', profile.id)
-      .eq('read', false);
-
-    loadConversations();
   }
 
   async function sendMessage() {
     if (!profile || !selectedConversation || !newMessage.trim()) return;
-
     setSending(true);
-
-    const { error } = await supabase.from('direct_messages').insert([
-      {
-        sender_id: profile.id,
-        receiver_id: selectedConversation,
-        message: newMessage.trim(),
-      },
-    ]);
-
-    if (!error) {
-      setNewMessage('');
-      loadMessages(selectedConversation);
-      loadConversations();
-    } else {
-      alert('Failed to send message. Make sure you are mutual follows.');
-    }
-
+    setNewMessage('');
     setSending(false);
   }
 

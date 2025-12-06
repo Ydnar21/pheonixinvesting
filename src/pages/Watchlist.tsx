@@ -1,22 +1,19 @@
 import { useState, useEffect } from 'react';
 import { TrendingUp, Plus, Clock, Target, DollarSign, Building2, ChevronDown, ChevronUp, Pencil } from 'lucide-react';
-import { supabase } from '../lib/supabase';
+import { db } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
 
 interface WatchlistStock {
   id: string;
-  symbol: string;
+  ticker: string;
   company_name: string;
-  sector: string;
-  term: 'long' | 'short';
-  notes: string | null;
+  sector: string | null;
+  thesis: string;
   current_price: number | null;
   target_price: number | null;
-  added_at: string;
-  submitted_by_user: string | null;
-  profiles: {
-    username: string;
-  } | null;
+  created_at: string;
+  submitted_by: string;
+  username?: string;
 }
 
 interface WatchlistSubmission {
@@ -70,19 +67,16 @@ export default function Watchlist() {
   }, [profile]);
 
   async function loadWatchlist() {
-    const { data, error } = await supabase
-      .from('watchlist_stocks')
-      .select(`
-        *,
-        profiles:submitted_by_user (
-          username
-        )
-      `)
-      .order('sector', { ascending: true })
-      .order('symbol', { ascending: true });
+    const { data, error } = await db.query<WatchlistStock>(
+      `SELECT w.*, u.username
+       FROM watchlist_stocks w
+       LEFT JOIN users u ON w.submitted_by = u.id
+       WHERE w.status = 'approved'
+       ORDER BY w.sector, w.ticker`
+    );
 
     if (!error && data) {
-      setStocks(data as WatchlistStock[]);
+      setStocks(data);
     }
     setLoading(false);
   }
@@ -90,14 +84,19 @@ export default function Watchlist() {
   async function loadMySubmissions() {
     if (!profile) return;
 
-    const { data, error } = await supabase
-      .from('watchlist_submissions')
-      .select('*')
-      .eq('submitted_by', profile.id)
-      .order('submitted_at', { ascending: false });
+    const { data, error } = await db.query<WatchlistSubmission>(
+      `SELECT * FROM watchlist_stocks
+       WHERE submitted_by = $1
+       ORDER BY created_at DESC`,
+      [profile.id]
+    );
 
     if (!error && data) {
-      setMySubmissions(data);
+      setMySubmissions(data.map(s => ({
+        ...s,
+        symbol: s.ticker,
+        submitted_at: s.created_at,
+      })) as any);
     }
   }
 

@@ -1,21 +1,18 @@
 import { useState, useEffect } from 'react';
 import { CheckCircle, XCircle, Clock, TrendingUp } from 'lucide-react';
-import { supabase } from '../lib/supabase';
+import { db } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
 
 interface Submission {
   id: string;
-  symbol: string;
+  ticker: string;
   company_name: string;
-  sector: string;
-  term: 'long' | 'short';
-  notes: string | null;
-  status: 'pending' | 'approved' | 'denied';
-  submitted_at: string;
+  sector: string | null;
+  thesis: string;
+  status: 'pending' | 'approved' | 'rejected';
+  created_at: string;
   submitted_by: string;
-  profiles: {
-    username: string;
-  };
+  username?: string;
 }
 
 export default function WatchlistApproval() {
@@ -23,7 +20,6 @@ export default function WatchlistApproval() {
   const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<'pending' | 'all'>('pending');
-  const [adminNotes, setAdminNotes] = useState<Record<string, string>>({});
 
   useEffect(() => {
     if (profile?.is_admin) {
@@ -32,78 +28,53 @@ export default function WatchlistApproval() {
   }, [profile, filter]);
 
   async function loadSubmissions() {
-    let query = supabase
-      .from('watchlist_submissions')
-      .select(`
-        *,
-        profiles:submitted_by (
-          username
-        )
-      `)
-      .order('submitted_at', { ascending: false });
+    const statusFilter = filter === 'pending' ? "WHERE w.status = 'pending'" : '';
 
-    if (filter === 'pending') {
-      query = query.eq('status', 'pending');
-    }
-
-    const { data, error } = await query;
+    const { data, error } = await db.query<Submission>(
+      `SELECT w.*, u.username
+       FROM watchlist_stocks w
+       LEFT JOIN users u ON w.submitted_by = u.id
+       ${statusFilter}
+       ORDER BY w.created_at DESC`
+    );
 
     if (!error && data) {
-      setSubmissions(data as Submission[]);
+      setSubmissions(data);
     }
     setLoading(false);
   }
 
-  async function handleApprove(submission: Submission) {
+  async function handleApprove(submissionId: string) {
     if (!profile?.is_admin) return;
 
-    const { error: updateError } = await supabase
-      .from('watchlist_submissions')
-      .update({
-        status: 'approved',
-        reviewed_by: profile.id,
-        reviewed_at: new Date().toISOString(),
-        admin_notes: adminNotes[submission.id] || null,
-      })
-      .eq('id', submission.id);
+    const { error } = await db.execute(
+      `UPDATE watchlist_stocks
+       SET status = 'approved', approved_by = $1
+       WHERE id = $2`,
+      [profile.id, submissionId]
+    );
 
-    if (updateError) {
-      alert('Error updating submission');
-      return;
-    }
-
-    const { error: insertError } = await supabase.from('watchlist_stocks').insert({
-      symbol: submission.symbol,
-      company_name: submission.company_name,
-      sector: submission.sector,
-      term: submission.term,
-      notes: submission.notes,
-      added_by: profile.id,
-      submitted_by_user: submission.submitted_by,
-    });
-
-    if (!insertError) {
+    if (!error) {
       loadSubmissions();
-      setAdminNotes({ ...adminNotes, [submission.id]: '' });
+    } else {
+      alert('Error approving submission');
     }
   }
 
   async function handleDeny(submissionId: string) {
     if (!profile?.is_admin) return;
 
-    const { error } = await supabase
-      .from('watchlist_submissions')
-      .update({
-        status: 'denied',
-        reviewed_by: profile.id,
-        reviewed_at: new Date().toISOString(),
-        admin_notes: adminNotes[submissionId] || null,
-      })
-      .eq('id', submissionId);
+    const { error } = await db.execute(
+      `UPDATE watchlist_stocks
+       SET status = 'rejected', approved_by = $1
+       WHERE id = $2`,
+      [profile.id, submissionId]
+    );
 
     if (!error) {
       loadSubmissions();
-      setAdminNotes({ ...adminNotes, [submissionId]: '' });
+    } else {
+      alert('Error denying submission');
     }
   }
 
@@ -178,25 +149,20 @@ export default function WatchlistApproval() {
               <div className="flex items-start justify-between mb-4">
                 <div className="flex-1">
                   <div className="flex items-center space-x-3 mb-2">
-                    <h3 className="text-2xl font-bold text-orange-400">{submission.symbol}</h3>
+                    <h3 className="text-2xl font-bold text-orange-400">{submission.ticker}</h3>
                     <span className="text-xl text-slate-300">{submission.company_name}</span>
-                    <span className={`px-3 py-1 rounded-lg text-sm font-bold ${
-                      submission.term === 'long' ? 'bg-green-500/20 text-green-400' : 'bg-blue-500/20 text-blue-400'
-                    }`}>
-                      {submission.term.toUpperCase()}
-                    </span>
                   </div>
                   <div className="flex items-center space-x-4 text-sm text-slate-400 mb-3">
-                    <span className="font-medium">{submission.sector}</span>
+                    {submission.sector && <span className="font-medium">{submission.sector}</span>}
+                    {submission.sector && <span>•</span>}
+                    <span>Submitted by {submission.username || 'Unknown'}</span>
                     <span>•</span>
-                    <span>Submitted by {submission.profiles.username}</span>
-                    <span>•</span>
-                    <span>{new Date(submission.submitted_at).toLocaleDateString()}</span>
+                    <span>{new Date(submission.created_at).toLocaleDateString()}</span>
                   </div>
-                  {submission.notes && (
+                  {submission.thesis && (
                     <div className="bg-slate-800/50 rounded-lg p-4 mb-4">
                       <p className="text-sm font-medium text-slate-300 mb-1">Investment Thesis:</p>
-                      <p className="text-slate-400">{submission.notes}</p>
+                      <p className="text-slate-400">{submission.thesis}</p>
                     </div>
                   )}
                 </div>
@@ -211,17 +177,9 @@ export default function WatchlistApproval() {
 
               {submission.status === 'pending' && (
                 <div className="border-t border-slate-700 pt-4">
-                  <label className="block text-sm font-medium text-slate-300 mb-2">Admin Notes (optional)</label>
-                  <textarea
-                    value={adminNotes[submission.id] || ''}
-                    onChange={(e) => setAdminNotes({ ...adminNotes, [submission.id]: e.target.value })}
-                    className="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:border-orange-500 focus:outline-none mb-3"
-                    rows={2}
-                    placeholder="Add feedback for the submitter..."
-                  />
                   <div className="flex space-x-3">
                     <button
-                      onClick={() => handleApprove(submission)}
+                      onClick={() => handleApprove(submission.id)}
                       className="flex items-center space-x-2 px-6 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition font-medium"
                     >
                       <CheckCircle className="w-4 h-4" />

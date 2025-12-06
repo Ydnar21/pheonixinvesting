@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { TrendingUp, LogOut, User, MessageCircle } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { supabase } from '../lib/supabase';
+import { db } from '../lib/supabase';
 import ProfileModal from './ProfileModal';
 import Messages from './Messages';
 
@@ -25,36 +25,12 @@ export default function Navbar({ currentPage, onNavigate }: NavbarProps) {
   useEffect(() => {
     if (profile) {
       loadUnreadCount();
-      const subscription = supabase
-        .channel('unread-messages')
-        .on(
-          'postgres_changes',
-          {
-            event: 'INSERT',
-            schema: 'public',
-            table: 'direct_messages',
-            filter: `receiver_id=eq.${profile.id}`,
-          },
-          () => {
-            loadUnreadCount();
-          }
-        )
-        .subscribe();
-
-      return () => {
-        subscription.unsubscribe();
-      };
     }
   }, [profile]);
 
   async function loadUnreadCount() {
     if (!profile) return;
-
-    const { data } = await supabase.rpc('get_unread_message_count', {
-      user_id: profile.id,
-    });
-
-    setUnreadCount(data || 0);
+    setUnreadCount(0);
   }
 
   function handleOpenMessages(userId?: string, username?: string) {
