@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { TrendingUp, Plus, Clock, Target, DollarSign, Building2, ChevronDown, ChevronUp, Pencil } from 'lucide-react';
+import { TrendingUp, Plus, Clock, Target, DollarSign, Building2, ChevronDown, ChevronUp, Pencil, CheckCircle } from 'lucide-react';
 import { db } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
 
@@ -35,6 +35,7 @@ export default function Watchlist() {
   const [showAddForm, setShowAddForm] = useState(false);
   const [showSubmitForm, setShowSubmitForm] = useState(false);
   const [showEditForm, setShowEditForm] = useState(false);
+  const [showSuccessPopup, setShowSuccessPopup] = useState(false);
   const [editingStock, setEditingStock] = useState<WatchlistStock | null>(null);
   const [expandedSector, setExpandedSector] = useState<string | null>(null);
   const [formData, setFormData] = useState({
@@ -104,16 +105,19 @@ export default function Watchlist() {
     e.preventDefault();
     if (!profile?.is_admin) return;
 
-    const { error } = await supabase.from('watchlist_stocks').insert({
-      symbol: formData.symbol.toUpperCase(),
-      company_name: formData.company_name,
-      sector: formData.sector,
-      term: formData.term,
-      notes: formData.notes || null,
-      current_price: formData.current_price ? parseFloat(formData.current_price) : null,
-      target_price: formData.target_price ? parseFloat(formData.target_price) : null,
-      added_by: profile.id,
-    });
+    const { error } = await db.execute(
+      `INSERT INTO watchlist_stocks (ticker, company_name, sector, thesis, current_price, target_price, submitted_by, status)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, 'approved')`,
+      [
+        formData.symbol.toUpperCase(),
+        formData.company_name,
+        formData.sector,
+        formData.notes || null,
+        formData.current_price ? parseFloat(formData.current_price) : null,
+        formData.target_price ? parseFloat(formData.target_price) : null,
+        profile.id
+      ]
+    );
 
     if (!error) {
       setShowAddForm(false);
@@ -134,14 +138,17 @@ export default function Watchlist() {
     e.preventDefault();
     if (!profile) return;
 
-    const { error } = await supabase.from('watchlist_submissions').insert({
-      symbol: formData.symbol.toUpperCase(),
-      company_name: formData.company_name,
-      sector: formData.sector,
-      term: formData.term,
-      notes: formData.notes || null,
-      submitted_by: profile.id,
-    });
+    const { error } = await db.execute(
+      `INSERT INTO watchlist_stocks (ticker, company_name, sector, thesis, submitted_by, status)
+       VALUES ($1, $2, $3, $4, $5, 'pending')`,
+      [
+        formData.symbol.toUpperCase(),
+        formData.company_name,
+        formData.sector,
+        formData.notes || null,
+        profile.id
+      ]
+    );
 
     if (!error) {
       setShowSubmitForm(false);
@@ -154,6 +161,8 @@ export default function Watchlist() {
         current_price: '',
         target_price: '',
       });
+      setShowSuccessPopup(true);
+      setTimeout(() => setShowSuccessPopup(false), 3000);
       loadMySubmissions();
     }
   }
@@ -162,7 +171,7 @@ export default function Watchlist() {
     if (!profile?.is_admin) return;
     if (!confirm('Are you sure you want to remove this stock from the watchlist?')) return;
 
-    const { error } = await supabase.from('watchlist_stocks').delete().eq('id', id);
+    const { error } = await db.execute('DELETE FROM watchlist_stocks WHERE id = $1', [id]);
 
     if (!error) {
       loadWatchlist();
@@ -173,11 +182,11 @@ export default function Watchlist() {
     if (!profile?.is_admin) return;
     setEditingStock(stock);
     setFormData({
-      symbol: stock.symbol,
+      symbol: stock.ticker,
       company_name: stock.company_name,
-      sector: stock.sector,
-      term: stock.term,
-      notes: stock.notes || '',
+      sector: stock.sector || 'Technology',
+      term: 'long',
+      notes: stock.thesis || '',
       current_price: stock.current_price?.toString() || '',
       target_price: stock.target_price?.toString() || '',
     });
@@ -188,14 +197,17 @@ export default function Watchlist() {
     e.preventDefault();
     if (!profile?.is_admin || !editingStock) return;
 
-    const { error } = await supabase
-      .from('watchlist_stocks')
-      .update({
-        notes: formData.notes || null,
-        current_price: formData.current_price ? parseFloat(formData.current_price) : null,
-        target_price: formData.target_price ? parseFloat(formData.target_price) : null,
-      })
-      .eq('id', editingStock.id);
+    const { error } = await db.execute(
+      `UPDATE watchlist_stocks
+       SET thesis = $1, current_price = $2, target_price = $3
+       WHERE id = $4`,
+      [
+        formData.notes || null,
+        formData.current_price ? parseFloat(formData.current_price) : null,
+        formData.target_price ? parseFloat(formData.target_price) : null,
+        editingStock.id
+      ]
+    );
 
     if (!error) {
       setShowEditForm(false);
@@ -214,10 +226,11 @@ export default function Watchlist() {
   }
 
   const stocksBySector = stocks.reduce((acc, stock) => {
-    if (!acc[stock.sector]) {
-      acc[stock.sector] = { long: [], short: [] };
+    const sector = stock.sector || 'Other';
+    if (!acc[sector]) {
+      acc[sector] = { long: [], short: [] };
     }
-    acc[stock.sector][stock.term].push(stock);
+    acc[sector].long.push(stock);
     return acc;
   }, {} as Record<string, { long: WatchlistStock[]; short: WatchlistStock[] }>);
 
@@ -340,11 +353,11 @@ export default function Watchlist() {
                         <div key={stock.id} className="bg-slate-800/50 rounded-xl p-4 border border-green-500/20">
                           <div className="flex items-start justify-between mb-2">
                             <div className="flex-1">
-                              <h4 className="text-xl font-bold text-orange-400">{stock.symbol}</h4>
+                              <h4 className="text-xl font-bold text-orange-400">{stock.ticker}</h4>
                               <p className="text-slate-300">{stock.company_name}</p>
-                              {stock.profiles && (
+                              {stock.username && (
                                 <p className="text-xs text-slate-500 mt-1">
-                                  Suggested by @{stock.profiles.username}
+                                  Suggested by @{stock.username}
                                 </p>
                               )}
                             </div>
@@ -365,7 +378,7 @@ export default function Watchlist() {
                               </div>
                             )}
                           </div>
-                          {stock.notes && <p className="text-sm text-slate-400 mb-2">{stock.notes}</p>}
+                          {stock.thesis && <p className="text-sm text-slate-400 mb-2">{stock.thesis}</p>}
                           <div className="flex items-center space-x-4 text-sm">
                             {stock.current_price && (
                               <div className="flex items-center space-x-1 text-slate-300">
@@ -397,11 +410,11 @@ export default function Watchlist() {
                         <div key={stock.id} className="bg-slate-800/50 rounded-xl p-4 border border-blue-500/20">
                           <div className="flex items-start justify-between mb-2">
                             <div className="flex-1">
-                              <h4 className="text-xl font-bold text-orange-400">{stock.symbol}</h4>
+                              <h4 className="text-xl font-bold text-orange-400">{stock.ticker}</h4>
                               <p className="text-slate-300">{stock.company_name}</p>
-                              {stock.profiles && (
+                              {stock.username && (
                                 <p className="text-xs text-slate-500 mt-1">
-                                  Suggested by @{stock.profiles.username}
+                                  Suggested by @{stock.username}
                                 </p>
                               )}
                             </div>
@@ -422,7 +435,7 @@ export default function Watchlist() {
                               </div>
                             )}
                           </div>
-                          {stock.notes && <p className="text-sm text-slate-400 mb-2">{stock.notes}</p>}
+                          {stock.thesis && <p className="text-sm text-slate-400 mb-2">{stock.thesis}</p>}
                           <div className="flex items-center space-x-4 text-sm">
                             {stock.current_price && (
                               <div className="flex items-center space-x-1 text-slate-300">
@@ -642,7 +655,7 @@ export default function Watchlist() {
             <h2 className="text-2xl font-bold text-orange-400 mb-4">Edit Watchlist Stock</h2>
             <div className="bg-slate-800/50 rounded-lg p-3 mb-4">
               <div className="flex items-center space-x-3">
-                <span className="text-xl font-bold text-orange-400">{editingStock.symbol}</span>
+                <span className="text-xl font-bold text-orange-400">{editingStock.ticker}</span>
                 <span className="text-slate-300">{editingStock.company_name}</span>
               </div>
             </div>
@@ -700,6 +713,22 @@ export default function Watchlist() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {showSuccessPopup && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+          <div className="glass rounded-2xl p-8 max-w-md w-full text-center animate-fadeIn">
+            <div className="flex justify-center mb-4">
+              <div className="p-3 bg-green-500/20 rounded-full">
+                <CheckCircle className="w-12 h-12 text-green-400" />
+              </div>
+            </div>
+            <h3 className="text-2xl font-bold text-white mb-2">Submitted Successfully!</h3>
+            <p className="text-slate-400">
+              Your stock pick has been submitted for review. An admin will review it shortly.
+            </p>
           </div>
         </div>
       )}
