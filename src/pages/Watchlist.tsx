@@ -295,7 +295,7 @@ export default function Watchlist() {
                       <span className={`px-2 py-1 rounded text-xs font-bold ${
                         submission.term === 'long' ? 'bg-green-500/20 text-green-400' : 'bg-blue-500/20 text-blue-400'
                       }`}>
-                        {submission.term || 'UNKNOWN').toUpperCase()}
+                        {(submission.term || 'UNKNOWN').toUpperCase()}
                       </span>
                     </div>
                     <p className="text-sm text-slate-400">{submission.sector}</p>
