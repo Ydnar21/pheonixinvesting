@@ -7,7 +7,7 @@ export default function About() {
         <div className="relative inline-block mb-6">
           <div className="absolute inset-0 bg-gradient-to-r from-orange-500 to-orange-400 blur-3xl opacity-20"></div>
           <img
-            src="/src/LiquidPheonix.png"
+            src="/public/LiquidPheonix.png"
             alt="Liquid Phoenix"
             className="w-24 h-24 mx-auto relative"
           />
