@@ -71,7 +71,7 @@ export default function Navbar({ currentPage, onNavigate }: NavbarProps) {
               className="flex items-center space-x-3 group"
             >
               <img
-                src="/src/LiquidPheonix.png"
+                src="/public/LiquidPheonix.png"
                 alt="Liquid Phoenix"
                 className="w-10 h-10 transition-transform group-hover:scale-110"
               />
