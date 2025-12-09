@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { TrendingUp } from 'lucide-react';
@@ -44,7 +45,7 @@ export default function Auth() {
             <div className="relative">
               <div className="absolute inset-0 bg-gradient-to-r from-orange-500 to-orange-400 blur-2xl opacity-20"></div>
               <img
-                src="/src/LiquidPheonix.png"
+                src="/public/LiquidPheonix.png"
                 alt="Liquid Phoenix"
                 className="w-20 h-20 relative"
               />
