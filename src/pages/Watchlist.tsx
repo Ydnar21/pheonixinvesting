@@ -306,7 +306,7 @@ export default function Watchlist() {
                     submission.status === 'approved' ? 'bg-green-500/20 text-green-400' :
                     'bg-red-500/20 text-red-400'
                   }`}>
-                    {submission.status.toUpperCase()}
+                    {(submission.status || 'UNKNOWN').toUpperCase()}
                   </span>
                 </div>
               </div>
